@@ -1,0 +1,196 @@
+file FNAF_World/Memory_Copy.low;
+
+file Logo_Data.td;
+
+file LOW_Macros.low;
+
+data Placeholder $0150
+{
+    # No data
+}
+
+subroutine Memcpy_Skip
+{
+    word Source : HL;
+	word Destination : BC;
+	word Length : DE;
+
+    label Loop;
+
+    A = [Source++];
+    [Destination] = A;
+    Destination++;
+    A ^= A;
+    [Destination] = A;
+    Destination++;
+
+    Length--;
+    A = D;
+    A |= E;
+
+    jump not_zero Loop;
+
+    return;
+}
+
+file FNAF_World/Terrain_Graphics.td;
+
+file FNAF_World/Character_Graphics.td;
+
+file FNAF_World/Global_Variables.low;
+
+file FNAF_World/Input_Handling.low;
+
+data Alphabet_Tile_Data
+file FNAF_World/Alphabet_Tiles.td;
+
+data Title_Tile_Data
+file FNAF_World/Title_Blocks.td;
+
+file FNAF_World/Plush_Graphics.td;
+
+file FNAF_World/DMA_Handler.low;
+file FNAF_World/Meta_Sprite_Handling.low;
+
+file FNAF_World/Dialogue_Scene.low;
+
+file FNAF_World/Screen_Interrupt_Handler.low;
+
+file FNAF_World/Character_Graphics.td;
+file FNAF_World/Character_Select.low;
+file FNAF_World/Character_Select_Menu.low;
+
+file FNAF_World/Title_Screen.low;
+
+subroutine Main
+{
+    # Initialise graphics memory
+
+    SP = $C2FF; # This gives us over 512 bytes for the stack (considering that C0AF are DMA buffer values)
+                # I can hardly imagine we'd ever need more than that
+                # This gives us way more memory for literally anything else
+
+    # Wait for VBlank
+
+    label Wait_For_VBlank;
+        A = [$FF00 + LCDY_REGISTER];
+        A < VBLANK_LY;
+    jump not_zero Wait_For_VBlank;
+
+    A ^= A;
+    [$FF00 + LCDC_REGISTER] = A;    # Turns off PPU to let us write memory
+
+    HL = Background_Tile_Data;
+    BC = VRAM_BLOCK_2;          # Background/window VRAM block
+    DE = 752;
+    call Memcpy_Skip;
+
+    HL = Terrain_Tile_Data;
+    # BC = VRAM_BLOCK_2;        # Background/window VRAM block
+    DE = 720;
+    call Memcpy;
+
+    HL = Plush_Tile_Data;
+    BC = VRAM_BLOCK_0;      # Object VRAM block
+    DE = 336;
+    call Memcpy;
+
+    HL = Freddy_Character_Graphics;
+    DE = Freddy_Character_Graphics_Size;
+    call Memcpy;
+
+    #HL = Bonnie_Character_Graphics;
+    #DE = Bonnie_Character_Graphics_Size;
+    #call Memcpy;
+
+    #HL = Chica_Character_Graphics;
+    #DE = Chica_Character_Graphics_Size;
+    #call Memcpy;
+
+    HL = Foxy_Character_Graphics;
+    DE = Foxy_Character_Graphics_Size;
+    call Memcpy;
+
+    HL = Alphabet_Tile_Data;
+    BC = VRAM_BLOCK_1;      # Shared VRAM block
+    DE = 736;
+    call Memcpy;
+
+    HL = Title_Tile_Data;
+    DE = 224;
+    call Memcpy;
+
+    HL = Background_Tilemap_Data;
+    BC = $98A0;
+    DE = 576;
+    call Memcpy;
+
+    #
+
+    # Setup graphics registers before turning PPU back on
+
+    call Init_DMA_HRAM_Function;
+
+    call Init_Title_Screen_Graphics;
+
+    HL = $0000;
+    push HL;
+    HL = $0412;
+    push HL;
+    DE = VRAM_TILEM_1;
+    call Initialise_UI_Prompt_Window;
+
+    HL = $0101;
+    push HL;
+    BC = Test_Text_Data;
+    HL = VRAM_TILEM_1;  # Window tilemap
+    call Write_String_To_Tilemap;
+
+    #
+
+    A = $0A;
+    [$FF00 + WINDOW_SCROLL_Y_REGISTER] = A;
+
+    A = %00000001;  # VBlank/HBlank function flags
+    [$FF00 + VBlank_Interrupt_Function] = A;
+    [$FF00 + HBlank_Interrupt_Function] = A;
+
+    A = $03;
+    [$FF00 + INTERRUPT_ENABLE_REGISTER] = A;    # Enables VBlank and LCD interrupts
+
+    #
+
+    A = %11100100;
+    [$FF00 + BACKGROUND_PALETTE_REGISTER] = A;
+    [$FF00 + OBJECT_PALETTE_0_REGISTER] = A;
+
+    A = %11100000;
+    [$FF00 + OBJECT_PALETTE_1_REGISTER] = A;
+
+    enablei;
+
+    A = %10100011;  # Window and background both use Tilemap 0
+    [$FF00 + LCDC_REGISTER] = A;
+
+    A = $00;
+    [OAM_Buffer_Counter] = A;
+
+    #
+
+    jump Title_Screen_Loop;
+}
+
+subroutine Main_Jump $0100
+{
+    jump Main;
+}
+
+subroutine VBlank_Jump $0040
+{
+    jump VBlank_Handler;
+}
+
+subroutine HBlank_Jump $0048
+{
+    jump HBlank_Handler;
+}

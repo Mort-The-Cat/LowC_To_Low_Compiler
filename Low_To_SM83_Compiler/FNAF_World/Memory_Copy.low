@@ -1,0 +1,83 @@
+subroutine Memcpy $0000
+{
+	word Source : HL;
+	word Destination : BC;
+	word Length : DE;
+
+	label Loop;
+	
+	A = [Source++];				# 1st byte
+	[Destination] = A;			# 2nd byte
+	Destination++;				# 3rd byte
+	Length--;					# 4th byte
+	A = D;						# 5th byte
+	A |= E;						# 6th byte
+
+	jump not_zero Loop;			# 7th and 8th byte
+
+	return;						# 9th byte
+}	
+# This barely goes over the 8 byte limit of RST functions... 
+# I just need to optimise it by one byte to fit nicely in the 8 byte area.
+
+subroutine Memset $0010
+{
+	byte Value : B;
+	word Destination : HL;
+	byte Length : DE;
+
+	label Memset_Loop;
+	A = B;						# 0010
+	[HL++] = A;					# 0011
+	DE--;						# 0012
+	A = D;						# 0013
+	A |= E;						# 0014
+	jump not_zero Memset_Loop;	# 0015 - 0016
+
+	return;						# 0017
+}
+
+subroutine Triangle_Wave $0018
+{
+	byte A : Value;
+	A < $09;		# 0018
+	return carry;	# 0019
+	A ~= A;			# 001A
+	A += $12;		# 001B - 001C
+	return;		# 001D
+}
+
+subroutine Add_Delta_To_Word $0020
+{
+	word Position : HL;
+	byte High : D;					# User needs to set this to $00 before calling function
+	byte Lower : E;
+	# High = $00;            			# 0020 - 0021
+		# 2 cycles
+	Lower <<= 1;        			# 0020 - 0021
+		# 2 cycles
+		# Sets carry flag to S
+	jump not_carry Not_Negative;    # 0022 - 0023
+		# If there's no carry, we can skip this part, 2-3 cycles
+	High--;							# 0024
+		# Sets D to $FF, 1 cycle
+	label Not_Negative;
+	HL += DE;						# 0025 
+		# 2 cycles
+	return;							# 0026
+}
+
+subroutine Min_Max $0030
+{
+	# C is max
+	# E is min
+
+	# C new = max(C, E)
+	# E new = min(C, E)
+	A = C;				# 0030
+	A < E;				# 0031
+	return not_carry;	# 0032
+	C = E;				# 0033
+	E = A;				# 0034
+	return;				# 0035
+}

@@ -1,0 +1,159 @@
+subroutine Place_Meta_Sprite_In_OAM # Regular 2x2 sprite
+{
+    # SP + $00 and SP + $01 are the return function pointers
+
+    # SP + $02 is padding (not important)
+    # SP + $03 are sprite flags
+    # SP + $04 is the X val
+    # SP + $05 is the Y value
+
+    # SP + ... are important stack values to return to
+
+    # DE is the sprite information pointer
+    # BC is the destination pointer
+    # HL will grab stuff off the stack
+
+    BC = OAM_Buffer_Counter;
+    A = [BC];
+    L = A;
+    A += $10;   # 4 objects x 4 bytes per objects = $10
+    [BC] = A;
+    C = L;
+
+    HL = SP + $05;	# Y value
+	A = [HL--];
+	[BC] = A;		# Write Y value
+	C++;
+	A = [HL--];
+	[BC] = A;		# Write X value
+	C++;
+	A = [DE];
+	DE++;
+	[BC] = A;		# Write tile
+	C++;
+	A = [HL++];
+	[BC] = A;		# Write sprite flags
+	C++;
+
+	HL++;
+
+	A = [HL--];
+	[BC] = A;		# Write Y val
+	C++;
+	A = [HL--];
+	A += $08;
+	[BC] = A;		# Write X + $08 val
+	C++;
+	A = [DE];
+	DE++;
+	[BC] = A;		# Write tile
+	C++;
+	A = [HL++];
+	[BC] = A;		# Write sprite flags
+	C++;
+
+	HL++;
+
+	A = $08;
+	A += [HL];
+	[HL--] = A;		# Precalculates Y + $08 value
+	[BC] = A;		# Write Y + $08 val
+	C++;
+	A = [HL--];
+	[BC] = A;		# Write X
+	C++;
+	A = [DE];
+	DE++;
+	[BC] = A;		# Write tile
+	C++;
+	A = [HL++];
+	[BC] = A;		# Write sprite flags
+	C++;
+
+	HL++;
+
+	A = [HL--];
+	[BC] = A;		# Write Y + $08 val
+	C++;
+	A = [HL--];
+	A += $08;		
+	[BC] = A;		# Write X + $08 val
+	C++;
+	A = [DE];
+	[BC] = A;
+	C++;
+	A = [HL];
+	[BC] = A;
+
+
+	#
+
+	pop HL;
+	SP += $04;
+
+	jump HL;
+}
+
+subroutine Place_Sprites_In_OAM # detailed sprite
+{
+    # SP + $00 and 
+    # SP + $01 are the return function pointer
+
+    # SP + $02 is counter
+    # SP + $03 are sprite flags
+    # SP + $04 is the X value
+    # SP + $05 is the Y value
+    # SP + ... are important stack values
+
+    # DE is the sprite information pointer
+    # BC is the destination pointer
+    # HL will grab stuff off the stack
+
+    # Example:
+    #   BC = $0810; # y = 8, x = 16
+    #   push BC;
+    #   BC = $0004; flags = 0, count = 4
+
+    BC = OAM_Buffer_Counter;
+    A = [BC];
+    HL = SP + $02;  # Counter value (number of sprite objs)
+    H = [HL];       # Gets counter
+    L = A;          # Stores current OAM buffer counter val
+    H <<>= 1;
+    H <<>= 1;
+    A += H;         # Increments OAM buffer value
+    [BC] = A;       # Saves OAM buffer back in location
+    C = L;
+
+    label Sprite_Assign_Loop;
+        HL = SP + $05;  # Y value pointer
+        A = [DE];       # Delta Y
+        DE++;
+        A += [HL];      # Adds delta Y (A) to Y value ([HL])
+        HL--;           # next stack val
+        [BC] = A;
+        C++;
+
+        A = [DE];       # Delta X
+        DE++;           # next sprite data
+        A += [HL];      # adds X val
+        HL--;           # next stack val
+        [BC] = A;       # assigns X val
+        C++;            # increment destination
+
+        A = [DE];       # Tile
+        DE++;
+        [BC] = A;
+        C++;
+        A = [HL--];     # Sprite flags
+        [BC] = A;
+        C++;
+
+        [HL]--;         # Decrement counter
+    jump not_zero Sprite_Assign_Loop;
+
+    pop HL;     # Gets function pointer
+    SP += $04;  # Return stack to previous values
+
+    jump HL;    # Returns
+}

@@ -1,0 +1,292 @@
+data Press_Start_Text
+{
+    "PRESS START" 0
+}
+
+subroutine Initialise_Press_Start_Sprite_Data # Will generate 10 sprite chain
+{
+    # Y delta, X delta, and character
+    word Destination : HL; # This will assign 32 bytes
+    word Source : DE;
+    byte Delta : C;
+
+    B = $00;
+
+    label Loop;
+        A = B;
+        A >>= 1;
+        A += C;
+        A >>= 1;
+        A &= $0F;
+        call Triangle_Wave;
+        [HL++] = A;
+        A = B;
+        [HL++] = A;
+        A += $09;
+        B = A;
+
+        A = [DE];
+        A |= A;
+        return zero;    # Will only terminate function once string null-terminator is reached
+        DE++;
+        [HL++] = A;
+        A = [DE];
+        A < " ";
+    jump not_zero Loop;
+
+    A = $0E;
+    A += B;
+    B = A;
+    DE++;
+
+    jump Loop;
+}
+
+subroutine Title_UI_Handling
+{
+    A |= A;
+
+    jump not_zero No_Onscreen_Text;
+        A = [$FF00 + Frame_Counter];
+        C = A;
+
+
+        HL = $D000;         # Allocated sprite data
+        DE = Press_Start_Text;
+        call Initialise_Press_Start_Sprite_Data;
+
+        A = [$FF00 + Global_Animation_Counter];
+        A >>>= 1;
+        B = A;
+        B >>>= 1;
+        A += B;
+        A ~= A;
+        A += $27;
+        C = A;
+
+        B = $78;
+        push BC;
+        BC = $100A;
+        push BC;
+        DE = $D000;         # Allocated sprite data
+        call Place_Sprites_In_OAM;
+    label No_Onscreen_Text;
+
+    A < $02;
+    jump not_zero No_Select_Arrow;
+
+    A = [Game_Flags];
+    A += A; # x2
+    A += A; # x4
+    A += A; # x8
+    A += 120;
+
+    B = A;
+    C = 24;
+    push BC;
+    BC = $0001;
+    push BC;
+    DE = Select_Arrow_Sprite_Data;
+    call Place_Sprites_In_OAM;  # This function is a little overkill for a single sprite tile, but it's fine
+
+    label No_Select_Arrow;
+
+    BC = $3D44;
+    push BC;
+    BC = $0014;
+    push BC;
+    DE = Plush_Sprite_Data;
+    call Place_Sprites_In_OAM;
+
+    BC = $3D44;
+    push BC;
+    BC = $1002;
+    push BC;
+    DE = Plush_Eye_Whites_Data;
+    call Place_Sprites_In_OAM;
+
+    #HL = $CFFF;
+    #[HL]++;
+    #C = [HL];
+
+    call Increment_Parallax_Scroll_Registers;
+
+    return;
+}
+
+subroutine Title_Screen_Loop
+{
+    #HL = Plush_Tile_Data;
+    #D = $02;
+    #BC = $070B;
+    #call Get_Pixel;
+
+    A = $06;
+    [$FF00 + Global_Animation_Counter] = A;
+
+    label Loop;
+        A ^= A; # Clearing Accumulator lets Title_UI_Handling function know to draw text
+        call Title_UI_Handling;
+
+        call End_Of_Frame;
+
+        A = $06;
+        [$FF00 + WINDOW_SCROLL_X_REGISTER] = A;
+
+        A = CONTROLLER_SSBA_FLAG;
+
+        [$FF00 + CONTROLLER_REGISTER] = A;  # Not much controller input is required here so it's just hard-coded
+
+        A = [$FF00 + CONTROLLER_REGISTER];
+        A = [$FF00 + CONTROLLER_REGISTER];
+        A = [$FF00 + CONTROLLER_REGISTER];
+        A = [$FF00 + CONTROLLER_REGISTER];
+        A.CONTROLLER_BUTTON_START_BIT;
+    jump not_zero Loop;
+
+    label Move_Title_Screen_Loop;
+        A ^= A; # Clearing Accumulator lets Title_UI_Handling function know to draw text
+        call Title_UI_Handling;
+
+        call End_Of_Frame;
+
+        A = [$FF00 + Global_Animation_Counter];
+        A += $09;
+        [$FF00 + Global_Animation_Counter] = A;
+        [$FF00 + WINDOW_SCROLL_X_REGISTER] = A;
+        A < 168;
+
+    jump carry Move_Title_Screen_Loop;
+
+    A = $02;
+    [$FF00 + HBlank_Interrupt_Function] = A;    # UI scene function
+
+    A = 145;
+    [UI_Y_Position] = A;
+
+    A = %11100011;  # Window uses UI tilemap
+    [$FF00 + LCDC_REGISTER] = A;
+
+    A ^= A;
+    [Game_Flags] = A;
+
+    A++;
+
+    label Select_Difficulty_Loop;
+        #A = $02; # Setting accumulator lets Title_UI_Handling function know not to draw text
+        call Title_UI_Handling;
+        call End_Of_Frame;
+
+        #A = %11100100;
+        #[$FF00 + BACKGROUND_PALETTE_REGISTER] = A;
+
+        A = $FF;
+        [$FF00 + WINDOW_SCROLL_X_REGISTER] = A;
+
+        A = [UI_Y_Position];
+        A -= 2;
+        A < $5F;
+        jump carry No_Update_UI;
+            [UI_Y_Position] = A;
+            A = $01;
+            jump Select_Difficulty_Loop;
+        label No_Update_UI;
+        # Input handling
+
+
+
+        call Get_Player_Inputs;
+
+        A = [$FF00 + Player_Rising_Edge_Input];
+        B = A;
+
+        B.PLAYER_INPUT_SELECT_BIT;
+        HL = Game_Flags;    # $C0C0
+
+        jump not_zero Select_Not_Pressed;
+            # Select was pressed, swap difficulty
+            A = $01;
+            A ^= [HL];  # Flips the difficulty bit
+            [HL] = A;
+        label Select_Not_Pressed;
+
+        B.PLAYER_INPUT_START_BIT;
+
+        A = $02;
+
+    jump not_zero Select_Difficulty_Loop;
+
+    call Initialise_Character_Select_Loop;
+    call Character_Select_Loop;
+
+    return;
+    # return;
+}
+
+subroutine Init_Title_Screen_Graphics
+{
+    HL = FNAF_World_Title_Tile_Map;
+    BC = VRAM_TILEM_0;  # This is the 'window' tilemap
+
+    A = $AE;
+    E = $15;
+    label Fill_Top_Row;
+        [BC] = A;
+        C++;
+        E--;
+    jump not_zero Fill_Top_Row;
+
+    A = $0B;
+    A += C;
+    C = A;
+
+    E = 3;    # 18 bytes
+    D = $0F;
+
+    label Load_Title_Tilemap;
+        push DE;
+        E = $09;
+        A = $B0;
+        [BC] = A;
+        C++;
+        label Load_Row;
+            A = [HL];
+            swap A;
+            A &= D;     # Lower nibble
+            A += $AE;   # Adds delta
+            [BC] = A;
+            C++;
+
+            A = [HL++];
+            A &= D;
+            A += $AE;
+            [BC] = A;
+            C++;
+
+            E--;
+        jump not_zero Load_Row;
+        A = $B0;
+        [BC] = A;
+        C++;
+        [BC] = A;
+
+        A = $0C;
+        A += C;
+        C = A;
+
+        pop DE;
+        E--;
+    jump not_zero Load_Title_Tilemap;
+
+    A = $AE;
+    E = $15;
+    label Fill_Bottom_Row;
+        [BC] = A;
+        C++;
+        E--;
+    jump not_zero Fill_Bottom_Row;
+
+    #
+
+    return;
+}

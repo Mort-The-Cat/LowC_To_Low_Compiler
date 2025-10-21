@@ -1,0 +1,109 @@
+subroutine Memcpy $0000
+{
+	word Source : HL;
+	word Destination : BC;
+	word Length : DE;
+
+	label Loop;
+	
+	A = [Source++];				# 1st byte
+	[Destination] = A;			# 2nd byte
+	Destination++;				# 3rd byte
+	Length--;					# 4th byte
+	A = D;						# 5th byte
+	A |= E;						# 6th byte
+
+	jump not_zero Loop;			# 7th and 8th byte
+
+	return;						# 9th byte
+}	
+# This barely goes over the 8 byte limit of RST functions... 
+# I just need to optimise it by one byte to fit nicely in the 8 byte area.
+
+subroutine Mul $0010
+{
+	byte Result : A;
+	byte Multiplicand : B;
+	byte Count : C;
+
+	C++;	# $0010
+	A ^= A;	# $0011
+	A -= B;	# $0012
+	label Pre_Loop;
+	A += B;	# $0013
+	C--;	# $0014
+	jump not_zero Pre_Loop;	
+			# $0015 - $0016
+	return;	# $0017
+}
+
+subroutine Deref $0018
+{
+	push AF;	# $0018
+	A = [HL++];	# $0019
+	H = [HL];	# $001A
+	L = A;		# $001B
+	pop AF;		# $001C
+	return;		# $001D
+}
+
+subroutine Divide $0020
+{
+	byte Numerator : A;
+	byte Denominator : B;
+	byte Count : C;
+	Count = $FF;				# 1st byte
+
+	label Pre_Loop;
+	Count++;					# 2nd byte
+	Numerator -= Denominator;		# CPU flag "carry" is set if there's an underflow
+								# 3rd byte
+	jump not_carry Pre_Loop;	# 4th and 5th byte
+
+	return;						# 6th byte
+}								# When this function returns, C is the quotient and A is the remainder
+
+subroutine Scalar $0028
+{
+	# This function is used to scale a
+	# value between 0/256 and 256/256
+	# H = ((C * E) / 255) - 1
+
+	# In practice, this function really just multiplies BC by E,
+	# storing the result in HL.
+
+	# However, by taking H + 1, you get the scalar result.
+
+	# E should be the smaller value
+
+	# HL needs to be NULL
+	# B needs to be NULL
+	# D needs to be NULL
+
+	word Result : HL;
+	byte Value : C;
+	byte Multiplicand : E;
+	A = E;					# 0028
+	A &= A;					# 0029
+	return zero;			# 002A
+	label Loop;
+	HL += BC;				# 002B
+	E--;					# 002C
+	jump not_zero Loop;		# 002D - 002E
+	return;					# 002F
+}
+
+subroutine Min_Max $0030
+{
+	# C is max
+	# E is min
+
+	# C new = max(C, E)
+	# E new = min(C, E)
+	A = C;				# 0030
+	A < E;				# 0031
+	return not_carry;	# 0032
+	C = E;				# 0033
+	E = A;				# 0034
+	return;				# 0035
+}

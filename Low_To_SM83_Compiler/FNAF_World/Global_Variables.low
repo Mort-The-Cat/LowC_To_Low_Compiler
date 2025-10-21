@@ -1,0 +1,66 @@
+macro Frame_Counter $FFFB;  # 0-255, increments every frame
+
+macro Global_Animation_Counter $FFFA;   # Used for general UI animations (such as moving UI elements around)
+
+macro Player_Rising_Edge_Input $FFF9;
+macro Player_Input $FFF8;
+    # Upper nibble is SSBA, 
+    # lower nibble is DULR
+
+    # Rising-edge input only detects the frame that a button is pressed, it must be released to be pressed again
+    # Regular input detects all input, even when held
+
+macro Parallax_Scroll_Registers $C0B0; 
+    # This is used to increment the 
+    # parallax scrolling of various parts of the screen
+    # C0B0 - C0B3 bytes
+
+macro UI_Y_Position $C0B4;
+
+macro Game_Flags $C0C0;    # This indicates many game settings
+    # For example,
+    # bit 0 - hard/easy?
+
+macro VBlank_Memory_Transfer_Data $C0B5;
+# VBlank memory transfer data
+# high count, count
+macro VBlank_Memory_Transfer_Data_Destination $C0B7;
+# high destination, destination
+# high source, source
+
+subroutine Increment_Parallax_Scroll_Registers
+{
+    # Increments the frame counter and increments scroll registers accordingly
+    A = [$FF00 + Frame_Counter];
+    A++;
+    [$FF00 + Frame_Counter] = A;
+
+    HL = $C0B3;
+
+    [HL] = $E2;
+    HL--;
+
+    #[HL++] = A;
+
+    E = $02;
+
+    A &= $03;
+    A += A;
+    swap A;
+
+    label Iterate_Layers;
+        A += A;
+        jump not_zero Skip_Scroll;
+            [HL]++;
+        label Skip_Scroll;
+
+        HL--;
+        E--;
+    jump not_zero Iterate_Layers;
+
+    A = [$FF00 + Frame_Counter];
+    [HL] = A;
+
+
+    return;
+}

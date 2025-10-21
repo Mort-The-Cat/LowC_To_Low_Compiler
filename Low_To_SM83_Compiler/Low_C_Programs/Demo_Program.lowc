@@ -1,0 +1,79 @@
+#include "stdlow.h"
+
+// this code MUST be compiled for the LowC to SM83 compiler
+// This won't run with regular compilers xd
+
+byte String_Length(pointer String)
+{
+	byte Count = 0;
+	while (mem[String++]) // Iterate until NULL terminator is reached
+		Count++;
+
+	return Count;
+}
+
+int main()
+{
+	byte Data[30]; // uninitialised data
+	memset(Data, 1, sizeof(Data));
+
+	mem[Data + 29] = 0;
+
+	for (byte I = 0; I < sizeof(Data); I++)
+	{
+		mem[Data + I] += mem[Data + I];
+	}
+
+	return String_Length(Data);
+}
+
+/*
+
+
+Local Stack:
+	High function return pointer (unless main function)	SP + 31
+	Low function return pointer (unless main function)	SP + 30
+	Data[29]			SP + 29
+	...
+	Data[0]				SP + 0
+
+Registers:
+
+
+CPU flags:
+
+	macro sizeof_Data 30;
+
+	SP += -30; // makes room for 'Data'
+
+	// push function parameters for memset
+
+	HL = SP + 0;
+	push HL;		// pushes 'Data'
+	SP += -1;		// makes room for Value
+	HL = SP + 0;
+	[HL] = 0;		// sets value
+	SP += -1;		// makes room for Length
+	HL = SP + 0;
+	[HL] = sizeof_Data;
+	call memset;
+
+	# This code can be MASSIVELY simplified but this is how a naïve compiler might handle it
+
+	// great!
+
+	needs to access Data + 29... store Data + 29 in a register somewhere and set it
+	# HL = SP + 0;
+	# BC = 29;
+	# HL += BC;
+	# [HL] = 0;
+	# can be simplified!!
+
+	HL = SP + 29;
+	[HL] = 0;
+
+	// since Data + 29 is equal to SP + 29, this can be simplified beautifully!
+
+	// loop is whole other can of words... create new scope and start from there
+
+*/

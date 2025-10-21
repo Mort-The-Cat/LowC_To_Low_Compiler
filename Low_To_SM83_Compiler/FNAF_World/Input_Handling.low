@@ -1,0 +1,64 @@
+macro PLAYER_INPUT_START $80; macro PLAYER_INPUT_START_BIT $07;
+macro PLAYER_INPUT_SELECT $40; macro PLAYER_INPUT_SELECT_BIT $06;
+macro PLAYER_INPUT_B $20; macro PLAYER_INPUT_B_BIT $05;
+macro PLAYER_INPUT_A $10; macro PLAYER_INPUT_A_BIT $04;
+macro PLAYER_INPUT_DOWN $08; macro PLAYER_INPUT_DOWN_BIT $03;
+macro PLAYER_INPUT_UP $04; macro PLAYER_INPUT_UP_BIT $02;
+macro PLAYER_INPUT_LEFT $02; macro PLAYER_INPUT_LEFT_BIT $01;
+macro PLAYER_INPUT_RIGHT $01; macro PLAYER_INPUT_RIGHT_BIT $00;
+    # This is the order that the game will store player inputs 
+    # in the Player_Input and Player_Rising_Edge_Input bytes in memory
+
+subroutine Get_Player_Inputs    # This gets the 8-bit for each input, then updates the player inputs byte in HRAM
+{
+    C = CONTROLLER_REGISTER;
+
+    E = $F0;
+
+    A = CONTROLLER_SSBA_FLAG;   # We want to get SSBA inputs first
+    [$FF00 + C] = A;
+
+    A = [$FF00 + C];
+    A = [$FF00 + C];
+    A = [$FF00 + C];
+    A = [$FF00 + C];
+
+    # Needs to perform a couple reads for value to stabilise
+
+    A |= E; # Set all upper nibble bits
+    B = A;  # SSBA inputs
+    swap B;
+
+    A = CONTROLLER_DPAD_FLAG;
+    [$FF00 + C] = A;
+
+    A = [$FF00 + C];
+    A = [$FF00 + C];
+    A = [$FF00 + C];
+    A = [$FF00 + C];
+
+    A |= E;
+    A &= B; # A now equals CURRENT inputs
+
+    D = A;  # Store in D temporarily
+
+    C = Player_Input;
+
+    A = [$FF00 + C];    # Gets previous player input
+
+    A ~= A;             # Gets inverse of previous inputs
+
+    A |= D;             # 
+
+    C++;
+
+    [$FF00 + C] = A;    # Falling-edge detection for player inputs (only registers button as pressed on the frame it was pressed)
+
+    C--;
+
+    A = D;
+
+    [$FF00 + C] = A;    # Writes current inputs to register (detects inputs regardless of if held)
+
+    return;
+}

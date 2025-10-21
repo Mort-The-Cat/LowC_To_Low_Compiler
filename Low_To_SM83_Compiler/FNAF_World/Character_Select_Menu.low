@@ -1,0 +1,180 @@
+subroutine End_Of_Frame
+{
+    call Clean_OAM_Buffer;
+
+    label Wait_For_VBlank;
+        A = [$FF00 + LCDY_REGISTER];
+        A++;
+        A < VBLANK_LY;
+    jump not_zero Wait_For_VBlank;
+
+    label Wait_For_VBlank_End;
+        A = [$FF00 + LCDY_REGISTER];
+        A++;
+        A < VBLANK_LY;
+    jump not_carry Wait_For_VBlank_End; # This waits until LCDY loops back around to 0
+
+    return;
+}
+
+subroutine End_Of_Frame_Character_Loop
+{
+    call Clean_OAM_Buffer;
+
+    label Wait_For_VBlank_End;
+        A = [$FF00 + LCDY_REGISTER];
+        A++;
+        A < VBLANK_LY;
+    jump carry Wait_For_VBlank_End;
+
+    call DMA_Transfer;  # During VBlank still
+
+    return;
+}
+
+subroutine Character_Select_Loop
+{
+
+    A = %10100011;  # Window and background both use Tilemap 0
+    [$FF00 + LCDC_REGISTER] = A;
+
+    HL = Bonnie_Character_Graphics;
+    BC = $8150;
+    DE = Bonnie_Character_Graphics_Size;
+    call Schedule_VBlank_Memory_Transfer;
+
+    label Loop;
+        BC = $1010;
+        push BC;
+        B = $00;
+        C = 12;
+        push BC;
+        DE = Freddy_Fazbear_Spritechain_Data;
+        call Place_Sprites_In_OAM;
+
+        BC = $3080;
+        push BC;
+        B = $00;
+        C = 14;
+        push BC;
+        DE = Freddy_Fazbear_Attack_Spritechain_Data;
+        call Place_Sprites_In_OAM;
+
+        call End_Of_Frame_Character_Loop;
+    jump Loop;
+
+    return;
+}
+
+data String_Select_Your_Character
+{
+    "SELECT CHARACTERS!" $00
+}
+
+subroutine Load_Character_Select_Character_Row
+{
+    word Character : HL;
+
+    BC = $0501;
+
+    label Load_Character_Names_Loop;
+
+        push Character;
+        push BC; # Save for later
+
+        push BC; # Write to stack momentarily
+            A = [HL++];
+            C = [HL];
+            B = A;
+            # Now, BC is the stack pointer
+            HL = VRAM_TILEM_0;
+            call Write_String_To_Tilemap;
+        pop BC;
+        B++; # Next Y line
+        pop Character;
+        DE = $0010;
+        HL += DE;   # Increment 16 bytes to next character data
+
+        A = $09;
+        #A = $10;
+        A < B;
+
+    jump not_zero Load_Character_Names_Loop;
+
+
+    return;
+}
+
+subroutine Initialise_Character_Select_Loop
+{
+    # Wait to turn off LCD
+
+    label Wait_For_VBlank;
+        A = [$FF00 + LCDY_REGISTER];
+        A < VBLANK_LY;
+    jump not_zero Wait_For_VBlank;
+
+    A = $00;
+    [$FF00 + LCDC_REGISTER] = A;
+
+
+    # Set up text
+    # Set up UI borders
+
+    # $B7 on left side 
+    # 16 tiles for text
+    # $B6 on right side
+
+    B = $FF;
+    HL = VRAM_TILEM_0;
+    DE = $0400;
+    call Memset;
+
+    BC = $0000;
+    push BC;
+    BC = $0112;
+    push BC;
+    DE = VRAM_TILEM_0;
+    call Initialise_UI_Prompt_Window;
+
+    BC = $0101;
+    push BC;
+    BC = String_Select_Your_Character;
+    HL = VRAM_TILEM_0;
+    call Write_String_To_Tilemap;
+
+    #BC = $030E;
+    #push BC;
+    #BC = $0D04;
+    #push BC;
+    #DE = VRAM_TILEM_0;
+    #call Initialise_UI_Prompt_Window;
+
+    BC = $0300;
+    push BC;
+    BC = $0D0D;
+    push BC;
+    DE = VRAM_TILEM_0;
+    call Initialise_UI_Prompt_Window;
+
+    HL = Freddy_Character_Data; # First row of characters
+    call Load_Character_Select_Character_Row;
+
+    A = $01;
+    [$FF00 + INTERRUPT_ENABLE_REGISTER] = A; # We only want VBlank interrupts right now (just for testing)
+
+    A = VBlank_Memory_Transfer_ID;
+    [$FF00 + VBlank_Interrupt_Function] = A;
+
+    A = $FF;
+    [$FF00 + WINDOW_SCROLL_X_REGISTER] = A;
+
+    A++;
+    [$FF00 + BACKGROUND_SCROLL_X_REGISTER] = A;
+    [$FF00 + BACKGROUND_SCROLL_Y_REGISTER] = A;
+
+    #A = $01;
+    #[$FF00 + HBlank_Interrupt_Function] = A;
+
+    return;
+}

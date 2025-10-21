@@ -1,0 +1,147 @@
+macro INTERRUPT_ENABLE_REGISTER $FFFF;
+	# bit 0 - VBLANK
+	# bit 1 - LCD
+
+
+macro BACKGROUND_SCROLL_X_REGISTER $FF43;
+macro BACKGROUND_SCROLL_Y_REGISTER $FF42;
+
+macro WINDOW_SCROLL_X_REGISTER $FF4B;
+macro WINDOW_SCROLL_Y_REGISTER $FF4A; # Note that Wx = 7 and Wy = 0 correspond to top-left of screen
+
+macro BACKGROUND_PALETTE_REGISTER $FF47;
+	# Every 2-bits of this is the colour value of colour values 0-3
+	# 00-01-10-11
+
+macro OBJECT_PALETTE_0_REGISTER $FF48;
+	# xx-01-10-11
+macro OBJECT_PALETTE_1_REGISTER $FF49;
+	# xx-01-00-11
+
+macro LCDY_REGISTER $FF44;
+macro LYC_REGISTER $FF45;		# This is the value that LCDY is compared against for the STAT register
+
+macro LCD_STATUS_REGISTER $FF41;	
+# bit 6 is set when you want a STAT interrupt to occur during LYC == LCDY
+
+# bit 3 is set when you want HBLANK interrupts 
+# bit 2 is set when LYC == LCDY
+# bits 1 and 0 determine the current PPU mode (0 if HBlank or currently disabled, 1 if VBlank)
+
+macro VBLANK_SCANLINE $0090;
+
+macro LCDC_REGISTER $FF40;
+	# bit 7 controls LCD and PPU			(MAY ONLY BE CHANGED DURING VBLANK!!)
+	# bit 6 window tile map 9800-9BFF or 9C00-9FFF
+	# bit 5 window enable
+	# bit 4 controls addressing mode for tile *data*
+
+	# if bit 4 is not, 0-127 corresponds to $9000-97FF, and 128-255 corresponds to $8800-8FFF
+	# if bit 4 is set, 0-127 corresponds to $8000-87FF, and 128-255 corresponds to $8800-8FFF
+	# Note that objects always use the latter unsigned addressing mode for tile data
+
+	# bit 3 background tile map 9800-9BFF or 9C00-9FFF
+
+	# bit 2 OBJ 8x8 or 8x16
+
+	# bit 1 controls if objects are enabled
+
+	# bit 0 background/window enable
+
+macro DMA_REGISTER $FF46;
+	# DMA transfer copies bytes $XX00-XX9F to $FE00-FE9F
+	# DMA transfer lasts 160 cycles (where A--; is 1 cycle)
+
+macro OAM $FE00;
+	# byte 0 is y-position + 16
+	# byte 1 is x-position + 8
+	# byte 2 is tile index
+	# byte 3 are the flags
+		# bit 7 is the priority bit (set this to decrease object priority)
+		# bit 6 is the Y flip
+		# bit 5 is the X flip
+		# bit 4 is the palette (palette 0 or palette 1)
+
+	# 4 bytes per object
+
+# C000 - DFFF is the work RAM!
+
+# When something is pushed to the stack, the stack pointer *decreases*
+
+# Hence, the SP needs to be somewhere like CFFF for example
+
+# However, I think it'd be good if the OAM buffer was stored at C000-C09F.
+# This'd mean that we'd have more memory in the "variable" RAM
+# This'd only become a problem if the stack completely overflows beyond C0A0 - CFFF
+
+# D000 onwards can be nicely used for RAM variables.
+# e.g. player x/y, camera x/y, current level, enemies, bullets, etc, etc
+# This gives $1000 (4,096) bytes for these global variables
+# We can probably reduce the size of the stack though
+
+macro HRAM $FF80; # $FF80 - $FFFE
+
+macro VRAM_BLOCK_0 $8000;
+macro VRAM_BLOCK_1 $8800;
+macro VRAM_BLOCK_2 $9000;
+
+macro VRAM_TILEM_0 $9800;
+macro VRAM_TILEM_1 $9C00;
+
+macro VBLANK_LY $94;		# This is the LY value at which VBLANK begins
+
+macro CONTROLLER_REGISTER $FF00;
+	# bit 5 - clear this bit if you want the Start/Select/  B /    A buttons
+	# bit 4 - clear this bit if you want the Down /  Up  /Left/Right buttons
+	# bit 3 - Start		/ Down
+	# bit 2 - Select	/ Up
+	# bit 1 - B			/ Left
+	# bit 0 - A			/ Right
+
+	# Whichever button is read depends on which bit has just been cleared.
+	# Takes a few clock cycles for the register to toggle properly.
+
+macro CONTROLLER_SSBA_FLAG $D0;
+macro CONTROLLER_DPAD_FLAG $E0;
+
+macro CONTROLLER_BUTTON_START $08; macro CONTROLLER_BUTTON_START_BIT $03;
+macro CONTROLLER_BUTTON_DOWN $08; macro CONTROLLER_BUTTON_DOWN_BIT $03;
+
+macro CONTROLLER_BUTTON_SELECT $04; macro CONTROLLER_BUTTON_SELECT_BIT $02;
+macro CONTROLLER_BUTTON_UP $04; macro CONTROLLER_BUTTON_UP_BIT $02;
+
+macro CONTROLLER_BUTTON_B $02; macro CONTROLLER_BUTTON_B_BIT $01;
+macro CONTROLLER_BUTTON_LEFT $02; macro CONTROLLER_BUTTON_LEFT_BIT $01;
+
+macro CONTROLLER_BUTTON_A $01; macro CONTROLLER_BUTTON_A_BIT $00;
+macro CONTROLLER_BUTTON_RIGHT $01; macro CONTROLLER_BUTTON_RIGHT_BIT $00;
+
+#
+
+macro SQUARE_CHANNEL_0 $FF10;
+macro SQUARE_CHANNEL_1 $FF15;
+macro WAVE_CHANNEL $FF1A;
+macro NOISE_CHANNEL $FF1F;
+
+# Instructions:
+
+# >>
+# This operation keeps the most significant bit the same
+
+# >>>
+# This operation is the same as C++ bit shift
+
+# <<
+# This operation is the same as C++ bit shift
+
+# |>><
+# Rotate right and bring carry to the most significant bit
+
+# <<>|
+# Rotate left and bring carry to least significant bit
+
+# >><
+# Rotate right
+
+# <<>
+# Rotate left

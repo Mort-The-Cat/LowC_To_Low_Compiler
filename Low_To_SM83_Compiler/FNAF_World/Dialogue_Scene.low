@@ -1,0 +1,239 @@
+subroutine Initialise_UI_Prompt_Window
+{
+    # SP + $00 and
+    # SP + $01 are important function pointers
+
+    # SP + $02 tile width  (not including left/right)
+    # SP + $03 tile height   (not including top/bottom)
+
+    # SP + $04 origin X
+    # SP + $05 origin Y
+
+    word Tilemap : DE;
+
+    HL = SP + $04;
+    C = [HL];   # X
+    HL++;
+    L = [HL];   # Y
+
+    A ^= A;
+    B = A;
+    H = A;
+
+    HL += HL; # x2
+    HL += HL; # x4
+    HL += HL; # x8
+    HL += HL; # x16
+    HL += HL; # x32
+
+    # DE = VRAM_TILEM_1;
+
+    HL += DE;
+    HL += BC;
+
+    D = H;
+    E = L;
+
+    #
+
+    HL = SP + $02;
+    B = H;
+    C = L;
+
+    H = D;
+    L = E;
+
+    A = [BC];
+
+    push BC;
+
+    C = A;
+
+    D = $00;
+    A = $20;
+    A -= C;
+    A--;
+    A--;
+    E = A;
+
+    #
+
+    A = $B8;
+    [HL++] = A;
+    A = $AE;
+
+    label Fill_Top_Row_Loop;
+        [HL++] = A;
+        C--;
+    jump not_zero Fill_Top_Row_Loop;
+
+    pop BC;
+
+    A = $B9;
+    [HL++] = A;
+
+    label Iterate_Rows;
+
+        HL += DE;
+
+        A = [BC];
+
+        push BC;
+
+        C = A;
+
+        A = $B7;
+        [HL++] = A;
+
+        A = $B0;    # Blank tile
+
+        label Fill_Middle_Row;
+            [HL++] = A;
+            C--;
+        jump not_zero Fill_Middle_Row;
+
+        A = $B6;
+        [HL++] = A;
+
+        pop BC;
+
+        BC++;
+        A = [BC];
+        A--;
+        [BC] = A;
+        BC--;
+    jump not_zero Iterate_Rows;
+
+    HL += DE;
+
+    A = [BC];
+    C = A;
+
+    A = $BA;
+    [HL++] = A;
+
+    A = $AF;
+
+    label Fill_Bottom_Row_Loop;
+        [HL++] = A;
+        C--;
+    jump not_zero Fill_Bottom_Row_Loop;
+
+    A = $BB;
+    [HL] = A;
+
+    pop HL;
+
+    SP += $04;
+
+    jump HL; # Return
+}
+
+data Test_Text_Data
+{
+    #"HELLO! THIS IS" $FF
+    #"A TEST!" $FF
+    #"DONT YOU KNOW THAT" $FF
+    #"HACKING IS A SIN?" $00
+    "SELECT DIFFICULTY" $FF
+    $FF
+    "  EASY" $FF
+    "  HARD" $00
+}
+
+data Select_Arrow_Sprite_Data
+{
+    $10 $00 $AB
+}
+
+subroutine Write_String_To_Tilemap
+{
+    word String_Pointer : BC;
+    word Tilemap : HL;
+
+    push BC;
+
+    # SP + $00 and
+    # SP + $01 are the string pointers
+
+    # SP + $02 and
+    # SP + $03 are important return function pointers
+
+    # SP + $04 origin X
+    # SP + $05 origin Y
+    push HL;
+
+    HL = SP + $06;
+
+    A = [HL++];
+
+    B = H;
+    C = L;
+
+    D = $00;
+    E = A;
+
+    pop HL;
+    
+    #HL = VRAM_TILEM_1;
+    HL += DE;   # Adds horizontal offset
+
+    D = H;
+    E = L;
+
+    A = [BC];
+    L = A;
+
+    H = $00;
+    B = H;
+
+    HL += HL; # x2
+    HL += HL; # x4
+    HL += HL; # x8
+    HL += HL; # x16
+    HL += HL; # x32
+
+    HL += DE;   # Adds vertical offset
+
+    E = B;
+    pop BC;
+
+    label Write_Text_Loop;
+        A = [BC];
+
+        A++;
+        jump not_zero Regular_Character;    # $FF value is line break
+            A = L;
+            A -= E;     # Subtract character counter from cursor pos
+            L = A;      # Bring cursor back to start
+            E = $00;    # Reset character counter
+
+            push BC;
+                BC = $0020; # Next line
+                HL += BC;   # Jump to next line
+            pop BC;
+
+            BC++;   # Increment character
+
+            jump Write_Text_Loop;   # Continue iterating
+        label Regular_Character;  
+
+        A--;
+        jump zero End_Loop; # $00 character is the NULL-terminator
+
+        # Otherwise? Write character!
+
+        [HL++] = A; # Write character and increment tile
+
+        BC++;       # Increment character
+
+        E++;        # Increment line character count
+    jump Write_Text_Loop;
+
+    label End_Loop;
+
+    pop HL;     # Get file return pointer
+    SP += $02;  # Increment back stack pointer
+
+    jump HL;    # Return from function
+}

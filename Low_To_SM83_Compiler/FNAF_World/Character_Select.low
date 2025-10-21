@@ -1,0 +1,216 @@
+# Character data (stored in ROM)
+#   Name : pointer to string                            (2 bytes) 2
+#   Character Graphics : pointer to data                (2 bytes) 4
+#       number of tiles : byte                          (1 byte)  5
+#   Character idle spritechain data : pointer to data   (2 bytes) 7
+#       number of objects : byte                        (1 byte)  8
+#   Character attack spritechain data : pointer to data (2 bytes) 10
+#       number of objects : byte                        (1 byte)  11
+#   Attack 1-3 : attack id (index into attack table)    (3 bytes total) 14
+#   Description : pointer to string                     (2 bytes) 16
+
+# Character level (stored in RAM)
+#   Level : byte
+#   Current XP : short
+
+# This will do for now
+
+# $C300 onwards is not stack data
+data String_Freddy_Fazbear
+{
+    "FREDDY F.BEAR" $00
+}
+
+data String_Freddy_Fazbear_Description
+{
+    "BACK TO BASICS!" $00
+}
+
+data Freddy_Fazbear_Spritechain_Data
+{
+    $10 $08 $15
+    $10 $10 $16
+    $10 $18 $17
+
+    $18 $08 $18
+    $18 $10 $19
+    $18 $18 $1A
+
+    $20 $08 $1B
+    $20 $10 $1C
+    $20 $18 $1D
+
+    $28 $08 $1E
+    $28 $10 $1F
+    $28 $18 $20
+}
+data Freddy_Fazbear_Attack_Spritechain_Data
+{
+    $10 $08 $15
+    $10 $10 $16
+    $10 $18 $17
+
+    $18 $00 $21
+    $18 $08 $22
+    $18 $10 $23
+    $18 $18 $1A
+
+    $20 $00 $24
+    $20 $08 $25
+    $20 $10 $26
+    $20 $18 $1D
+
+    $28 $08 $1E
+    $28 $10 $1F
+    $28 $18 $20
+}
+
+
+data String_Bonnie
+{
+    "BONNIE" $00
+}
+
+data String_Bonnie_Description
+{
+    "JAMMIN!" $00
+}
+
+data Chica_Spritechain_Data
+{
+    $10 $10 $15
+    $10 $18 $16
+
+    $18 $08 $17
+    $18 $10 $18
+    $18 $18 $19
+
+    $20 $08 $1A
+    $20 $10 $1B
+    $20 $18 $1C
+
+    $28 $08 $1D
+    $28 $10 $1E
+    $28 $18 $1F
+}
+
+data Chica_Attack_Spritechain_Data
+{
+    $10 $10 $15
+    $10 $18 $16
+
+    $18 $08 $17
+    $18 $10 $20
+    $18 $18 $19
+
+    $20 $08 $1A
+    $20 $10 $1B
+    $20 $18 $21
+    $20 $20 $22
+
+    $28 $08 $1D
+    $28 $10 $1E
+    $28 $18 $1F
+}
+
+data String_Chica
+{
+    "CHICA" $00
+}
+
+data String_Chica_Description
+{
+    "LET'S EAT!" $00
+}
+
+data Foxy_Attack_Spritechain_Data
+{
+    $10 $08 $15
+    $10 $10 $16
+    $10 $18 $17
+
+    $18 $08 $21
+    $18 $10 $19
+    $18 $18 $22
+
+    $20 $00 $23
+    $20 $08 $24
+    $20 $10 $1C
+    $20 $18 $25
+
+    $28 $08 $26
+    $28 $10 $1F
+    $28 $18 $20
+}
+
+data String_Foxy
+{
+    "FOXY" $00
+}
+
+data String_Foxy_Description
+{
+    "BACK IN ORDER!" $00
+}
+
+data Freddy_Character_Data
+{
+    high(String_Freddy_Fazbear) String_Freddy_Fazbear
+    high(Freddy_Character_Graphics) Freddy_Character_Graphics
+        Freddy_Character_Graphics_Tilecount
+    high(Freddy_Fazbear_Spritechain_Data) Freddy_Fazbear_Spritechain_Data
+        12  # 12 objects in spritechain
+    high(Freddy_Fazbear_Attack_Spritechain_Data) Freddy_Fazbear_Attack_Spritechain_Data
+        14  # 14 objects in spritechain
+    0   # Attack ID 0 (placeholder)
+    0
+    0
+    high(String_Freddy_Fazbear_Description) String_Freddy_Fazbear_Description
+}
+
+data Bonnie_Character_Data
+{
+    high(String_Bonnie) String_Bonnie
+    high(Bonnie_Character_Graphics) Bonnie_Character_Graphics
+        Bonnie_Character_Graphics_Tilecount
+    high(Freddy_Fazbear_Spritechain_Data) Freddy_Fazbear_Spritechain_Data
+        12
+    high(Freddy_Fazbear_Attack_Spritechain_Data) Freddy_Fazbear_Attack_Spritechain_Data
+        14
+    0
+    0
+    0
+    high(String_Bonnie_Description) String_Bonnie_Description
+}
+
+data Chica_Character_Data
+{
+    high(String_Chica) String_Chica
+    high(Chica_Character_Graphics) Chica_Character_Graphics
+        Chica_Character_Graphics_Tilecount
+    high(Chica_Spritechain_Data) Chica_Spritechain_Data
+        11
+    high(Chica_Attack_Spritechain_Data) Chica_Attack_Spritechain_Data
+        12
+    0
+    0
+    0
+    high(String_Chica_Description) String_Chica_Description
+}
+
+data Foxy_Character_Data
+{
+    high(String_Foxy) String_Foxy
+    high(Foxy_Character_Graphics) Foxy_Character_Graphics
+        Foxy_Character_Graphics_Tilecount
+    high(Freddy_Fazbear_Spritechain_Data) Freddy_Fazbear_Spritechain_Data
+        12
+    high(Foxy_Attack_Spritechain_Data) Foxy_Attack_Spritechain_Data
+        13
+    0
+    0
+    0
+    high(String_Foxy_Description) String_Foxy_Description
+}
+
+#

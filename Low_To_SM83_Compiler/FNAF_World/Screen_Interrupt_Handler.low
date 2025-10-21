@@ -1,0 +1,284 @@
+macro VBlank_Interrupt_Function $FFFE;
+macro HBlank_Interrupt_Function $FFFD;
+macro HBlank_Scanline_Counter $FFFC;
+
+# These bytes index which function should be called during VBlank/HBlank
+
+data Title_Screen_HBlank_Data
+{
+    # Scanline, iteration
+    #23
+    47
+    63
+    79
+    255
+}
+
+macro Dialogue_Battle_Scene_HBlank_ID $02;
+subroutine Dialogue_Battle_Scene_HBlank # 02
+{
+    A = [$FF00 + LCDY_REGISTER];
+    #A++;
+
+    push HL;
+
+    HL = UI_Y_Position;
+    A < [HL];
+
+    jump not_zero Not_UI_Box;
+        [$FF00 + WINDOW_SCROLL_Y_REGISTER] = A;
+        A = $07;
+        [$FF00 + WINDOW_SCROLL_X_REGISTER] = A;
+
+        A = %11100101;
+        [$FF00 + BACKGROUND_PALETTE_REGISTER] = A;
+
+        # We want to change the palette to remove white colour
+
+        pop HL;
+        pop AF;
+        returni;
+    label Not_UI_Box;
+
+    A = [$FF00 + HBlank_Scanline_Counter];
+    A++;
+
+    push BC;
+
+    B = $00;
+    C = A;
+    HL = Title_Screen_HBlank_Data;
+    HL += BC;
+
+    #jump carry Finished_Work;
+    C = HBlank_Scanline_Counter;
+    [$FF00 + C] = A;
+
+    A = [HL];
+    A < $FF;
+    jump not_zero Regular_Interrupt;
+        A = [UI_Y_Position];
+    label Regular_Interrupt;
+    [$FF00 + LYC_REGISTER] = A;
+
+    A = [$FF00 + C];
+    A += Parallax_Scroll_Registers;
+    
+    H = $C0; # high(Parallax_Scroll_Registers)
+    L = A;
+    A = [HL];
+
+    [$FF00 + BACKGROUND_SCROLL_X_REGISTER] = A;
+        
+    label Finished_Work;
+
+    pop BC;
+    pop HL;
+    pop AF;
+
+    returni;
+}
+
+macro Title_Screen_HBlank_ID $01;
+subroutine Title_Screen_HBlank
+{
+    A = [$FF00 + HBlank_Scanline_Counter];
+    A++;
+
+    jump not_zero Check_Parallax;
+        [$FF00 + HBlank_Scanline_Counter] = A;
+
+        A ~= A; # Flips all the bits, gets $FF
+        [$FF00 + WINDOW_SCROLL_X_REGISTER] = A;
+
+        A = 47;
+        [$FF00 + LYC_REGISTER] = A;
+
+        pop AF;
+
+        returni;
+    label Check_Parallax;
+
+    # Check if we've reached an important scanline
+
+    push BC;
+    push HL;
+
+    B = $00;
+    C = A;
+    HL = Title_Screen_HBlank_Data;
+    HL += BC;
+
+    #jump carry Finished_Work;
+    C = HBlank_Scanline_Counter;
+    [$FF00 + C] = A;
+
+
+
+    A = [HL];
+    [$FF00 + LYC_REGISTER] = A;
+
+    A = [$FF00 + C];
+    A += Parallax_Scroll_Registers;
+    
+    H = $C0; # high(Parallax_Scroll_Registers)
+    L = A;
+    A = [HL];
+
+    [$FF00 + BACKGROUND_SCROLL_X_REGISTER] = A;
+        
+    label Finished_Work;
+
+    pop HL;
+    pop BC;
+    pop AF;
+
+    returni;
+}
+
+macro Title_Screen_VBlank_ID $01;
+subroutine Title_Screen_VBlank # 01
+{
+    # This sets up the LCD status register stuff, interrupt registers,
+
+    # as well as the window scroll registers etc
+
+    call DMA_Transfer;
+
+    A = %01000000; # LYC without HBlank interrupts
+    [$FF00 + LCD_STATUS_REGISTER] = A;
+
+    #A = $03;
+    #[$FF00 + INTERRUPT_ENABLE_REGISTER] = A;
+
+    A = $2C;
+    #A = [$FF00 + WINDOW_SCROLL_Y_REGISTER];
+    #A += $22;   # roughly 34 pixels
+    [$FF00 + LYC_REGISTER] = A;
+
+    #A = $06;
+    #A = $FF;
+    #[$FF00 + WINDOW_SCROLL_X_REGISTER] = A;
+
+    A = [Parallax_Scroll_Registers];
+
+    #A >>= 1;
+    #A ~= A;
+    [$FF00 + BACKGROUND_SCROLL_X_REGISTER] = A;
+    #A >>= 1;
+    A = 40;
+    [$FF00 + BACKGROUND_SCROLL_Y_REGISTER] = A;
+
+    A = $FF;
+    [$FF00 + HBlank_Scanline_Counter] = A;
+
+    A = %11100100;
+    [$FF00 + BACKGROUND_PALETTE_REGISTER] = A;
+
+    pop AF;
+
+    returni;    # That's all
+}
+
+macro VBlank_Memory_Transfer_ID $02;
+subroutine VBlank_Memory_Transfer_Function
+{
+    push HL;
+    push BC;
+    push DE;
+
+    HL = VBlank_Memory_Transfer_Data;
+    A = [HL++];
+    D = A;
+    E = [HL];
+    [HL] = $00;
+    L++;
+
+    A < $00;
+    jump not_zero Clamp_DE_Value;
+    A = $17;
+    A < E;
+    jump not_carry Do_Not_Clamp_DE_Value;
+    label Clamp_DE_Value;
+        push HL;
+        HL = $FFE8;
+        HL += DE;
+        D = H;
+        E = L;
+        pop HL;
+        L--;
+        [HL] = E;
+        L--;
+        [HL] = D;
+
+        L++;
+        L++;
+
+        DE = $0018;
+        #[VBlank_Memory_Transfer_Data] = A;  # We only want to decrement $0060 from the counter
+        #DE = $0100;                         # Only handle 16 bytes per transfer
+
+    label Do_Not_Clamp_DE_Value;
+
+    B = [HL];
+    L++;
+    C = [HL];
+    L++;
+
+    A = [HL++];
+    L = [HL];
+    H = A;
+
+    E--;
+    E++;
+    jump zero Skip_Transfer;
+
+    call Memcpy;
+
+    DE = VBlank_Memory_Transfer_Data_Destination;
+    A = B;
+    [DE] = A;
+    E++;
+    A = C;
+    [DE] = A;
+    E++;
+
+    A = H;
+    [DE] = A;
+    E++;
+    A = L;
+    [DE] = A;
+
+    # Writes back the values
+
+    label Skip_Transfer;
+
+    pop DE;
+    pop BC;
+    pop HL;
+    pop AF; # Gets stack pointer values back
+
+    returni;
+
+    # We've initialised HL
+}
+
+subroutine VBlank_Handler
+{
+    push AF;    # CPU flags and 'A' value
+        A = [$FF00 + VBlank_Interrupt_Function];
+        A--;   # get first bit in carry flag
+        jump zero Title_Screen_VBlank;
+        A--;
+        jump zero VBlank_Memory_Transfer_Function;
+}
+
+subroutine HBlank_Handler
+{
+    push AF;    # CPU flags and 'A' value,  4 cycles
+        A = [$FF00 + HBlank_Interrupt_Function];    # 3 cycles
+        A--;
+        jump zero Title_Screen_HBlank;
+        A--;
+        jump zero Dialogue_Battle_Scene_HBlank;
+}

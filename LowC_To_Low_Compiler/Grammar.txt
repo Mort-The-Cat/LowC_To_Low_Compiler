@@ -1,0 +1,66 @@
+type definition ->
+	byte or pointer or word
+
+
+function definition ->
+	type identifier(parameters)
+	{
+		statements
+	}
+
+
+parameters definition ->
+	type identifier
+	OR
+	parameters, type identifier
+
+
+statements definition ->
+	statements statement
+	OR
+	statement
+
+
+statement definition ->
+	stack_val_declaration_statement
+	OR
+	assignment_statement
+	OR
+	unary_operation ;
+
+stack_val_declaration_statement definition ->
+	byte identifier ;
+	or
+	byte identifier [ int_literal ] ;
+	or
+	word identifier ;
+	or
+	pointer identifier ;
+
+
+operator definition ->
+	+ or - or & or | or ^ or < or == or > or >> or << etc
+
+
+assignment definition ->
+	= or += or -= or &= or |= or ^= or <<= or >>=
+
+
+unary_operation definition ->
+	identifier ++
+	OR
+	identifier --
+
+
+expression definition ->
+	expression operator expression
+	or
+	identifier
+	or
+	int_literal
+
+
+assignment_statement definition ->
+	identifier assignment expression ;
+	OR
+	mem[expression] assignment expression ;
