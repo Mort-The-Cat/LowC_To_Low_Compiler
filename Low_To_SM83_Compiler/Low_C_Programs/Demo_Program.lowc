@@ -1,12 +1,14 @@
 #include "stdlow.h"
 
+// https://stackoverflow.com/questions/77235788/how-do-i-add-syntax-coloring-for-my-custom-file-type-to-visual-studio-not-code
+
 // this code MUST be compiled for the LowC to SM83 compiler
 // This won't run with regular compilers xd
 
 byte String_Length(pointer String)
 {
 	byte Count = 0;
-	while (mem[String++]) // Iterate until NULL terminator is reached
+	while ([String++]) // Iterate until NULL terminator is reached
 		Count++;
 
 	return Count;
@@ -17,11 +19,11 @@ int main()
 	byte Data[30]; // uninitialised data
 	memset(Data, 1, sizeof(Data));
 
-	mem[Data + 29] = 0;
+	[Data + 29] = 0;
 
 	for (byte I = 0; I < sizeof(Data); I++)
 	{
-		mem[Data + I] += mem[Data + I];
+		[Data + 29] += [Data + I];
 	}
 
 	return String_Length(Data);
@@ -58,7 +60,7 @@ CPU flags:
 	[HL] = sizeof_Data;
 	call memset;
 
-	# This code can be MASSIVELY simplified but this is how a naïve compiler might handle it
+	# This code can be MASSIVELY simplified but this is how a naï¿½ve compiler might handle it
 
 	// great!
 

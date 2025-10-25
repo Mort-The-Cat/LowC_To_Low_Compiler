@@ -5,11 +5,15 @@
 #include<vector>
 #include<array>
 
+#include "LowC_Tokeniser.h"
+
 class Trace
 {
 public:
 	std::string Name;			// The name of the value (could also just be a byte-literal)
+								// i.e. Pointer + 1 or 
 	std::string Value;			// This is an expression of the value stored at this location (if garbage data, set to "?")
+								// i.e. Data[1] etc 
 	size_t Modified_Counter;	// How many times the value has changed
 	unsigned char Is_High;
 	Trace()
@@ -33,7 +37,7 @@ public:
 
 // For considerably larger buffers, just use pointers to access.
 
-void Analyse_LowC_Text(const char* LowC)
+void Analyse_LowC_Text(const std::vector<Token>& Tokens)
 {
 	std::vector<Trace> Stack;
 	std::array<Trace, 7> Registers =

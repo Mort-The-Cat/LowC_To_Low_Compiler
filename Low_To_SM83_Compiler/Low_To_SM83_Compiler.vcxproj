@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="Byte_Code_Generation.h" />
     <ClInclude Include="C_Vector.h" />
+    <ClInclude Include="Low_C_Programs\stdlow.h" />
     <ClInclude Include="Syntax_Scanner.h" />
     <ClInclude Include="Tokens.h" />
   </ItemGroup>
