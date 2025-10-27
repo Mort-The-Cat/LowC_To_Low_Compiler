@@ -56,13 +56,17 @@ enum
 
 	T_EQUALS,
 	T_PLUS_EQUALS,
+	T_PLUS_PLUS,
 	T_MINUS_EQUALS,
+	T_MINUS_MINUS,
 	T_AND_EQUALS,
 	T_OR_EQUALS,
 	T_XOR_EQUALS,
+	T_DEREF,			// pointer deference *
+	T_AMPERSAND,				// pointer reference &		ORRRR		& operator
 
 
-#define END_NON_ALPHANUMERIC_TOKENS (T_XOR_EQUALS + 1)
+#define END_NON_ALPHANUMERIC_TOKENS (T_AMPERSAND + 1)
 
 	// will expand on this later
 
@@ -78,7 +82,7 @@ struct Token
 
 bool Sort_Token_Compare(const Token& A, const Token& B);
 
-bool String_Matches_Token(const char* Text, size_t Length, const char* Token_Name);
+size_t String_Matches_Token(const char* Text, size_t Length, const char* Token_Name);
 
 Token Compiler_Tokens[];
 

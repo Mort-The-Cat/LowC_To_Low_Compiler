@@ -11,7 +11,16 @@ int main()
 	Tokenise(Tokens, "Test_LowC_Program.lowc");
 
 	for (size_t W = 0; W < Tokens.size(); W++)
-		printf("%s ", Tokens[W].Name.c_str());
+	{
+		if (Tokens[W].Token == T_IDENTIFIER)
+			printf("@");
+		printf("%s", Tokens[W].Name.c_str());
+		
+		if (Tokens[W].Token == T_IDENTIFIER)
+			printf("@");
+
+		printf(" ");
+	}
 
 	getc(stdin);
 

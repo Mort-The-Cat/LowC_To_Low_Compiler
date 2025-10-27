@@ -25,7 +25,15 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_CLOSE_SQ,		"]"			},
 	{	T_SEMI,			";"			},
 	{	T_EQUALS,		"="			},
-	{	T_PLUS_EQUALS,	"+="		}
+	{	T_PLUS_EQUALS,	"+="		},
+	{	T_MINUS_EQUALS, "-="		},
+	{	T_PLUS_PLUS,	"++"		},
+	{	T_MINUS_MINUS,	"--"		},
+	{	T_AND_EQUALS,	"&="		},
+	{	T_OR_EQUALS,	"|="		},
+	{	T_XOR_EQUALS,	"^="		},
+	{	T_DEREF,		"*"			},
+	{	T_AMPERSAND,	"&"			}
 };
 
 //
@@ -40,7 +48,7 @@ size_t Is_Alphanumeric(char Character)
 		(Character >= 'A' && Character <= 'Z') ||
 		(Character == '_')
 		)
-		return CHARACTER_NUMBER;
+		return CHARACTER_LETTER;
 
 	return CHARACTER_NONALPHANUMERIC;
 }
@@ -50,7 +58,7 @@ bool Sort_Token_Compare(const Token& A, const Token& B)
 	return A.Token > B.Token;
 }
 
-bool String_Matches_Token(const char* Text, size_t Length, const char* Token_Name)
+size_t String_Matches_Token(const char* Text, size_t Length, const char* Token_Name)
 {
 	// iterate while length-- and token_name matches text
 
@@ -59,12 +67,18 @@ bool String_Matches_Token(const char* Text, size_t Length, const char* Token_Nam
 	while (Length-- && Text[Index] == Token_Name[Index])
 		Index++;
 
-	return !Length;
+	return Index * (0 == Token_Name[Index]);
 }
 
 void Sort_Compiler_Tokens()	// needs to be called to sort these elements
 {
-	std::sort(Compiler_Tokens, Compiler_Tokens + NUMBER_OF_TOKEN_IDS - 1, Sort_Token_Compare);
+	Token New_Tokens[NUMBER_OF_TOKEN_IDS];
+
+	for (size_t W = 0; W < NUMBER_OF_TOKEN_IDS; W++)
+		if (Compiler_Tokens[W].Token != T_INVALID)
+			New_Tokens[Compiler_Tokens[W].Token] = Compiler_Tokens[W];
+
+	memcpy(Compiler_Tokens, New_Tokens, sizeof(Compiler_Tokens));
 }
 
 // We'll make a kind of parse tree for this
@@ -107,7 +121,7 @@ size_t Count_Valid_Non_Alphanumeric(const char* File)
 {
 	size_t Count = 0;
 
-	while (Is_Alphanumeric(File[Count]) == CHARACTER_NONALPHANUMERIC && File[Count] != ' ' && File[Count] != '\t' && File[Count] != '\n')
+	while (Is_Alphanumeric(File[Count]) == CHARACTER_NONALPHANUMERIC && File[Count] != ' ' && File[Count] != '\t' && File[Count] != '\n' && File[Count])
 		Count++;
 
 	return Count;
@@ -120,18 +134,33 @@ size_t Token_Check_Alphanumeric_Tokens(const char* File, std::vector<Token>& Tar
 	if (!Count)
 		return 0;
 
-	size_t Token = START_ALPHANUMERIC_TOKENS;
+	size_t Index = START_ALPHANUMERIC_TOKENS;
 
-	while (Token < END_ALPHANUMERIC_TOKENS)
+	size_t Counted;
+
+	while (Index < END_ALPHANUMERIC_TOKENS)
 	{
-		if (String_Matches_Token(File, Count, Compiler_Tokens[Token].Name.data()))
+		if (Counted = String_Matches_Token(File, Count + 1, Compiler_Tokens[Index].Name.data()))
 		{
-			Target_Tokens.push_back(Compiler_Tokens[Token]);
-			return Count;
+			Target_Tokens.push_back(Compiler_Tokens[Index]);
+			return Counted;
 		}
+
+		Index++;
 	}
 
-	return 0;
+	// If it's looking like an identifier, but it's not any keyword, 
+	// make an identifier!!
+
+	Token Identifier_Token;
+
+	Identifier_Token.Token = T_IDENTIFIER;
+	Identifier_Token.Name = std::string(File);
+	Identifier_Token.Name.resize(Count);
+
+	Target_Tokens.push_back(Identifier_Token);
+
+	return Count;
 }
 
 size_t Token_Check_Non_Alphanumeric_Tokens(const char* File, std::vector<Token>& Target_Tokens)
@@ -143,18 +172,33 @@ size_t Token_Check_Non_Alphanumeric_Tokens(const char* File, std::vector<Token>&
 
 	size_t Token = START_NON_ALPHANUMERIC_TOKENS;
 
+	size_t Counted;
+
 	while (Token < END_NON_ALPHANUMERIC_TOKENS)
 	{
-		if (String_Matches_Token(File, Count, Compiler_Tokens[Token].Name.data()))
+		if (Counted = String_Matches_Token(File, Count + 1, Compiler_Tokens[Token].Name.c_str()))
 		{
 			Target_Tokens.push_back(Compiler_Tokens[Token]);
-			return Count;
+			return Counted;
 		}
 
 		Token++;
 	}
 
 	return 0;
+}
+
+size_t Skip_Includes(const char* File)
+{
+	const char Include_Token[] = "#include";
+	size_t Count = 0;
+	if (String_Matches_Token(File, sizeof(Include_Token), Include_Token))
+		while (File[Count] != '\n')
+			Count++;
+	else
+		return 0;
+
+	return Count + 1;
 }
 
 void Tokenise(std::vector<Token>& Tokens, const char* File_Directory)
@@ -173,6 +217,12 @@ void Tokenise(std::vector<Token>& Tokens, const char* File_Directory)
 
 	while (File_Contents[Index])
 	{
+		if (Delta = Skip_Includes(File_Contents.data() + Index))
+		{
+			Index += Delta;
+			continue;
+		}
+
 		if (Delta = Token_Check_Alphanumeric_Tokens(File_Contents.data() + Index, Tokens))
 		{
 			Index += Delta;

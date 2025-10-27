@@ -1,5 +1,4 @@
-typedef unsigned char byte;
-typedef unsigned char* pointer;
+#include "stdlow.h"
 
 void main()
 {
