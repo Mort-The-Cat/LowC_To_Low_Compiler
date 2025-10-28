@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="Code_Trace_Handler.h" />
     <ClInclude Include="LowC_Tokeniser.h" />
+    <ClInclude Include="low_macros.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Grammar.txt" />

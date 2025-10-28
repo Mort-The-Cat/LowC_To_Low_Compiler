@@ -1,0 +1,50 @@
+
+
+#define INTERRUPT_ENABLE_REGISTER 0xFFFF 
+
+//	bit 0 - VBLANK
+//	bit 1 - LCD interrupts i.e. HBlank or LYC
+
+
+#define BACKGROUND_SCROLL_X_REGISTER 0xFF43
+#define BACKGROUND_SCROLL_Y_REGISTER 0xFF42
+
+#define WINDOW_SCROLL_X_REGISTER 0xFF4B
+#define WINDOW_SCROLL_Y_REGISTER 0xFF4A
+
+#define BACKGROUND_PALETTE_REGISTER 0xFF47
+
+#define OBJECT_PALETTE_0_REGISTER 0xFF48
+
+#define OBJECT_PALETTE_1_REGISTER 0xFF49
+
+#define LCDY_REGISTER 0xFF44	// current scanline
+#define LYC_REGISTER 0xFF45		// this is the value that's compared against
+
+#define LCD_STATUS_REGISTER 0xFF41
+
+#define VBLANK_SCANLINE 0x90
+
+#define LCDC_REGISTER 0xFF40
+
+#define DMA_REGISTER 0xFF46
+
+#define OAM 0xFE00
+
+// C000 - DFFF is work RAM! we can do whatever we want there
+
+#define HRAM 0xFF80 // FF80 - FFFE
+
+#define VRAM_BLOCK_0 0x8000
+#define VRAM_BLOCK_1 0x8800
+#define VRAM_BLOCK_2 0x9000
+
+#define VRAM_TILEM_0 0x9800
+#define VRAM_TILEM_1 0x9C00
+
+#define CONTROLLER_REGISTER 0xFF00
+
+#define SQUARE_CHANNEL_0 0xFF10
+#define SQUARE_CHANNEL_1 0xFF15
+#define WAVE_CHANNEL 0xFF1A
+#define NOISE_CHANNEL 0xFF1F

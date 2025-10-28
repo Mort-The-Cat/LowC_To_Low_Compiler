@@ -29,6 +29,9 @@
     <ClInclude Include="LowC_Tokeniser.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="low_macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Grammar.txt" />

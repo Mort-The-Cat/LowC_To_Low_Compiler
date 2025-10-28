@@ -1,8 +1,32 @@
 #include "stdlow.h"
 
+#include "low_macros.h"
+
+byte Other_Function(const byte* String)
+{
+	byte Count;
+
+	Count = 0;
+	while (*String)
+	{
+		Count++;
+		String++;
+	}
+
+	return Count;
+}
+
 void main()
 {
-	byte Value = 0;
+	const byte String[] = "Hello, World!";
+
+	byte Value;
+	byte New_Val;
+
+	Value = BACKGROUND_SCROLL_X_REGISTER;
+	New_Val = 104;
+
+	Value = Other_Function(String);
 
 	return;
 }

@@ -22,8 +22,8 @@ enum
 #define START_ALPHANUMERIC_TOKENS T_VOID
 
 	T_VOID,
+	T_CONST,
 	T_BYTE,
-	T_POINTER,
 	T_WORD,
 
 	T_RETURN,
@@ -62,7 +62,7 @@ enum
 	T_AND_EQUALS,
 	T_OR_EQUALS,
 	T_XOR_EQUALS,
-	T_DEREF,			// pointer deference *
+	T_POINTER,					// pointer symbol * or pointer dereference
 	T_AMPERSAND,				// pointer reference &		ORRRR		& operator
 
 
