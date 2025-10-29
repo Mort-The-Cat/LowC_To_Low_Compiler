@@ -1,5 +1,15 @@
 type definition ->
-	byte or pointer or word
+	byte 
+	or 
+	byte * 
+	or 
+	word 
+	or 
+	word * 
+	or 
+	const byte *
+	or
+	const word *
 
 
 function definition ->
@@ -12,6 +22,7 @@ function definition ->
 	{
 		statements
 	}
+
 
 parameters definition ->
 	type identifier
@@ -39,7 +50,26 @@ stack_val_declaration_statement definition ->
 	or
 	word identifier ;
 	or
-	pointer identifier ;
+	byte * identifier ;
+
+
+int_literals definition->
+	int_literals, int_literal
+	or
+	int_literal
+
+
+rom_val_declaration_statement definition ->
+	const byte identifier = int_literal ;
+	or
+	const byte identifier [ int_literal ] = { int_literals } ;
+	or
+	const byte identifier [ ] = { int_literals } ;
+	or
+	const byte identifier [ ] = string_literal ;
+
+// ROM values are always allocated OUTSIDE of a function (preferably before)
+// ROM values are always constant
 
 
 operator definition ->
@@ -62,9 +92,26 @@ expression definition ->
 	identifier
 	or
 	int_literal
+	or
+	identifier ( expressions )
+	or
+	identifier ( )
+
+
+expressions definition ->
+	expressions, expression
+	expression
 
 
 assignment_statement definition ->
 	identifier assignment expression ;
 	OR
-	mem[expression] assignment expression ;
+	expression[expression] assignment expression ;
+	OR
+	*expression assignment expression ;
+
+
+function_call definition ->
+	identifier ( expressions ) ;
+	or
+	identifier ( ) ;

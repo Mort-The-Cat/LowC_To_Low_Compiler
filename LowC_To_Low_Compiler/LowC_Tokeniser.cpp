@@ -251,7 +251,7 @@ size_t Token_Check_Int_Literal(const char* File, std::vector<Token>& Target_Toke
 
 		Target_Tokens.push_back(New_Token);
 
-		return Count + 2;		// I think this is right? 
+		return Count;		// I think this is right? 
 	}
 	else
 	{

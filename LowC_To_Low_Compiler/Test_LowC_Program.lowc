@@ -7,7 +7,7 @@ byte Other_Function(const byte* String)
 	byte Count;
 
 	Count = 0;
-	while (*String)
+	while (String[0])
 	{
 		Count++;
 		String++;
