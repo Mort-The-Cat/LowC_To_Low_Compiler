@@ -28,6 +28,7 @@ enum
 
 	T_RETURN,
 	T_IF,
+	T_MEM,
 	T_DO,
 	T_WHILE,
 

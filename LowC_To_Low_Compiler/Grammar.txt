@@ -22,6 +22,16 @@ function definition ->
 	{
 		statements
 	}
+	OR
+	type identifier()
+	{
+		statements
+	}
+	OR
+	void identifier()
+	{
+		statements
+	}
 
 
 parameters definition ->
@@ -41,6 +51,8 @@ statement definition ->
 	OR
 	assignment_statement
 	OR
+	rom_val_declaration_statement definition
+	OR
 	unary_operation ;
 
 stack_val_declaration_statement definition ->
@@ -57,7 +69,6 @@ int_literals definition->
 	int_literals, int_literal
 	or
 	int_literal
-
 
 rom_val_declaration_statement definition ->
 	const byte identifier = int_literal ;
@@ -93,6 +104,8 @@ expression definition ->
 	or
 	int_literal
 	or
+	expression [ expression ]
+	or
 	identifier ( expressions )
 	or
 	identifier ( )
@@ -115,3 +128,47 @@ function_call definition ->
 	identifier ( expressions ) ;
 	or
 	identifier ( ) ;
+
+
+
+
+how to evaluate a token? just do it sequentially and *test it* recursively probably
+
+i.e.
+
+is_type is_identifier ( is_parameter ) {
+
+where is_type tests type conditions
+if true, go to evaluate the next (is_identifier)
+(basic check for identifier)
+
+etc etc
+
+as for is_parameter, here's where the recursion begins
+	is_type, yes!
+	is_identifier, yes!
+
+	then additional checks are made for )
+
+	since condition doesn't pass, return and evaluate *next* is_parameter condition
+
+	is_parameter:
+		-> is_type, yes!
+		-> is_identifier, yes!
+		yes!
+	(comma)
+	is_type, yes!
+	is_identifier, yes!
+
+	condition passed! continue sequential check
+
+	since ) is present, continue
+
+// and it just goes from there
+
+This is fairly rambly, but it outlines my rough idea for the token parser
+
+From there, the program will iterate through the parsed tokens (as assignment statements etc) and produce the actual .low program based on the .lowc
+
+At which point you can just link the appropriate libraries and compile the .low file into a ROM that you can run on your device/emulator of choice!
+	

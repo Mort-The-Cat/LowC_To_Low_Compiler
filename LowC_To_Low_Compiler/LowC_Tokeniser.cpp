@@ -16,6 +16,7 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_RETURN,		"return"	},
 
 	{	T_IDENTIFIER,	""			},
+	{	T_MEM,			"mem"		},
 
 	{	T_OPEN_BR,		"("			},
 	{	T_CLOSE_BR,		")"			},
@@ -251,7 +252,7 @@ size_t Token_Check_Int_Literal(const char* File, std::vector<Token>& Target_Toke
 
 		Target_Tokens.push_back(New_Token);
 
-		return Count;		// I think this is right? 
+		return Count;
 	}
 	else
 	{

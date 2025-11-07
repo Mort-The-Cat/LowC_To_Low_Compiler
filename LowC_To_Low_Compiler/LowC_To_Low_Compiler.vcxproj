@@ -135,10 +135,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code_Parser.cpp" />
     <ClCompile Include="LowC_Tokeniser.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code_Parser.h" />
     <ClInclude Include="Code_Trace_Handler.h" />
     <ClInclude Include="LowC_Tokeniser.h" />
     <ClInclude Include="low_macros.h" />

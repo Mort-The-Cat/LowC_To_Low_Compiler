@@ -16,6 +16,13 @@ byte Other_Function(const byte* String)
 	return Count;
 }
 
+byte Test_Write_Byte(byte* Target_Value)
+{
+	mem[BACKGROUND_SCROLL_X_REGISTER] = *Target_Value;
+
+	return mem[LCDY_REGISTER];
+}
+
 void main()
 {
 	const byte String[] = "Hello, World!";
@@ -26,7 +33,12 @@ void main()
 	Value = BACKGROUND_SCROLL_X_REGISTER;
 	New_Val = 104;
 
+	// Before a function is called, all of the variables that haven't been correctly stored must be copied from registers to the stack
+	// This is because functions are nearly guaranteed to rewrite registers
+
 	Value = Other_Function(String);
+
+	New_Val = Test_Write_Byte(&Value);
 
 	return;
 }

@@ -15,20 +15,20 @@ public:
 	std::string Value;			// This is an expression of the value stored at this location (if garbage data, set to "?")
 								// i.e. Data[1] etc 
 	size_t Modified_Counter;	// How many times the value has changed
-	unsigned char Is_High;
+	unsigned char Pointer_Flag;	// 0 if not a pointer, 1 if low, 2 if high
 	Trace()
 	{
 		Name = "???";
 		Value = "???";
 		Modified_Counter = 0;
-		Is_High = 0;
+		Pointer_Flag = 0;
 	}
-	Trace(std::string Namep, unsigned char Is_Highp)
+	Trace(std::string Namep, unsigned char Pointer_Flagp)
 	{
 		Name = Namep;
 		Value = "???";
 		Modified_Counter = 0;
-		Is_High = Is_Highp;
+		Pointer_Flag = Pointer_Flagp;
 	}
 };
 

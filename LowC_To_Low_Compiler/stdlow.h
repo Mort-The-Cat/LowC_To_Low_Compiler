@@ -5,6 +5,7 @@ void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW im
 
 #define call(function, return_type, parameters) _call(function);	// Function implementation included elsewhere (NOTE THIS RESULTS IN UNDEFINED BEHAVIOUR UNLESS DONE IN LOWC)
 
+#define mem ((unsigned char*)(0))
 
 // 	call(Function_Pointer, void, byte)(Value);
 /*
@@ -33,7 +34,7 @@ typedef unsigned short word;	// 'word' is used for 16-bit integers
 void memset(byte* Destination, byte Value, byte Length) // these functions don't need to be included in the codebase
 {
 	while (Length--)
-		Destination++[0] = Value;
+		(Destination++)[0] = Value;
 }
 
 #endif
