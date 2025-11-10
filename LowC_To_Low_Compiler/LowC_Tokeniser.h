@@ -51,6 +51,10 @@ enum
 
 	//
 
+	T_COMMA,			// ,
+
+	//
+
 	T_SEMI,
 
 	//

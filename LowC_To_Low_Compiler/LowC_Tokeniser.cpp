@@ -24,6 +24,7 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_CLOSE_SC,		"}"			},
 	{	T_OPEN_SQ,		"["			},
 	{	T_CLOSE_SQ,		"]"			},
+	{	T_COMMA,		","			},
 	{	T_SEMI,			";"			},
 	{	T_EQUALS,		"="			},
 	{	T_PLUS_EQUALS,	"+="		},

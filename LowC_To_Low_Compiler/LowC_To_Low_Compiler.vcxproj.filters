@@ -38,6 +38,9 @@
     <ClInclude Include="Code_Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Parser_Grammar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Grammar.txt" />
