@@ -1,0 +1,6 @@
+#include "stdlow.h"
+
+byte Variable;
+byte* Pointer;
+
+byte Array[10];

@@ -41,18 +41,52 @@ public:
 
 		Value = Valuep;
 	}
+
+	const std::vector<Parse_Node>& operator [](const char* Name) const
+	{
+		return Child_Nodes.at(Name);
+	}
+};
+
+class Grammar_Checker;
+
+class Checker_Function
+{
+public:
+	size_t(*Function)(const Token*, std::vector<Parse_Node>*, const std::vector<Grammar_Checker>&, size_t);
+
+	size_t Parameter = T_INVALID;
+
+	const std::vector<Grammar_Checker>* Grammars = nullptr;
+	
+	size_t Check(const Token* Tokens, std::vector<Parse_Node>* Node) const
+	{
+		return Function(Tokens, Node, *Grammars, Parameter);
+	}
+
+	Checker_Function(size_t(*Checkp)(const Token*, std::vector<Parse_Node>*, const std::vector<Grammar_Checker>&, size_t), const std::vector<Grammar_Checker>& Grammarsp)
+	{
+		Function = Checkp;
+		Grammars = &Grammarsp;
+	}
+
+	Checker_Function(size_t(*Checkp)(const Token*, std::vector<Parse_Node>*, const std::vector<Grammar_Checker>&, size_t), size_t Parameterp)
+	{
+		Parameter = Parameterp;
+		Function = Checkp;
+	}
 };
 
 class Grammar_Checker
 {
 public:
-	std::vector<size_t(*)(const Token*, std::vector<Parse_Node>*)> Checks;
+	std::vector<Checker_Function> Checks;
 
 	void (*Init_Function)(const Token*, std::vector<Parse_Node>&, Parse_Node*);
 
 	Grammar_Checker() {}
 
-	Grammar_Checker(std::vector<size_t(*)(const Token*, std::vector<Parse_Node>*)> Checksp, void(*Init_Functionp)(const Token*, std::vector<Parse_Node>&, Parse_Node*))
+	Grammar_Checker(std::vector<Checker_Function> Checksp, void(*Init_Functionp)(const Token*, std::vector<Parse_Node>&, Parse_Node*))
 	{
 		Checks = Checksp;
 		Init_Function = Init_Functionp;
@@ -99,6 +133,7 @@ enum Syntax_IDs
 
 	S_BYTE,						// a byte type
 	S_BYTE_POINTER,				// a pointer to a byte type
+	S_BYTE_ARRAY,				// a local byte array pointer
 	S_WORD,
 	S_VOID,						// 'void' return type
 	S_ID8,						// an 8-bit ID
@@ -115,8 +150,14 @@ enum Syntax_IDs
 #define Node_Copy(Sub_ID, Generated_Node)\
 	New_Node->Child_Nodes[Sub_ID].push_back(Generated_Node)
 
+#define Node_Copy_Syntax(Sub_ID, S_ID)\
+	New_Node->Child_Nodes[Sub_ID].back().Syntax_ID = S_ID;
+
 #define Node_Set(Generated_Node)\
 	*New_Node = Generated_Node;\
+
+#define Node_Set_Syntax(S_ID)\
+	New_Node->Syntax_ID = S_ID;
 
 #define Node_Add(Sub_ID, Syntax_ID, Representation)\
 	New_Node->Child_Nodes[Sub_ID].push_back(Parse_Node(Syntax_ID, Representation))
@@ -126,10 +167,9 @@ enum Syntax_IDs
 	[](const Token* Tokens, std::vector<Parse_Node>& Recursively_Generated_Nodes, Parse_Node* New_Node)
 
 
-template<const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID = SYNTAX_DEFAULT>
-size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node);
+size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID);
 
-template<size_t T>
-size_t Is_Token(const Token* Tokens, std::vector<Parse_Node>* Node);
+size_t Is_Token(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t T);
+
 
 #endif

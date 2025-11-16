@@ -1,5 +1,21 @@
 #include "LowC_Tokeniser.h"
 
+long Get_Value_From_String(const char* String)
+{
+	// Assume that string is valid number of some kind
+
+	long Value = 0;
+
+	while (*String)
+	{
+		Value *= 10;
+
+		Value += *(String++) - '0';
+	}
+
+	return Value;
+}
+
 //
 
 Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =

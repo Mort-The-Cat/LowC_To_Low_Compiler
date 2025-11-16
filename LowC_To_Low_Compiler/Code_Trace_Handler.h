@@ -5,7 +5,7 @@
 #include<vector>
 #include<array>
 
-#include "LowC_Tokeniser.h"
+#include "Code_Parser.h"
 
 class Trace
 {
@@ -23,6 +23,14 @@ public:
 		Modified_Counter = 0;
 		Pointer_Flag = 0;
 	}
+	Trace(std::string Namep, std::string Valuep, unsigned char Pointer_Flagp)
+	{
+		Name = Namep;
+		Value = Valuep;
+		Modified_Counter = 0;
+		Pointer_Flag = Pointer_Flagp;
+	}
+
 	Trace(std::string Namep, unsigned char Pointer_Flagp)
 	{
 		Name = Namep;
@@ -32,13 +40,9 @@ public:
 	}
 };
 
-// NOTE that local stack should NEVER be larger than 127 bytes
-// If any larger, failures occur.
-
-// For considerably larger buffers, just use pointers to access.
-
-void Analyse_LowC_Text(const std::vector<Token>& Tokens)
+class Tracer_Data
 {
+public:
 	std::vector<Trace> Stack;
 	std::array<Trace, 7> Registers =
 	{
@@ -50,8 +54,13 @@ void Analyse_LowC_Text(const std::vector<Token>& Tokens)
 		Trace("H", 1),
 		Trace("L", 0)
 	};
+};
 
-	// 
-}
+// NOTE that local stack should NEVER be larger than 127 bytes
+// If any larger, failures occur.
+
+// For considerably larger buffers, just use pointers to access.
+
+void Analyse_Parsed_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node);
 
 #endif

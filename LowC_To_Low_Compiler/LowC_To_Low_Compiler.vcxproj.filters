@@ -24,6 +24,12 @@
     <ClCompile Include="Code_Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code_Trace_Handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser_Grammar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code_Trace_Handler.h">
@@ -47,5 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Test_LowC_Program.lowc" />
+    <None Include="Test_LowC_2_Program.lowc" />
   </ItemGroup>
 </Project>

@@ -1,14 +1,14 @@
 #include "Code_Parser.h"
 #include "Parser_Grammar.h"
 
-template<size_t T>
-size_t Is_Token(const Token* Tokens, std::vector<Parse_Node>* Node)
+std::vector<Token> Parser_Identifiers;	// name and what kind of ID it is
+
+size_t Is_Token(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t T)
 {
 	return Tokens[0].Token == T;
 }
 
-template<const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID>
-size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node)
+size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID)
 {
 	for (size_t Index = 0; Index < Grammars.size(); Index++)
 	{
@@ -22,9 +22,9 @@ size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node)
 		for (size_t Check = 0; Check < Grammars[Index].Checks.size(); Check++)
 		{
 			size_t Delta;
-			Generated_Nodes.clear();
+			// Generated_Nodes.clear();
 
-			if (Delta = Grammars[Index].Checks[Check](Tokens + Tokens_Passed, &Generated_Nodes))
+			if (Delta = Grammars[Index].Checks[Check].Check(Tokens + Tokens_Passed, &Generated_Nodes))
 			{
 				Tokens_Passed += Delta;	// counts up how many tokens we've read
 			}
@@ -41,7 +41,7 @@ size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node)
 
 			Grammars[Index].Init_Function(Tokens, Generated_Nodes, &Test_Node);
 
-			Test_Node.Syntax_ID = Syntax_ID;
+			// Test_Node.Syntax_ID = Syntax_ID;
 
 			Node->push_back(Test_Node);
 

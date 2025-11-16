@@ -9,11 +9,18 @@
 
 // This creates the sequence of tokens etc from the LowC file
 
+// I'm not using sscanf for unsafe operations, just getting integers, so I don't get
+
+long Get_Value_From_String(const char* String);
+
 #define CHARACTER_LETTER 0
 #define CHARACTER_NUMBER 1
 #define CHARACTER_NONALPHANUMERIC 2
 
 size_t Is_Alphanumeric(char Character);
+
+// The compiler has forced me to use an X-macro here
+// evil, evil, evil
 
 enum
 {
@@ -40,6 +47,7 @@ enum
 	T_STRING_LITERAL,
 
 #define START_NON_ALPHANUMERIC_TOKENS T_OPEN_BR
+
 	T_OPEN_BR,
 	T_CLOSE_BR,
 
@@ -49,15 +57,9 @@ enum
 	T_OPEN_SQ,
 	T_CLOSE_SQ,
 
-	//
-
-	T_COMMA,			// ,
-
-	//
+	T_COMMA,
 
 	T_SEMI,
-
-	//
 
 	T_EQUALS,
 	T_PLUS_EQUALS,
@@ -67,14 +69,10 @@ enum
 	T_AND_EQUALS,
 	T_OR_EQUALS,
 	T_XOR_EQUALS,
-	T_POINTER,					// pointer symbol * or pointer dereference
-	T_AMPERSAND,				// pointer reference &		ORRRR		& operator
-
+	T_POINTER,
+	T_AMPERSAND,
 
 #define END_NON_ALPHANUMERIC_TOKENS (T_AMPERSAND + 1)
-
-	// will expand on this later
-
 
 	NUMBER_OF_TOKEN_IDS
 };
