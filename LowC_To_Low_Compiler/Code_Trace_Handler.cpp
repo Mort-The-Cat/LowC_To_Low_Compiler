@@ -2,6 +2,18 @@
 #include "Code_Parser.h"
 #include "LowC_Tokeniser.h"
 
+void Node_Function_Definition(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	// This will write the subroutine to the low-code
+	// It'll also add the function declaration to the tracer code
+	// once it's finished its statement analysis, clear stack again
+}
+
+void Node_ROM_V_Declaration(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+
+}
+
 void Node_Stack_Declaration(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
 {
 	// This will add a value onto the stack
@@ -64,6 +76,8 @@ void Node_Stack_Declaration(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 	// Generates corresponding 'Low' code
 }
 
+//
+
 void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
 {
 	if (Node.Syntax_ID == S_STACK_DECLARATION_STATEMENT)
@@ -81,8 +95,32 @@ void Analyse_Statements_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 		Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["statements"][0]);
 }
 
+void Analyse_Global_Declaration_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	if (Node.Syntax_ID == S_FUNCTION_DEFINE)
+	{
+		Node_Function_Definition(Output_Low_Code, Tracer, Node);
+		return;
+	}
+
+	if (Node.Syntax_ID == S_ROM_DECLARATION_STATEMENT)
+	{
+		Node_ROM_V_Declaration(Output_Low_Code, Tracer, Node);
+		return;
+	}
+}
+
+void Analyse_Global_Declarations_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	Analyse_Global_Declaration_LowC(Output_Low_Code, Tracer, Node);
+
+	if (Node.Child_Nodes.count("global_declarations"))
+		Analyse_Global_Declarations_LowC(Output_Low_Code, Tracer, Node["global_declarations"][0]);
+}
+
 void Analyse_Parsed_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
 {
-	Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["statements"][0]);
+	Analyse_Global_Declarations_LowC(Output_Low_Code, Tracer, Node["global_declarations"][0]);
+	//Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["statements"][0]);
 	// 
 }

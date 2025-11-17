@@ -1,6 +1,13 @@
 #include "stdlow.h"
 
-byte Variable;
-byte* Pointer;
+void main();	// Optional *declaration* of the function
 
-byte Array[10];
+void main()
+{
+	byte Variable;
+	byte* Pointer;
+
+	byte Array[10];
+
+	return;
+}

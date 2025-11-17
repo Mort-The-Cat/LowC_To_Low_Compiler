@@ -104,6 +104,14 @@ enum Syntax_IDs
 			(size)[S_INT_LITERAL]
 		*/
 
+	S_ROM_DECLARATION_STATEMENT,	// allocates data in ROM	-	'Value' field is the value of this rom dec
+		/*
+			(type)
+			(name)
+			(size)[S_INT_LITERAL]
+			(data)[S_INT_LITERALS]
+		*/
+
 	S_ID_ASSIGN,				// assigns value to some ID
 		/*
 			(id)
@@ -116,6 +124,14 @@ enum Syntax_IDs
 			(parameters)
 			(statements)
 		*/
+
+	S_FUNCTION_DEC,				// simply declares the function
+		/*
+			(return_type)
+			(name)
+			(parameters)
+		*/
+
 	S_DEST_ASSIGN,				// assigns value to some location 'destination' in memory
 		/*
 			(destination)
@@ -129,6 +145,10 @@ enum Syntax_IDs
 		/*
 			(condition)
 			(statements)
+		*/
+	S_INT_LITERALS,				// many int literals of some sort:	Value field is the int literal val
+		/*
+			(int_literals)
 		*/
 
 	S_BYTE,						// a byte type
@@ -146,6 +166,9 @@ enum Syntax_IDs
 };
 
 // void Parse_Tokens(std::vector<Syntax_Wrap>* Syntax, std::vector<Token>& Tokens);
+
+#define Node_Value(New_Value)\
+	New_Node->Value = New_Value;
 
 #define Node_Copy(Sub_ID, Generated_Node)\
 	New_Node->Child_Nodes[Sub_ID].push_back(Generated_Node)
