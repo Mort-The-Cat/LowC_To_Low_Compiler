@@ -23,6 +23,8 @@ SP + $00	=	C
 
 // Will use parse tree structure for statements, expressions, and functions
 
+extern std::string Local_Function_Scope_Name; // = "";
+
 class Parse_Node
 {
 public:
@@ -161,7 +163,13 @@ enum Syntax_IDs
 	S_INT_LITERAL,				// an int literal (of any kind)
 	S_EXPRESSION8,				// an expression with an 8-bit value
 	S_EXPRESSION16,				// an expression with a 16-bit value
-	S_DEREF_ADDRESS,			// an 8-bit value, collected from some 16-bit address
+	
+	S_DEREF8,					// an 8-bit value, collected from some 16-bit address
+
+	S_PLUS8,					// addition between two 8-bit values
+	S_PLUS16_8,					// addition between a 16-bit value and an 8-bit value
+
+
 	S_FUNCTION_CALL,			// a call to some function, given some parameters
 };
 

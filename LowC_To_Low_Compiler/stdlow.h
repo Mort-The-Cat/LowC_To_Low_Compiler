@@ -7,6 +7,8 @@ void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW im
 
 #define mem ((unsigned char*)(0))
 
+#define addressof(location) (byte*)(location)
+
 // 	call(Function_Pointer, void, byte)(Value);
 /*
 

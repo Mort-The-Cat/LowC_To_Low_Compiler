@@ -1,13 +1,30 @@
 #include "stdlow.h"
 
-void main();	// Optional *declaration* of the function
+#include "low_macros.h"
+
+//void main();	// Optional *declaration* of the function
+
+const byte Global_String[] = "Hey, world!";
 
 void main()
 {
+	const byte Local_String[] = "Blah blah!";
 	byte Variable;
 	byte* Pointer;
 
 	byte Array[10];
+
+	// This code doesn't do anything, it's purely for testing purposes
+
+	Variable = *LCDY_REGISTER;
+
+	Variable = Variable + 10;
+
+	Pointer = CONTROLLER_REGISTER;
+
+	Pointer = Pointer + Variable;
+
+	Array[Variable] = *Pointer;
 
 	return;
 }

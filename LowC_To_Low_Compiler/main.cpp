@@ -30,7 +30,7 @@ int main()
 
 	Parse_Node Program_Node;
 
-	Generate_Parse_Tree(Tokens.data(), &Program_Node.Child_Nodes["statements"]);
+	Generate_Parse_Tree(Tokens.data(), &Program_Node.Child_Nodes["global_declarations"]);
 
 	std::string Program_Output = "";
 
@@ -38,7 +38,7 @@ int main()
 
 	Analyse_Parsed_LowC(Program_Output, Tracer, Program_Node);
 	
-	printf("Low code:\n================================\n\n%s", Program_Output.c_str());
+	printf("\nLow code:\n================================\n\n%s", Program_Output.c_str());
 
 	// Then, we want to parse the tokens into the parse tree!
 

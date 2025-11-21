@@ -77,6 +77,119 @@ const std::vector<Grammar_Checker> Int_Literals_Grammars =
 	)
 };
 
+const std::vector<Grammar_Checker> Expression16_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Expression16_Grammars),
+			Checker_Function(Is_Token, T_PLUS),
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("left", Recursively_Generated_Nodes[0]);
+			Node_Copy("right", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(S_PLUS16_8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_ID, S_ID16)
+		},
+		Node_Init
+		{
+			Node_Set(Parse_Node(S_ID16, Tokens[0].Name));
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_INT_LITERAL)
+		},
+		Node_Init
+		{
+			Node_Set(Parse_Node(S_INT_LITERAL, Tokens[0].Name));
+		}
+	)
+};
+
+const std::vector<Grammar_Checker> Expression8_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Is_Token, T_PLUS),
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("left", Recursively_Generated_Nodes[0]);
+			Node_Copy("right", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(S_PLUS8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_INT_LITERAL)
+		},
+		Node_Init
+		{
+			Node_Set(Parse_Node(S_INT_LITERAL, Tokens[0].Name));
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_ID, S_ID8)
+		},
+		Node_Init
+		{
+			Node_Set(Parse_Node(S_ID8, Tokens[0].Name));
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_POINTER), Checker_Function(Parse_Recursive_Check, Expression16_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("address", Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_DEREF8);
+		}
+	)
+};
+
+const std::vector<Grammar_Checker> ID_Assign_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_ID, S_ID8), Checker_Function(Is_Token, T_EQUALS), Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
+		},
+		Node_Init
+		{
+			Node_Add("id", S_ID8, Tokens[0].Name);
+			Node_Copy("value", Recursively_Generated_Nodes[0]);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_ID, S_ID16), Checker_Function(Is_Token, T_EQUALS), Checker_Function(Parse_Recursive_Check, Expression16_Grammars)
+		},
+		Node_Init
+		{
+			Node_Add("id", S_ID16, Tokens[0].Name);
+			Node_Copy("value", Recursively_Generated_Nodes[0]);
+		}
+	)
+};
+
+// NOTE that an identifier is *automatically* identified by the tracer as *constant* if it's not found on the local stack or in existing global variables
+// At which point, it'll retry (given the current local function scope name)
+
 const std::vector<Grammar_Checker> ROM_Declaration_Grammars =
 {
 	Grammar_Checker(	// const byte Id = 01234;
@@ -90,9 +203,12 @@ const std::vector<Grammar_Checker> ROM_Declaration_Grammars =
 		Node_Init
 		{
 			Node_Add("type", S_BYTE, Tokens[1].Name);
-			Node_Add("id", S_ID8, Tokens[2].Name);
 
-			Add_To_Parser_Identifiers({ S_ID8, Tokens[2].Name });
+			std::string Name = Local_Function_Scope_Name + Tokens[2].Name;
+
+			Node_Add("id", S_ID8, Name);
+
+			Add_To_Parser_Identifiers({ S_ID8, Name });
 
 			Node_Add("size", S_INT_LITERAL, "1");
 
@@ -112,9 +228,12 @@ const std::vector<Grammar_Checker> ROM_Declaration_Grammars =
 		Node_Init
 		{
 			Node_Add("type", S_BYTE_ARRAY, "byte[]");
-			Node_Add("id", S_ID16, Tokens[2].Name);
 
-			Add_To_Parser_Identifiers({ S_ID16, Tokens[2].Name });
+			std::string Name = Local_Function_Scope_Name + Tokens[2].Name;
+
+			Node_Add("id", S_ID16, Name);
+
+			Add_To_Parser_Identifiers({ S_ID16, Name });
 
 			Node_Add("size", S_INT_LITERAL, std::to_string(Tokens[6].Name.length() + 1));
 
@@ -136,9 +255,12 @@ const std::vector<Grammar_Checker> ROM_Declaration_Grammars =
 		Node_Init
 		{
 			Node_Add("type", S_BYTE_ARRAY, "byte[]");
-			Node_Add("id", S_ID16, Tokens[2].Name);
 
-			Add_To_Parser_Identifiers({ S_ID16, Tokens[2].Name });
+			std::string Name = Local_Function_Scope_Name + Tokens[2].Name;
+
+			Node_Add("id", S_ID16, Name);
+
+			Add_To_Parser_Identifiers({ S_ID16, Name });
 
 			Node_Add("size", S_INT_LITERAL, std::to_string(Get_Depth_Of_Node(Recursively_Generated_Nodes[0], "int_literals")));
 
@@ -287,6 +409,19 @@ const std::vector<Grammar_Checker> Parameters_Grammars =
 	)
 };
 
+const std::vector<Grammar_Checker> Return_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_RETURN), Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Set(Parse_Node(S_RETURN, "return"));
+		}
+	)
+};
+
 const std::vector<Grammar_Checker> Statement_Grammars =
 {
 	Grammar_Checker(
@@ -308,6 +443,28 @@ const std::vector<Grammar_Checker> Statement_Grammars =
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 			Node_Set_Syntax(S_ROM_DECLARATION_STATEMENT);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Return_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_RETURN);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, ID_Assign_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_ID_ASSIGN);
 		}
 	)
 };
@@ -412,6 +569,26 @@ const std::vector<Grammar_Checker> Function_Grammars =
 			Node_Copy_Syntax("id", S_ID16);						// we want to specify that this is an ID16
 			Node_Copy("parameters", Recursively_Generated_Nodes[2]);
 			Node_Copy("statements", Recursively_Generated_Nodes[3]);
+		}
+	),
+
+	Grammar_Checker(	// Some functions might have no parameters!
+		{
+			Checker_Function(Parse_Recursive_Check, Return_Type_Grammars), Checker_Function(Parse_Recursive_Check, Identifier_Grammars),
+			Checker_Function(Is_Token, T_OPEN_BR),
+			// No parameters term!
+			Checker_Function(Is_Token, T_CLOSE_BR),
+			Checker_Function(Is_Token, T_OPEN_SC),
+				Checker_Function(Parse_Recursive_Check, Statements_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_SC)
+		},
+
+		Node_Init
+		{
+			Node_Copy("return_type", Recursively_Generated_Nodes[0]);
+			Node_Copy("id", Recursively_Generated_Nodes[1]);
+			Node_Copy_Syntax("id", S_ID16);						// we want to specify that this is an ID16
+			Node_Copy("statements", Recursively_Generated_Nodes[2]);
 		}
 	)
 };

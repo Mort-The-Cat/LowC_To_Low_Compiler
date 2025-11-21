@@ -3,6 +3,8 @@
 
 std::vector<Token> Parser_Identifiers;	// name and what kind of ID it is
 
+std::string Local_Function_Scope_Name = "";
+
 size_t Is_Token(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t T)
 {
 	return Tokens[0].Token == T;
@@ -22,10 +24,14 @@ size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node,
 		for (size_t Check = 0; Check < Grammars[Index].Checks.size(); Check++)
 		{
 			size_t Delta;
+
 			// Generated_Nodes.clear();
 
 			if (Delta = Grammars[Index].Checks[Check].Check(Tokens + Tokens_Passed, &Generated_Nodes))
 			{
+				if (&Grammars == &Function_Grammars && Check == 1)
+					Local_Function_Scope_Name = "__" + Tokens[Tokens_Passed].Name + "__";
+
 				Tokens_Passed += Delta;	// counts up how many tokens we've read
 			}
 			else
@@ -44,6 +50,9 @@ size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node,
 			// Test_Node.Syntax_ID = Syntax_ID;
 
 			Node->push_back(Test_Node);
+
+			if (&Grammars == &Function_Grammars)
+				Local_Function_Scope_Name = "";
 
 			// also need to set the ID of this node, but I'll handle that later
 

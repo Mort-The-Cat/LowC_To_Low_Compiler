@@ -28,6 +28,12 @@ Define_Grammar(Statements_Grammars);
 Define_Grammar(Type_Grammars);
 Define_Grammar(Return_Type_Grammars);
 Define_Grammar(Function_Grammars);
+Define_Grammar(Global_Declaration_Grammars);
+Define_Grammar(Global_Declarations_Grammars);
+
+Define_Grammar(ID_Assign_Grammars);
+Define_Grammar(Expression8_Grammars);
+Define_Grammar(Expression16_Grammars);
 
 void Generate_Parse_Tree(const Token* Tokens, std::vector<Parse_Node>* Node);
 

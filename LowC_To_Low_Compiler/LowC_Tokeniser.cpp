@@ -33,6 +33,7 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 
 	{	T_IDENTIFIER,	""			},
 	{	T_MEM,			"mem"		},
+	{	T_ADDRESSOF,	"addressof" },
 
 	{	T_OPEN_BR,		"("			},
 	{	T_CLOSE_BR,		")"			},
@@ -47,6 +48,7 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_MINUS_EQUALS, "-="		},
 	{	T_PLUS_PLUS,	"++"		},
 	{	T_MINUS_MINUS,	"--"		},
+	{	T_PLUS,			"+"			},
 	{	T_AND_EQUALS,	"&="		},
 	{	T_OR_EQUALS,	"|="		},
 	{	T_XOR_EQUALS,	"^="		},
@@ -238,6 +240,11 @@ size_t Token_Check_Int_Literal(const char* File, std::vector<Token>& Target_Toke
 
 	// also searches for single character literals
 
+	size_t Delta = 0;
+
+	if (String_Matches_Token(File, sizeof("addressof"), Compiler_Tokens[T_ADDRESSOF].Name.c_str()))
+		Delta = sizeof("addressof");	// I think?
+
 	if (File[0] == '\'')
 	{
 		// beautifully easy! just read this token and skip past
@@ -252,9 +259,9 @@ size_t Token_Check_Int_Literal(const char* File, std::vector<Token>& Target_Toke
 		return 3;									// pass over the character
 	}
 
-	if (String_Matches_Token(File, 3, "0x"))	// if we have the prefix 0x for hexadecimal numbers
+	if (String_Matches_Token(File + Delta, 3, "0x"))	// if we have the prefix 0x for hexadecimal numbers
 	{
-		size_t Count = Count_Valid_Identifier(File + 1) + 1;	// technically x70127313 etc etc is a valid identifier because it starts with a letter
+		size_t Count = Count_Valid_Identifier(File + 1 + Delta) + 1;	// technically x70127313 etc etc is a valid identifier because it starts with a letter
 
 		Token New_Token;
 
@@ -262,14 +269,14 @@ size_t Token_Check_Int_Literal(const char* File, std::vector<Token>& Target_Toke
 
 		for (size_t Index = 0; Index < Count; Index++)
 		{
-			New_Token.Name[Index] = File[Index];
+			New_Token.Name[Index] = File[Index + Delta];
 		}
 
 		New_Token.Token = T_INT_LITERAL;
 
 		Target_Tokens.push_back(New_Token);
 
-		return Count;
+		return Count + Delta;
 	}
 	else
 	{
@@ -278,14 +285,14 @@ size_t Token_Check_Int_Literal(const char* File, std::vector<Token>& Target_Toke
 		Token New_Token;
 		New_Token.Token = T_INT_LITERAL;
 
-		while (Is_Alphanumeric(File[New_Token.Name.size()]) == CHARACTER_NUMBER)
-			New_Token.Name.push_back(File[New_Token.Name.size()]);
+		while (Is_Alphanumeric(File[New_Token.Name.size() + Delta]) == CHARACTER_NUMBER)
+			New_Token.Name.push_back(File[New_Token.Name.size() + Delta]);
 
 		if (New_Token.Name.size())
 		{
 			Target_Tokens.push_back(New_Token);
 
-			return New_Token.Name.size();
+			return New_Token.Name.size() + Delta;
 		}
 	}
 
