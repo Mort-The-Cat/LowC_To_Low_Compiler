@@ -10,11 +10,11 @@
 class Trace
 {
 public:
-	std::string Name;			// The name of the value (could also just be a byte-literal)
+	std::string Name;			// The name/address of the value (could also just be a byte-literal)
 								// i.e. Pointer + 1 or 
 	std::string Value;			// This is an expression of the value stored at this location (if garbage data, set to "?")
 								// i.e. Data[1] etc 
-	size_t Modified_Counter;	// How many times the value has changed
+	size_t Modified_Counter;	// How 'hot' the register is (1. if it can be stored back into memory, 2. if not, 0. if not hot at all)
 
 	// for example, if a register value is 'hot' (i.e. it hasn't been placed back into memory yet, and it should be)
 	// this means the register can't be overwritten or used until the value is written back to memory
