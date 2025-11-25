@@ -167,6 +167,10 @@ enum Syntax_IDs
 	S_DEREF8,					// an 8-bit value, collected from some 16-bit address
 
 	S_PLUS8,					// addition between two 8-bit values
+		/*
+			(left)
+			(right)
+		*/
 	S_PLUS16_8,					// addition between a 16-bit value and an 8-bit value
 
 

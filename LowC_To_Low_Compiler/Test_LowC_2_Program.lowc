@@ -24,7 +24,7 @@ void main()
 
 	Pointer = Pointer + Variable;
 
-	Array[Variable] = *Pointer;
+	// Array[Variable] = *Pointer;
 
 	return;
 }
