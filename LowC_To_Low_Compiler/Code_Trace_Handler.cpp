@@ -2,15 +2,18 @@
 #include "Code_Parser.h"
 #include "LowC_Tokeniser.h"
 
-Trace& Register_From_Name(Tracer_Data& Tracer, char Letter)
+Trace* Register_From_Name(Tracer_Data& Tracer, char Letter)
 {
 	size_t Index = Letter - 'A';
 	if (Letter == 'H')
-		return Tracer.Registers[5];
+		return &Tracer.Registers[5];
 	if (Letter == 'L')
-		return Tracer.Registers[6];
+		return &Tracer.Registers[6];
 
-	return Tracer.Registers[Index];
+	if (Index > 6)
+		return nullptr;
+
+	return &Tracer.Registers[Index];
 }
 
 void Analyse_Statements_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node);
@@ -20,6 +23,7 @@ void Analyse_Statements_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 #define MAKE_VALUE_HOT_HL_REG 2
 
 #define MAKE_VALUE_HOT_REG_PAIR 4
+#define MAKE_VALUE_HOT_REG 5
 
 Trace& Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, size_t Requirements = 0)
 {
@@ -143,15 +147,59 @@ long Find_Value_In_Tracer_Stack(Tracer_Data& Tracer, std::string Value)
 	return -1;
 }
 
-void Store_Tracer_Register_Back_In_Memory(Tracer_Data& Tracer)
+void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_Data& Tracer, Trace* Variable)
 {
-	for (size_t Register = 0; Register < Tracer.Registers.size(); Register++)
+	/*for (size_t Register = 0; Register < Tracer.Registers.size(); Register++)
 		if (Tracer.Registers[Register].Modified_Counter == 1)					// If 'hot'
 		{
 			Tracer.Registers[Register].Modified_Counter = 0;
 
 
-		}
+		}*/
+
+	// 'address' is the register pair in which the address is stored in
+	// if this is a stack variable (which it likely is)
+	// then we need to
+
+	// finds 'Variable' on stack
+
+	long Stack_Position = Find_Value_In_Tracer_Stack(Tracer, Variable->Value);
+
+	if (Stack_Position == -1)
+	{
+		printf(" >> SERIOUS ERROR! Unable to find variable %s on stack tracer!\n", Variable->Value.c_str());
+	}
+
+	Trace* Stack_Memory = &Tracer.Stack[Tracer.Stack.size() - Stack_Position - 1];
+
+	std::string Value = Variable->Value;
+
+	if (Stack_Memory->Pointer_Flag)	// Some kind of 16-bit value?
+	{
+		Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_HL_REG); // Frees up HL register
+
+		Trace* New_Value_Address = Find_Value_In_Tracer_Registers(Tracer, Value);	// We MIGHT need to overwrite this?
+
+		Output_Low_Code += "\tHL += " + std::to_string(Stack_Position) + ";\t\t# Memory location of " + Value + "\n";
+
+		Output_Low_Code += "\t[HL] = " + New_Value_Address[1].Name + ";\t\t# Stores " + Value + "back into memory\n";
+		Output_Low_Code += "\tHL++\n";
+		Output_Low_Code += "\t[HL] = " + New_Value_Address[0].Name + ";\t\t# Stores upper byte of " + Value + "back into memory\n";
+
+		New_Value_Address[0].Modified_Counter = 0;
+		New_Value_Address[1].Modified_Counter = 0;
+	}
+	else
+	{
+		Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_HL_REG);
+
+		Trace* New_Value_Address = Find_Value_In_Tracer_Registers(Tracer, Value);	// Me MIGHT need to overwrite this when freeing HL
+
+		Output_Low_Code += "\tHL += " + std::to_string(Stack_Position) + ";\t\t# Memory location of " + Value + "\n";
+		Output_Low_Code += "\t[HL] = " + New_Value_Address->Name + ";\t\t# Stores " + Value + "back into memory\n";
+
+		New_Value_Address[0].Modified_Counter = 0;
+	}
 }
 
 bool Find_Value_In_Global_Stack(Tracer_Data& Tracer, std::string Value)
@@ -269,7 +317,7 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 				//Found_Value->Modified_Counter = 2
 				Trace* Output_Register = &Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_REG_PAIR);
 				Output_Register[0].Modified_Counter = 2;
-				Output_Register[1].Modified_Counter = 2;
+				Output_Register[1].Modified_Counter = 1;	// Lower value is STILL holding the hot id, save it
 
 				Output_Register[1].Value = Node.Value;
 
@@ -419,6 +467,15 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 			return "A";
 		}
+		else if (Requirements == MAKE_VALUE_HOT_REG)
+		{
+			Trace* Output_Register = &Get_Free_Register(Output_Low_Code, Tracer, Requirements);
+
+			Output_Low_Code +=
+				"\t" + Output_Register->Name + " = " + Node.Value + ";\n";
+
+			return Output_Register->Name;
+		}
 
 		return Node.Value;
 
@@ -429,6 +486,37 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 	}
 
 	}
+}
+
+void Node_Dest_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	// Evaluate expression for 'value'
+
+	// Evaluate expression for 'dest'
+
+	std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0]);
+
+	Trace* Value = Register_From_Name(Tracer, Register[0]);
+
+	if (Value)
+	{
+		Value->Value = "@statement_value@";
+		Value->Modified_Counter = 1;
+
+		Clear_Tracer_Registers(Tracer);	// Any other hot registers we temporarily used to evaluate 'value' can be cleared (we don't need em)
+
+		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["destination"][0], MAKE_VALUE_HOT_HL_REG);
+
+		Value = Find_Value_In_Tracer_Registers(Tracer, "@statement_value@");
+
+		Value->Modified_Counter = 2;
+
+		Register = Value->Name;
+	}
+	else
+		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["destination"][0], MAKE_VALUE_HOT_HL_REG);
+
+	Output_Low_Code += "\t[HL] = " + Register + ";\t\t# Stores value into memory location\n";
 }
 
 void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
@@ -445,7 +533,7 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 		std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0]);
 
-		Trace* Value = &Register_From_Name(Tracer, Register[0]);
+		Trace* Value = Register_From_Name(Tracer, Register[0]);
 		Value->Value = Node["id"][0].Value;
 		Value->Modified_Counter = 1;
 	}
@@ -453,7 +541,7 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 	{
 		std::string Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG_PAIR);
 
-		Trace* Value = &Register_From_Name(Tracer, Registers[0]);
+		Trace* Value = Register_From_Name(Tracer, Registers[0]);
 		Value[0].Value = Node["id"][0].Value;
 		Value[1].Value = Node["id"][0].Value;
 		Value[0].Modified_Counter = 1;
@@ -535,6 +623,9 @@ void Node_Function_Definition(std::string& Output_Low_Code, Tracer_Data& Tracer,
 	Tracer.Global_Const_Declarations.push_back(&Node);
 
 	Output_Low_Code += "subroutine " + Node["id"][0].Value + "\n{\n";
+
+	for (size_t W = 0; W < Tracer.Registers.size(); W++)
+		Tracer.Registers[W].Modified_Counter = 0;			// We enter the function with a blank slate
 
 	Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["statements"][0]);
 
@@ -640,6 +731,12 @@ void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 	if (Node.Syntax_ID == S_ID_ASSIGN)
 	{
 		Node_ID_Assign_Statement(Output_Low_Code, Tracer, Node);
+		return;
+	}
+
+	if (Node.Syntax_ID == S_DEST_ASSIGN)
+	{
+		Node_Dest_Assign_Statement(Output_Low_Code, Tracer, Node);
 		return;
 	}
 

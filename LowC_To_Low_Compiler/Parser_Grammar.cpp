@@ -191,6 +191,24 @@ const std::vector<Grammar_Checker> Expression8_Grammars =
 	)
 };
 
+const std::vector<Grammar_Checker> Dest_Assign_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_POINTER),
+			Checker_Function(Parse_Recursive_Check, Expression16_Grammars),
+			Checker_Function(Is_Token, T_EQUALS),
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Copy("destination", Recursively_Generated_Nodes[0]);
+			Node_Copy("value", Recursively_Generated_Nodes[1]);
+		}
+	)
+};
+
 const std::vector<Grammar_Checker> ID_Assign_Grammars =
 {
 	Grammar_Checker(
@@ -496,6 +514,17 @@ const std::vector<Grammar_Checker> Statement_Grammars =
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 			Node_Set_Syntax(S_ID_ASSIGN);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Dest_Assign_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_DEST_ASSIGN);
 		}
 	)
 };
