@@ -16,6 +16,8 @@ Trace* Register_From_Name(Tracer_Data& Tracer, char Letter)
 	return &Tracer.Registers[Index];
 }
 
+void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_Data& Tracer, Trace* Variable);
+
 void Analyse_Statements_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node);
 
 #define MAKE_VALUE_HOT_NO_REQUIREMENTS 0
@@ -86,26 +88,86 @@ Trace& Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, size
 
 		// iterate through registers and find one that isn't hot.
 		// if we can't find one that isn't hot? find a value you can store back to memory
+	{
 
-		for (size_t Index = 0; Index < Tracer.Registers.size(); Index++)
+		const size_t Indices[] = { 0, 6, 5, 4, 3, 2, 1 };
+
+		int Tries = 8;
+
+		while (Tries)
 		{
-			if (Tracer.Registers[Index].Modified_Counter == 0)
-				return Tracer.Registers[Index];
+
+			for (size_t Index = 0; Index < 7; Index++)
+			{
+				if (Tracer.Registers[Indices[Index]].Modified_Counter == 0)
+					return Tracer.Registers[Indices[Index]];
+			}
+
+			// store something back into memory if possible
+
+			for(size_t Index = 0; Index < 7; Index++)
+				if (Tracer.Registers[Index].Modified_Counter == 1)
+				{
+					Store_Tracer_Register_Back_In_Memory(Output_Low_Code, Tracer, &Tracer.Registers[Index]);
+					Tries--;
+
+					break;
+				}
+
+			Tries--;
 		}
 
 		// I'll implement this later
 
 		break;
 
+	}
+
 		//
 
 	case MAKE_VALUE_HOT_REG_PAIR:
 
-		for (long Index = 5; Index >= 0; Index -= 2)
+	{
+		int Tries = 8;
+
+		while (Tries)
 		{
-			if (Tracer.Registers[Index].Modified_Counter == 0 && Tracer.Registers[Index + 1].Modified_Counter == 0)
-				return Tracer.Registers[Index];
+
+			for (long Index = 5; Index >= 0; Index -= 2)
+			{
+				if (Tracer.Registers[Index].Modified_Counter == 0 && Tracer.Registers[Index + 1].Modified_Counter == 0)
+					return Tracer.Registers[Index];
+			}
+
+
+			for (long Index = 5; Index >= 0; Index -= 2)
+				if (Tracer.Registers[Index].Modified_Counter == 1)
+				{
+					// Honestly... just push ts to the stack </3
+
+					Output_Low_Code += "\tpush " + Tracer.Registers[Index].Name + Tracer.Registers[Index + 1].Name + ";\t\t# Push 16-bit word to stack to free up registers\n";
+
+					Tracer.Stack.push_back(Trace("@panic@", Tracer.Registers[Index + 1].Value, 1));
+					Tracer.Stack.push_back(Trace("@panic@", Tracer.Registers[Index].Value, 2));
+
+					Tracer.Registers[Index].Modified_Counter = 0;
+					Tracer.Registers[Index + 1].Modified_Counter = 0;
+
+					// we can 'pop' it later 
+					
+					//Store_Tracer_Register_Back_In_Memory(Output_Low_Code, Tracer, &Tracer.Registers[Index]);
+
+					Tries--;
+					break;
+				}
+
+			Tries--;
+
 		}
+
+		break;
+
+	}
 
 		// this too
 		// although this should be a little easier because I can instantly 'push' a reg pair to the stack effortlessly
@@ -147,6 +209,48 @@ long Find_Value_In_Tracer_Stack(Tracer_Data& Tracer, std::string Value)
 	return -1;
 }
 
+long Find_Value_Address_In_Tracer_Stack(Tracer_Data& Tracer, std::string Value)
+{
+	long Offset = 0;
+
+	for (long Index = Tracer.Stack.size() - 1; Index >= 0; Index--, Offset++)
+	{
+		if (Tracer.Stack[Index].Name == Value)
+		{
+			return Offset;
+		}
+	}
+
+	return -1;
+}
+
+bool Writeback_Panic_Push(std::string& Output_Low_Code, Tracer_Data& Tracer)	// This fixes any 'panic' pushes, grabbing the memory back from the stack and into a register
+{
+	if (!Tracer.Stack.size())
+		return false;
+
+
+	if (Tracer.Stack.back().Name == "@panic@")
+	{
+		Trace* Register_Pair = &Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_REG_PAIR);
+
+		Register_Pair[0].Value = Tracer.Stack.back().Value;
+		Register_Pair[1].Value = Tracer.Stack.back().Value;
+
+		Register_Pair[0].Modified_Counter = 1;
+		Register_Pair[1].Modified_Counter = 1;
+
+		Output_Low_Code += "\tpop " + Register_Pair[0].Name + Register_Pair[1].Name + ";\t\t# Fixes 'panic' push, places value back into register\n";
+
+		Tracer.Stack.pop_back();
+		Tracer.Stack.pop_back();
+
+		return true;
+	}
+
+	return false;
+}
+
 void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_Data& Tracer, Trace* Variable)
 {
 	/*for (size_t Register = 0; Register < Tracer.Registers.size(); Register++)
@@ -167,6 +271,7 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 
 	if (Stack_Position == -1)
 	{
+
 		printf(" >> SERIOUS ERROR! Unable to find variable %s on stack tracer!\n", Variable->Value.c_str());
 	}
 
@@ -395,7 +500,7 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 					Output_Register[1].Modified_Counter = 0;
 
 					Output_Low_Code +=
-						"\tH = " + Output_Register[0].Name + ";\n\tL = " + Output_Register[1].Name; +";\t\t# Places register pair into HL\n";
+						"\tH = " + Output_Register[0].Name + ";\n\tL = " + Output_Register[1].Name + ";\t\t# Places register pair into HL\n";
 
 					return "HL";
 				}
@@ -408,6 +513,21 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 				"\t" + Output_Register[0].Name + " = [HL];\t\t# Places " + Node.Value + " into register\n";
 
 			return Output_Register[0].Name;
+		}
+
+		Stack_Index = Find_Value_Address_In_Tracer_Stack(Tracer, Node.Value);
+
+		if (Stack_Index != -1)
+		{
+			Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_HL_REG);
+
+			Tracer.Registers[5].Modified_Counter = 2;	// This is just the address of the array, it never needs to be written back at all
+			Tracer.Registers[6].Modified_Counter = 2;
+
+			Output_Low_Code +=
+				"\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Gets array address into register\n";
+
+			return "HL";
 		}
 
 		//if (!Find_Value_In_Global_Stack(Tracer, Node.Value))
@@ -494,29 +614,37 @@ void Node_Dest_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Trace
 
 	// Evaluate expression for 'dest'
 
-	std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0]);
+	std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0]);// , MAKE_VALUE_HOT_A_REG);
 
 	Trace* Value = Register_From_Name(Tracer, Register[0]);
 
+	std::string Destination_Registers;
+
 	if (Value)
 	{
-		Value->Value = "@statement_value@";
-		Value->Modified_Counter = 1;
+		if(Value->Modified_Counter != 1)
+			Value->Value = "@statement_value@";
+		Value->Modified_Counter = 3;
+
+		std::string Name = Value->Value;
 
 		Clear_Tracer_Registers(Tracer);	// Any other hot registers we temporarily used to evaluate 'value' can be cleared (we don't need em)
 
-		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["destination"][0], MAKE_VALUE_HOT_HL_REG);
+		Destination_Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["destination"][0], MAKE_VALUE_HOT_HL_REG);
 
-		Value = Find_Value_In_Tracer_Registers(Tracer, "@statement_value@");
+		Value = Find_Value_In_Tracer_Registers(Tracer, Name);
 
-		Value->Modified_Counter = 2;
+		if (Value->Value == "@statement_value@")
+			Value->Modified_Counter = 2;
+		else
+			Value->Modified_Counter = 1;
 
 		Register = Value->Name;
 	}
 	else
-		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["destination"][0], MAKE_VALUE_HOT_HL_REG);
+		Destination_Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["destination"][0], MAKE_VALUE_HOT_HL_REG);
 
-	Output_Low_Code += "\t[HL] = " + Register + ";\t\t# Stores value into memory location\n";
+	Output_Low_Code += "\t[" + Destination_Registers + "] = " + Register + "; \t\t# Stores value into memory location\n";
 }
 
 void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
@@ -752,6 +880,8 @@ void Analyse_Statements_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 	Analyse_Statement_LowC(Output_Low_Code, Tracer, Node);
 
 	Clear_Tracer_Registers(Tracer);
+
+	while (Writeback_Panic_Push(Output_Low_Code, Tracer));
 
 	if (Node.Child_Nodes.count("statements"))
 		Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["statements"][0]);

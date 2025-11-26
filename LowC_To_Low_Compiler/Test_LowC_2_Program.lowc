@@ -26,5 +26,7 @@ void main()
 
 	*Pointer = Variable + 10;
 
+	*(Array + 9) = *Pointer;
+
 	return;
 }
