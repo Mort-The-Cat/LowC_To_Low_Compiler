@@ -1,6 +1,9 @@
 #include "Parser_Grammar.h"
 #include "Code_Parser.h"
 
+size_t Return_Type_Of_Current_Parsed_Function;
+std::vector<Parse_Node*> Declared_Functions;	// This is used to get the return-type and parameter of a function when calling it using stock C syntax in the parser
+
 void Generate_Parse_Tree(const Token* Tokens, std::vector<Parse_Node>* Node)
 {
 	Parse_Recursive_Check(Tokens, Node, Global_Declarations_Grammars, T_INVALID);
@@ -20,6 +23,9 @@ size_t Get_Syntax_ID_Of_Identifier(const char* Name)
 		if (0 == strcmp(Name, Parser_Identifiers[Index].Name.c_str()))
 			return Parser_Identifiers[Index].Token;
 
+	for (long Index = Parser_Identifiers.size() - 1; Index != -1; Index--)
+		if (0 == strcmp((Local_Function_Scope_Name + Name).c_str(), Parser_Identifiers[Index].Name.c_str()))
+			return Parser_Identifiers[Index].Token;
 
 	return -1;	// Bad value!
 }
@@ -401,21 +407,6 @@ const std::vector<Grammar_Checker> Parameter_Grammars =
 {
 	Grammar_Checker(
 		{
-			Checker_Function(Is_Token, T_BYTE), Checker_Function(Is_Token, T_IDENTIFIER)
-		},
-		Node_Init
-		{
-			Node_Add("type", S_BYTE, "byte");
-			Node_Add("id", S_ID8, Tokens[1].Name);
-
-			Add_To_Parser_Identifiers({ S_ID8, Tokens[1].Name });
-
-			Node_Add("size", S_INT_LITERAL, "1");
-		}
-	),
-
-	Grammar_Checker(
-		{
 			Checker_Function(Is_Token, T_BYTE), Checker_Function(Is_Token, T_POINTER), Checker_Function(Is_Token, T_IDENTIFIER)
 		},
 		Node_Init
@@ -446,6 +437,21 @@ const std::vector<Grammar_Checker> Parameter_Grammars =
 
 	Grammar_Checker(
 		{
+			Checker_Function(Is_Token, T_BYTE), Checker_Function(Is_Token, T_IDENTIFIER)
+		},
+		Node_Init
+		{
+			Node_Add("type", S_BYTE, "byte");
+			Node_Add("id", S_ID8, Tokens[1].Name);
+
+			Add_To_Parser_Identifiers({ S_ID8, Tokens[1].Name });
+
+			Node_Add("size", S_INT_LITERAL, "1");
+		}
+	),
+
+	Grammar_Checker(
+		{
 			Checker_Function(Is_Token, T_WORD), Checker_Function(Is_Token, T_IDENTIFIER)
 		},
 		Node_Init
@@ -464,7 +470,9 @@ const std::vector<Grammar_Checker> Parameters_Grammars =
 {
 	Grammar_Checker(
 		{
-			Checker_Function(Parse_Recursive_Check, Parameter_Grammars), Checker_Function(Parse_Recursive_Check, Parameters_Grammars)
+			Checker_Function(Parse_Recursive_Check, Parameter_Grammars), 
+			Checker_Function(Is_Token, T_COMMA),
+			Checker_Function(Parse_Recursive_Check, Parameters_Grammars)
 		},
 		Node_Init
 		{
@@ -488,17 +496,52 @@ const std::vector<Grammar_Checker> Return_Grammars =
 {
 	Grammar_Checker(
 		{
-			Checker_Function(Is_Token, T_RETURN), Checker_Function(Is_Token, T_SEMI)
+			Checker_Function(Is_Token, T_RETURN)//, Checker_Function(Is_Token, T_SEMI)
 		},
 		Node_Init
 		{
 			Node_Set(Parse_Node(S_RETURN, "return"));
+
+			if (Return_Type_Of_Current_Parsed_Function == S_VOID)
+			{
+				// just increment it once past the semicolon
+
+				Tokens_Passed++;
+			}
+			else
+			{
+				std::vector<Parse_Node> Generated_Nodes;
+
+				if (Return_Type_Of_Current_Parsed_Function == S_BYTE)
+				{
+					Tokens_Passed += Parse_Recursive_Check(Tokens + Tokens_Passed, &Generated_Nodes, Expression8_Grammars, 0) + 1;
+				}
+				else
+					Tokens_Passed += Parse_Recursive_Check(Tokens + Tokens_Passed, &Generated_Nodes, Expression16_Grammars, 0) + 1;
+
+				// Put it on the "value" node
+
+				Node_Copy("value", Generated_Nodes[0]);
+			}
 		}
 	)
 };
 
 const std::vector<Grammar_Checker> Statement_Grammars =
 {
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Function_Call_Grammars),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_FUNCTION_CALL);
+		}
+
+	),
+
 	Grammar_Checker(
 		{
 			Checker_Function(Parse_Recursive_Check, Stack_Definition_Grammars)	// declares a stack variable
@@ -583,6 +626,16 @@ const std::vector<Grammar_Checker> Type_Grammars =
 {
 	Grammar_Checker(
 		{
+			Checker_Function(Is_Token, T_BYTE), Checker_Function(Is_Token, T_POINTER)
+		},
+		Node_Init
+		{
+			Node_Set(Parse_Node(S_BYTE_POINTER, "byte*"));
+		}
+	),
+
+	Grammar_Checker(
+		{
 			Checker_Function(Is_Token, T_BYTE)
 		},
 		Node_Init
@@ -598,16 +651,6 @@ const std::vector<Grammar_Checker> Type_Grammars =
 		Node_Init
 		{
 			Node_Set(Parse_Node(S_WORD, "word"));
-		}
-	),
-
-	Grammar_Checker(
-		{
-			Checker_Function(Is_Token, T_BYTE), Checker_Function(Is_Token, T_POINTER)
-		},
-		Node_Init
-		{
-			Node_Set(Parse_Node(S_BYTE_POINTER, "byte*"));
 		}
 	)
 };
@@ -675,6 +718,55 @@ const std::vector<Grammar_Checker> Function_Grammars =
 			Node_Copy("id", Recursively_Generated_Nodes[1]);
 			Node_Copy_Syntax("id", S_ID16);						// we want to specify that this is an ID16
 			Node_Copy("statements", Recursively_Generated_Nodes[2]);
+		}
+	)
+};
+
+Parse_Node& Get_Function_Call(std::string Name)
+{
+	for (size_t W = 0; W < Declared_Functions.size(); W++)
+		if ((*Declared_Functions[W])["id"][0].Value == Name)
+			return *Declared_Functions[W];
+}
+
+void Parse_Function_Call_Parameters(const Token* Tokens, std::vector<Parse_Node>& Recursively_Generated_Nodes, Parse_Node* New_Node, size_t& Tokens_Passed, const Parse_Node& Parameter_Node)
+{
+	if (Parameter_Node["id"][0].Syntax_ID == S_ID8)
+		Tokens_Passed += Parse_Recursive_Check(Tokens + Tokens_Passed, &Recursively_Generated_Nodes, Expression8_Grammars, 0);
+	else
+		Tokens_Passed += Parse_Recursive_Check(Tokens + Tokens_Passed, &Recursively_Generated_Nodes, Expression16_Grammars, 0);
+
+	Node_Copy("parameters", Recursively_Generated_Nodes.back());
+
+	if (Parameter_Node.Child_Nodes.count("parameters"))
+	{
+		Tokens_Passed++;	// skips the comma
+
+		New_Node->Child_Nodes["parameters"][0].Child_Nodes["parameters"].resize(1);
+
+		Parse_Function_Call_Parameters(Tokens, Recursively_Generated_Nodes, &New_Node->Child_Nodes["parameters"][0], Tokens_Passed, Parameter_Node["parameters"][0]);
+	}
+}
+
+const std::vector<Grammar_Checker> Function_Call_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_ID, S_ID16),
+			Checker_Function(Is_Token, T_OPEN_BR)
+		},
+		Node_Init
+		{
+			// Here, we want to let this be a function call, and then we recursively gather the parameter expressions based on data types
+			Node_Set_Syntax(S_FUNCTION_CALL);
+			Parse_Node& Function_Dec = Get_Function_Call(Tokens[0].Name);
+			if (Function_Dec.Child_Nodes.count("parameters"))
+			{
+
+				Parse_Function_Call_Parameters(Tokens, Recursively_Generated_Nodes, New_Node, Tokens_Passed, Function_Dec["parameters"][0]);
+			}
+
+			Tokens_Passed++; // close bracket
 		}
 	)
 };

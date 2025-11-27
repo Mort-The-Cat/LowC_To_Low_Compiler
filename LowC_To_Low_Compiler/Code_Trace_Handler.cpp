@@ -356,7 +356,10 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 		// This will put 'left' into the A register and 'right' into a register of our choice
 		// Then, it'll tell the tracer that the result is stored in 'A'
 
+		//Register_From_Name(Tracer, Right_Operand_)
+
 		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["left"][0], MAKE_VALUE_HOT_A_REG);
+
 		std::string Right_Operand_Val = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["right"][0]);
 
 		Output_Low_Code += "\tA += " + Right_Operand_Val + ";\t\t# S_PLUS8\n";
@@ -370,8 +373,14 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 	{
 		// This will put 'left' into the HL register and 'right' into another register pair. Important that 'right' high is $00
 
-		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["left"][0], MAKE_VALUE_HOT_HL_REG);
 		std::string Right_Operand_Val = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["right"][0], MAKE_VALUE_HOT_REG_PAIR);	// must be a reg-pair
+		Register_From_Name(Tracer, Right_Operand_Val[0])->Modified_Counter = 3;
+		Register_From_Name(Tracer, Right_Operand_Val[0])->Value = "@value@"; 
+
+		Register_From_Name(Tracer, Right_Operand_Val[1])->Modified_Counter = 3;
+		Register_From_Name(Tracer, Right_Operand_Val[1])->Value = "@value@";
+		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["left"][0], MAKE_VALUE_HOT_HL_REG);
+		Right_Operand_Val = Find_Value_In_Tracer_Registers(Tracer, "@value@")[0].Name + Find_Value_In_Tracer_Registers(Tracer, "@value@")[1].Name;
 
 		Output_Low_Code += "\tHL += " + Right_Operand_Val + ";\t\t# S_PLUS16_8\n";
 
@@ -470,19 +479,53 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 			if (Requirements == MAKE_VALUE_HOT_REG_PAIR || Requirements == MAKE_VALUE_HOT_HL_REG)
 			{
-				// we want to increment to next thing
+				if (Node.Syntax_ID == S_ID8)
+				{
+					Output_Register[1].Value = Output_Register[0].Value;
+					Output_Register[1].Modified_Counter = 2;
+					
+					Output_Register->Value = "$00";
 
-				Output_Low_Code +=
-					"\tHL = SP + " + std::to_string(Stack_Index) + ";\n" +
-					"\t" + Output_Register[1].Name + " = [HL];\t\t# Places lower byte of " + Node.Value + " into register\n";
+					Output_Low_Code +=
+						"\tHL = SP + " + std::to_string(Stack_Index) + ";\n";
 
-				Output_Register[1].Value = Tracer.Stack[Tracer.Stack.size() - 2 - Stack_Index].Value;
-				Output_Register[1].Modified_Counter = 2;
-				Output_Register[1].Pointer_Flag = 1;// Tracer.Stack[Tracer.Stack.size() - 2 - Stack_Index].Pointer_Flag;
+					if (Requirements != MAKE_VALUE_HOT_REG_PAIR)
+					{
 
-				Output_Low_Code +=
-					"\tHL++;\n\t" +
-					Output_Register[0].Name + " = [HL];\t\t# Places " + Node.Value + " into register\n";
+						Output_Low_Code +=
+							"\t" + Output_Register[1].Name + " = [HL];\t\t# Places lower byte of " + Node.Value + " into register\n";
+						
+						Output_Low_Code +=
+							"\t" + Output_Register[0].Name + " = $00;\t\t# Zeroes upper byte\n";
+					}
+					else
+					{
+						Output_Low_Code +=
+							"\tL = [HL];\t\t# Places lower byte of " + Node.Value + " into register\n";
+
+						Output_Low_Code +=
+							"\tH = $00;\t\t# Zeroes upper byte\n";
+
+						return "HL";
+					}
+
+				}
+				else
+				{
+					// we want to increment to next thing
+					Output_Low_Code +=
+						"\tHL = SP + " + std::to_string(Stack_Index) + ";\n" +
+						"\t" + Output_Register[1].Name + " = [HL];\t\t# Places lower byte of " + Node.Value + " into register\n";
+
+					Output_Register[1].Value = Tracer.Stack[Tracer.Stack.size() - 2 - Stack_Index].Value;
+					Output_Register[1].Modified_Counter = 2;
+					Output_Register[1].Pointer_Flag = 1;// Tracer.Stack[Tracer.Stack.size() - 2 - Stack_Index].Pointer_Flag;
+
+					Output_Low_Code +=
+						"\tHL++;\n\t" +
+						Output_Register[0].Name + " = [HL];\t\t# Places " + Node.Value + " into register\n";
+
+				}
 
 				//
 
@@ -725,6 +768,8 @@ void Node_Parameters_Dec(std::string& Output_Low_Code, Tracer_Data& Tracer, cons
 {
 	Node_Parameter_Dec(Output_Low_Code, Tracer, Node);
 
+	//Tracer.Parameters_Count += 2 - (Node["type"][0].Syntax_ID == S_BYTE);
+
 	if (Node.Child_Nodes.count("parameters"))
 		Node_Parameters_Dec(Output_Low_Code, Tracer, Node["parameters"][0]);
 }
@@ -739,10 +784,12 @@ void Node_Function_Definition(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 	// First, add parameters to code tracer stack
 
-	Tracer.Parameters_Count = 0;
+	//Tracer.Parameters_Count = 0;
 
 	if(Node.Child_Nodes.count("parameters"))									// The function might not even have parameters!
 		Node_Parameters_Dec(Output_Low_Code, Tracer, Node["parameters"][0]);
+
+	Tracer.Parameters_Count = Tracer.Stack.size();
 
 	Tracer.Current_Scope_Function_Return_Type = Node["return_type"][0].Syntax_ID;
 
@@ -865,6 +912,12 @@ void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 	if (Node.Syntax_ID == S_DEST_ASSIGN)
 	{
 		Node_Dest_Assign_Statement(Output_Low_Code, Tracer, Node);
+		return;
+	}
+
+	if (Node.Syntax_ID == S_FUNCTION_CALL)
+	{
+		printf("hit!\n");
 		return;
 	}
 

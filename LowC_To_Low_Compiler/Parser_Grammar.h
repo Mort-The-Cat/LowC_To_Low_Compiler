@@ -35,6 +35,8 @@ Define_Grammar(ID_Assign_Grammars);
 Define_Grammar(Expression8_Grammars);
 Define_Grammar(Expression16_Grammars);
 
+Define_Grammar(Function_Call_Grammars);	// Note that this is specifically a call to a constant function, not any kind of dynamic function pointer
+
 void Generate_Parse_Tree(const Token* Tokens, std::vector<Parse_Node>* Node);
 
 #endif

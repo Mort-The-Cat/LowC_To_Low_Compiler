@@ -6,6 +6,15 @@
 
 const byte Global_String[] = "Hey, world!";
 
+byte Other_Function(byte Parameter_1, byte* Some_Pointer)
+{
+	const byte Other_Local_String[] = "Hey, hey!";
+
+	*(Some_Pointer) = Parameter_1;
+
+	return *(Other_Local_String + Parameter_1);
+}
+
 void main()
 {
 	const byte Local_String[] = "Blah blah!";
@@ -26,7 +35,11 @@ void main()
 
 	*Pointer = Variable + 10;
 
+	//call(HRAM, void, (int, int))(10, 15);
+
 	*(Array + 9) = *Pointer;
 
-	return;
+	//Other_Function(4, Array);
+
+	return;//  Pointer;
 }

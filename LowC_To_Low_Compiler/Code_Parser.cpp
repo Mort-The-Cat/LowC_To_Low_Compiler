@@ -32,6 +32,17 @@ size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node,
 				if (&Grammars == &Function_Grammars && Check == 1)
 					Local_Function_Scope_Name = "__" + Tokens[Tokens_Passed].Name + "__";
 
+				if (&Grammars == &Function_Grammars && Check == 0)
+				{
+					// This'll set the function return type
+					// Important for choosing the correct kind of expression for the return type
+
+					Return_Type_Of_Current_Parsed_Function = Generated_Nodes[0].Syntax_ID;
+				}
+
+				if (&Grammars == &Function_Grammars && Grammars[Index].Checks[Check].Parameter == T_CLOSE_BR)
+					Declared_Functions.push_back(&Test_Node);
+
 				Tokens_Passed += Delta;	// counts up how many tokens we've read
 			}
 			else
@@ -45,11 +56,11 @@ size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node,
 		{
 			// write it to 'node' and increment counter
 
-			Grammars[Index].Init_Function(Tokens, Generated_Nodes, &Test_Node);
+			Grammars[Index].Init_Function(Tokens, Generated_Nodes, &Test_Node, Tokens_Passed);
 
 			// Test_Node.Syntax_ID = Syntax_ID;
 
-			Node->push_back(Test_Node);
+			Node->push_back(std::move(Test_Node));
 
 			if (&Grammars == &Function_Grammars)
 				Local_Function_Scope_Name = "";

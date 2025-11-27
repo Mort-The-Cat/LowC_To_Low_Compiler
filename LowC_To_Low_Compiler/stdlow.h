@@ -3,7 +3,9 @@
 
 void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW implementation
 
-#define call(function, return_type, parameters) _call(function);	// Function implementation included elsewhere (NOTE THIS RESULTS IN UNDEFINED BEHAVIOUR UNLESS DONE IN LOWC)
+#define call(function, return_type, parameters) ((return_type(*)parameters)function)
+
+//_call(function);	// Function implementation included elsewhere (NOTE THIS RESULTS IN UNDEFINED BEHAVIOUR UNLESS DONE IN LOWC)
 
 #define mem ((unsigned char*)(0))
 
