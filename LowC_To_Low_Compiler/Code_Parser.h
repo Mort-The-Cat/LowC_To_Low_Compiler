@@ -81,7 +81,7 @@ public:
 	}
 };
 
-extern std::vector<Parse_Node*> Declared_Functions;
+extern std::vector<std::vector<Parse_Node>> Declared_Functions;
 
 class Grammar_Checker
 {
@@ -184,19 +184,19 @@ enum Syntax_IDs
 // void Parse_Tokens(std::vector<Syntax_Wrap>* Syntax, std::vector<Token>& Tokens);
 
 #define Node_Value(New_Value)\
-	New_Node->Value = New_Value;
+	New_Node->Value = New_Value
 
 #define Node_Copy(Sub_ID, Generated_Node)\
 	New_Node->Child_Nodes[Sub_ID].push_back(Generated_Node)
 
 #define Node_Copy_Syntax(Sub_ID, S_ID)\
-	New_Node->Child_Nodes[Sub_ID].back().Syntax_ID = S_ID;
+	New_Node->Child_Nodes[Sub_ID].back().Syntax_ID = S_ID
 
 #define Node_Set(Generated_Node)\
-	*New_Node = Generated_Node;\
+	*New_Node = Generated_Node\
 
 #define Node_Set_Syntax(S_ID)\
-	New_Node->Syntax_ID = S_ID;
+	New_Node->Syntax_ID = S_ID
 
 #define Node_Add(Sub_ID, Syntax_ID, Representation)\
 	New_Node->Child_Nodes[Sub_ID].push_back(Parse_Node(Syntax_ID, Representation))
@@ -211,6 +211,6 @@ size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node,
 size_t Is_Token(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t T);
 
 void Parse_Function_Call_Parameters(const Token* Tokens, std::vector<Parse_Node>& Recursively_Generated_Nodes, Parse_Node* New_Node, size_t& Tokens_Passed, const Parse_Node& Parameter_Node);
-
+std::vector<Parse_Node>& Get_Function_Call(std::string Name);
 
 #endif

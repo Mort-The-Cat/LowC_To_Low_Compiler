@@ -19,6 +19,7 @@ void main()
 {
 	const byte Local_String[] = "Blah blah!";
 	byte Variable;
+	byte Other_Variable;
 	byte* Pointer;
 
 	byte Array[10];
@@ -27,7 +28,7 @@ void main()
 
 	Variable = *LCDY_REGISTER;
 
-	Variable = Variable + 10;
+	Other_Variable = Variable + 10;
 
 	Pointer = CONTROLLER_REGISTER;
 
@@ -39,7 +40,7 @@ void main()
 
 	*(Array + 9) = *Pointer;
 
-	//Other_Function(4, Array);
+	Other_Function(4, Array);
 
 	return;//  Pointer;
 }
