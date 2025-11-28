@@ -77,9 +77,15 @@ Trace& Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, size
 			//Temp_Reg[0].Pointer_Flag = Tracer.Registers[5].Pointer_Flag;
 			//Temp_Reg[1].Pointer_Flag = Tracer.Registers[6].Pointer_Flag;
 
-			Output_Low_Code +=
-				"\t" + Temp_Reg[0].Name + " = H;\t\t# Frees up H register for use\n" +
-				"\t" + Temp_Reg[1].Name + " = L;\t\t# Frees up L register for use\n";
+			if (Temp_Reg[0].Modified_Counter) // any kinda value here?
+				Output_Low_Code += "\t" + Temp_Reg[0].Name + " = H;\t\t# Frees up H register for use\n";
+
+			if (Temp_Reg[1].Modified_Counter)
+				Output_Low_Code += "\t" + Temp_Reg[1].Name + " = L;\t\t# Frees up L register for use\n";
+
+			//Output_Low_Code +=
+			//	"\t" + Temp_Reg[0].Name + " = H;\t\t# Frees up H register for use\n" +
+			//	"\t" + Temp_Reg[1].Name + " = L;\t\t# Frees up L register for use\n";
 		}
 
 		Tracer.Registers[5].Modified_Counter = 0;
@@ -238,6 +244,16 @@ bool Writeback_Panic_Push(std::string& Output_Low_Code, Tracer_Data& Tracer)	// 
 
 	if (Tracer.Stack.back().Name == "@panic@")
 	{
+		if (Find_Value_In_Tracer_Registers(Tracer, Tracer.Stack.back().Value))
+		{
+			Output_Low_Code += "\tSP += 2;\t\t# Fixes 'panic' push\n";
+
+			Tracer.Stack.pop_back();
+			Tracer.Stack.pop_back();
+
+			return true;
+		}
+
 		Trace* Register_Pair = &Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_REG_PAIR);
 
 		Register_Pair[0].Value = Tracer.Stack.back().Value;
@@ -552,15 +568,25 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 			}
 			else // no issue
 			{
-				Output_Low_Code += "\tL = [HL];\t\t# Stores " + Node.Value + " into L register\n";
-
 				Tracer.Registers[5].Modified_Counter = 0;
-				Tracer.Registers[6].Modified_Counter = 1 + Copy_Requirements;
+				Tracer.Registers[6].Modified_Counter = 0;
 
-				Tracer.Registers[5].Value = "";
-				Tracer.Registers[6].Value = Node.Value;
+				//std::string = Get_Free_Register()
 
-				return "L";
+				Trace* Register = &Get_Free_Register(Output_Low_Code, Tracer, 0);	// any kind of free register other than HL (but HL is still available)
+
+				Output_Low_Code += "\t" + Register->Name + " = [HL];\t\t# Stores " + Node.Value + " into " + Register->Name + " register\n";
+
+				//Tracer.Registers[5].Modified_Counter = 0;
+				//Tracer.Registers[6].Modified_Counter = 1 + Copy_Requirements;
+
+				//Tracer.Registers[5].Value = "";
+				//Tracer.Registers[6].Value = Node.Value;
+
+				Register->Modified_Counter = 1 + Copy_Requirements;
+				Register->Value = Node.Value;
+
+				return Register->Name;
 			}
 		}
 	}
@@ -828,8 +854,7 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 	if (Node["id"][0].Syntax_ID == S_ID8)
 	{
-
-		std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], 0);
+		std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], 0, PULL_IDENTIFIER_COPY);
 
 		Trace* Value = Register_From_Name(Tracer, Register[0]);
 		Value->Value = Node["id"][0].Value;
@@ -837,7 +862,7 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 	}
 	else
 	{
-		std::string Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG_PAIR);
+		std::string Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG_PAIR, PULL_IDENTIFIER_COPY);
 
 		Trace* Value = Register_From_Name(Tracer, Registers[0]);
 		Value[0].Value = Node["id"][0].Value;
