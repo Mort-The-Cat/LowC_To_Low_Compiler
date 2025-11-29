@@ -52,7 +52,7 @@
     <Text Include="Grammar.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Test_LowC_Program.lowc" />
     <None Include="Test_LowC_2_Program.lowc" />
+    <None Include="Test_LowC_3_Program.lowc" />
   </ItemGroup>
 </Project>

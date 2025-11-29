@@ -1,0 +1,88 @@
+#include "stdlow.h"
+
+#include "low_macros.h"
+
+#define Left 0
+#define Right 1
+#define Top 2
+#define Bottom 3
+#define Middle 4
+
+#define Top_Left 5
+#define Top_Right 6
+
+#define Bottom_Left 7
+#define Bottom_Right 8
+
+void create_table_in_vram0(byte X, byte Y, byte Width, byte Height)
+{
+	// Setup some cool graphics!!
+
+	byte* Write_Head = VRAM_TILEM_0 + X;
+
+	Y += Y;	// x2
+	Y += Y; // x4
+	Y += Y; // x8
+	Y += Y; // x16
+	Y += Y; // x32
+
+	Write_Head += Y;
+
+	byte* Temp = Write_Head;
+
+	*Write_Head = Top_Left;
+
+	Write_Head++;
+
+	X = Width;
+
+	while (X)
+	{
+		*Write_Head = Top;
+		Write_Head++;
+		X--;
+	}
+
+	*Write_Head = Bottom_Right;
+
+	// Write_Head = Temp;
+
+	while (Height)
+	{
+		Temp += 32;
+		Write_Head = Temp;
+
+		*Write_Head = Left;
+
+		Write_Head++;
+
+		X = Width;
+
+		while (X)
+		{
+			*Write_Head = Middle;
+			Write_Head++;
+			X--;
+		}
+
+		*Write_Head = Right;
+
+		Height--;
+	}
+
+	Temp += 32;
+
+	*Temp = Bottom_Left;
+	Temp++;
+
+	while (Width)
+	{
+		*Temp = Bottom;
+		Temp++;
+		Width--;
+	}
+
+	*Temp = Bottom_Right;
+
+	// Fully written! Kinda tiresome code but aw well
+}

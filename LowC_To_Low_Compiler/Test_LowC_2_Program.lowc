@@ -42,5 +42,11 @@ void main()
 
 	Other_Function(4, Array);
 
+	Pointer = addressof(*Array);
+
+	store_high(Pointer, *(Array + 1));
+
+	Other_Variable = high(Array);
+
 	return;//  Pointer;
 }

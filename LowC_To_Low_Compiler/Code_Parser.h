@@ -138,6 +138,12 @@ enum Syntax_IDs
 			(parameters)
 		*/
 
+	S_STORE_HIGH,
+		/*
+			(id)
+			(value)
+		*/
+
 	S_DEST_ASSIGN,				// assigns value to some location 'destination' in memory
 		/*
 			(destination)
@@ -150,8 +156,15 @@ enum Syntax_IDs
 	S_WHILE_LOOP,				// a loop
 		/*
 			(condition)
-			(statements)
+			(local_statements)
 		*/
+
+	S_IF_STATEMENT,
+		/*
+			(condition)
+			(local_statements)
+		*/
+
 	S_INT_LITERALS,				// many int literals of some sort:	Value field is the int literal val
 		/*
 			(int_literals)
@@ -164,6 +177,9 @@ enum Syntax_IDs
 	S_VOID,						// 'void' return type
 	S_ID8,						// an 8-bit ID
 	S_ID16,						// a 16-bit ID
+
+	S_HIGH,						// gets the high-byte of a 2-byte expression
+
 	S_INT_LITERAL,				// an int literal (of any kind)
 	S_EXPRESSION8,				// an expression with an 8-bit value
 	S_EXPRESSION16,				// an expression with a 16-bit value

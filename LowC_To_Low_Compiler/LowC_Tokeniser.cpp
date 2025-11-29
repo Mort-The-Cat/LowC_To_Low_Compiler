@@ -26,6 +26,9 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_BYTE,			"byte"		},
 	{	T_WORD,			"word"		},
 
+	{	T_HIGH,			"high"		},
+	{	T_STORE_HIGH,	"store_high"},
+
 	{	T_IF,			"if"		},
 	{	T_WHILE,		"while"		},
 	{	T_DO,			"do"		},
@@ -234,6 +237,15 @@ size_t Token_Check_String_Literal(const char* File, std::vector<Token>& Target_T
 	return 0;
 }
 
+size_t Skip_Addressof(const char* File)
+{
+	size_t Delta = 0;
+	if (String_Matches_Token(File, sizeof("addressof"), Compiler_Tokens[T_ADDRESSOF].Name.c_str()))
+		Delta = sizeof("addressof") - 1;	// I think?
+
+	return Delta;
+}
+
 size_t Token_Check_Int_Literal(const char* File, std::vector<Token>& Target_Tokens)
 {
 	// searches for hex literals or int literals
@@ -412,6 +424,8 @@ void Tokenise(std::vector<Token>& Tokens, const char* File_Directory)
 			Index += Delta;
 			continue;
 		}
+
+		Index += Skip_Addressof(File_Contents.c_str() + Index);
 
 		/*if (Delta = Skip_Includes(File_Contents.c_str() + Index))
 		{

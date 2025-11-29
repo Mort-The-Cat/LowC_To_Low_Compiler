@@ -55,6 +55,8 @@ public:
 
 	size_t Current_Scope_Function_Return_Type = S_VOID;
 
+	size_t Label_Count = 0;	// Used to count the number of labels in the current subroutine
+
 	size_t Parameters_Count = 0;
 
 	std::vector<Trace> Stack;

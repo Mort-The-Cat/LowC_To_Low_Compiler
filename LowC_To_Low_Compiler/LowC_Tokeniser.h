@@ -33,6 +33,10 @@ enum
 	T_BYTE,
 	T_WORD,
 
+	T_HIGH,		// This gets the high-byte of a 2-byte expression
+
+	T_STORE_HIGH,	// This stores a byte in the upper-byte of a word
+
 	T_RETURN,
 	T_IF,
 	T_MEM,

@@ -659,16 +659,70 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 	switch (Node.Syntax_ID)
 	{
+	case S_HIGH:
+	{
+		// This will get the value into a register pair
+		// Then, it'll return the high value
+		// If we need to make a copy? Do it
+
+		// if we're applying this directly to it? just grab the high register
+
+		if (!Copy_Requirements)
+		{
+			std::string Word = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG_PAIR, 0);
+
+			Trace* Word_Register = Register_From_Name(Tracer, Word[0]);
+
+			Word_Register[0].Modified_Counter = 0;
+			Word_Register[1].Modified_Counter = 0;	// We want to search for a free register (can include this one)
+
+			Trace* Output_Register = &Get_Free_Register(Output_Low_Code, Tracer, 0);
+
+			Output_Register->Modified_Counter = 2;
+
+			if(Output_Register->Name[0] != Word[0])
+				Output_Low_Code += "\t" + Output_Register->Name + " = " + Word[0] + ";\t\t# Moves high byte of " + Node["value"][0].Value + " into register\n";
+
+			return Output_Register->Name;
+		}
+		else
+		{
+			// Otherwise? Make a copy
+
+			std::string Word = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG_PAIR, 0);
+			Trace* Output_Register = &Get_Free_Register(Output_Low_Code, Tracer, 0);
+
+			Output_Register->Modified_Counter = 2;
+
+			Output_Low_Code += "\t" + Output_Register->Name + " = " + Word[0] + ";\t\t# Copies high byte of " + Node["value"][0].Value + " into register\n";
+		
+			return Output_Register->Name;
+		}
+	}
+
 	case S_DEREF8:
 	{
 		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["address"][0], MAKE_VALUE_HOT_HL_REG);
-		Trace& Output = Get_Free_Register(Output_Low_Code, Tracer, Requirements);
+		Trace* Output = &Get_Free_Register(Output_Low_Code, Tracer, Requirements);
 
-		Output.Modified_Counter = 2;
+		if (Requirements == MAKE_VALUE_HOT_REG_PAIR || Requirements == MAKE_VALUE_HOT_HL_REG)
+		{
+			//Output;
 
-		Output_Low_Code += "\t" + Output.Name + " = [HL];\t\t# Dereferences address\n";
+			Output[1].Modified_Counter = 2;
 
-		return Output.Name;
+			Output_Low_Code += "\t" + Output[1].Name + " = [HL];\t\t# Dereferences address\n";
+
+			return Output[0].Name + Output[1].Name;
+		}
+		else
+		{
+			Output[0].Modified_Counter = 2;
+
+			Output_Low_Code += "\t" + Output[0].Name + " = [HL];\t\t# Dereferences address\n";
+
+			return Output->Name;
+		}
 	}
 
 	case S_PLUS8:
@@ -841,6 +895,52 @@ void Node_Dest_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Trace
 		Destination_Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["destination"][0], MAKE_VALUE_HOT_HL_REG);
 
 	Output_Low_Code += "\t[" + Destination_Registers + "] = " + Register + "; \t\t# Stores value into memory location\n";
+}
+
+void Store_High_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	// This will make the ID 'hot' and store the byte 'value' into the higher register of the id16
+
+	std::string Value_Name = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0]);
+
+	Trace* Value = Register_From_Name(Tracer, Value_Name[0]);
+
+	if (Value)
+	{
+		// We're dealing with an actual byte? Set the modified_counter to 3
+
+		size_t Previous_Modified_Counter = Value->Modified_Counter;
+
+		Value_Name = Value->Value;			// Temporarily store the name of the value stored in this register
+
+		if (Previous_Modified_Counter != 1)
+		{
+			Value->Value = "@statement_value@";
+		}
+
+		Value->Modified_Counter = 3;
+
+		// Now? Grab the id16
+
+		std::string ID_16 = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["id"][0], MAKE_VALUE_HOT_REG_PAIR, PULL_IDENTIFIER_REF);
+
+		Value = Find_Value_In_Tracer_Registers(Tracer, "@statement_value@");
+
+		ID_16.resize(1);
+
+		// We want the actual reference of the id16
+
+		Output_Low_Code += "\t" + ID_16 + " = " + Value->Name + ";\t\t# Moves value into high-byte of " + Node["id"][0].Value + "\n";
+
+		Value->Modified_Counter = Previous_Modified_Counter;
+		Value->Value = Value_Name;
+	}
+	else
+	{
+		// Otherwise? we're dealing with some kind of int-literal or other const value...
+
+		// I won't worry about this for now
+	}
 }
 
 void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
@@ -1163,6 +1263,12 @@ void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 	if (Node.Syntax_ID == S_ROM_DECLARATION_STATEMENT)
 	{
 		Node_ROM_V_Declaration(Output_Low_Code, Tracer, Node);
+		return;
+	}
+
+	if (Node.Syntax_ID == S_STORE_HIGH)
+	{
+		Store_High_Statement(Output_Low_Code, Tracer, Node);
 		return;
 	}
 
