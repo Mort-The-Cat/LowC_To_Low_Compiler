@@ -34,8 +34,11 @@ enum
 	T_WORD,
 
 	T_HIGH,		// This gets the high-byte of a 2-byte expression
+	T_BIT,		// This gets the true/false of a bit as a conditional
 
 	T_STORE_HIGH,	// This stores a byte in the upper-byte of a word
+
+
 
 	T_RETURN,
 	T_IF,
@@ -73,9 +76,16 @@ enum
 	T_PLUS,
 	T_MINUS_EQUALS,
 	T_MINUS_MINUS,
+	T_MINUS,
 	T_AND_EQUALS,
 	T_OR_EQUALS,
 	T_XOR_EQUALS,
+
+	T_NOT,
+
+	T_LESS_THAN,
+	T_GREATER_THAN,
+
 	T_POINTER,
 	T_AMPERSAND,
 

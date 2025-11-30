@@ -35,6 +35,7 @@ Define_Grammar(ID_Assign_Grammars);
 
 Define_Grammar(Store_High_Grammars);	// This defines the "store_high(" usage 
 
+Define_Grammar(Condition_Grammars);
 Define_Grammar(Expression8_Grammars);
 Define_Grammar(Expression16_Grammars);
 

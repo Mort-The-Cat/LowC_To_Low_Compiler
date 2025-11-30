@@ -27,6 +27,7 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_WORD,			"word"		},
 
 	{	T_HIGH,			"high"		},
+	{	T_BIT,			"bit"		},
 	{	T_STORE_HIGH,	"store_high"},
 
 	{	T_IF,			"if"		},
@@ -52,9 +53,16 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_PLUS_PLUS,	"++"		},
 	{	T_MINUS_MINUS,	"--"		},
 	{	T_PLUS,			"+"			},
+	{	T_MINUS,		"-"			},
 	{	T_AND_EQUALS,	"&="		},
 	{	T_OR_EQUALS,	"|="		},
 	{	T_XOR_EQUALS,	"^="		},
+
+	{	T_NOT,			"!"			},
+
+	{	T_LESS_THAN,	"<"			},
+	{	T_GREATER_THAN,	">"			},
+
 	{	T_POINTER,		"*"			},
 	{	T_AMPERSAND,	"&"			}
 };

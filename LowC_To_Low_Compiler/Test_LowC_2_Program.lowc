@@ -26,6 +26,8 @@ void main()
 
 	// This code doesn't do anything, it's purely for testing purposes
 
+	Variable = 10;
+
 	Variable = *LCDY_REGISTER;
 
 	Other_Variable = Variable + 10;
@@ -33,6 +35,8 @@ void main()
 	Pointer = CONTROLLER_REGISTER;
 
 	Pointer = Pointer + Variable;
+
+	Variable = (byte)Pointer;
 
 	*Pointer = Variable + 10;
 
@@ -49,4 +53,18 @@ void main()
 	Other_Variable = high(Array);
 
 	return;//  Pointer;
+}
+
+void Test_Logic_Function(byte Value_1, byte Value_2)
+{
+	const byte Local_Array[] = { 0, 1, 4, 3, 2, 5 };
+
+	if (Value_1 < Value_2)
+	{
+		*(SQUARE_CHANNEL_0 + Value_1) = 0x80; // just random testing
+	}
+
+	*CONTROLLER_REGISTER = *(Local_Array + Value_2);
+
+	return;
 }

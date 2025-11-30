@@ -352,11 +352,46 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 
 	switch (Requirements)
 	{
+	case MAKE_VALUE_HOT_REG:
+	{
+		std::string Lower_Byte = " ";
+		Lower_Byte[0] = Register.back();
+
+		if (Copy_Requirements == 1 && Hot == 1)
+		{
+			// We need to make a copy of this value...
+			Reg->Modified_Counter = 3;
+			if (Register.size() > 1)
+				Reg[1].Modified_Counter = 3;
+
+			Trace* Temp = &Get_Free_Register(Output_Low_Code, Tracer, 0);
+
+			Output_Low_Code += "\t" + Temp->Name + " = " + Lower_Byte + "; \t\t# Makes a copy of " + Reg->Value + "\n";
+
+			Temp->Value = Reg->Value;
+			Temp->Modified_Counter = 2;
+
+			Reg->Modified_Counter = 1;
+			if (Register.size() > 1)
+			{
+				Reg[1].Modified_Counter = 1;
+			}
+
+			Lower_Byte[0] = Temp->Name[0];
+
+			// 'Lower_Byte' is now just a copy of the value
+		}
+
+		return Lower_Byte;
+	}
+
+	//
+
 		case MAKE_VALUE_HOT_A_REG:
 		{
 			if (Register == "A")	// We're exactly where we want us to be
 			{
-				if (Copy_Requirements == 1 && Hot)
+				if (Copy_Requirements == 1 && Hot == 1)
 				{
 					// We need to make a copy of this value... free up a register and make *that* the hot identifier
 
@@ -381,7 +416,7 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 
 			Output_Low_Code += "\tA = " + Reg->Name + ";\t\t# Stores " + Reg->Value + " into 'A' register for use\n";
 
-			if (Hot && Copy_Requirements == 1)
+			if (Hot == 1 && Copy_Requirements == 1)
 			{
 				// If we gotta specify a copy?
 
@@ -412,7 +447,7 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 			{
 				// already stored as a word
 
-				if ((Hot && Copy_Requirements == 1) || (Requirements == MAKE_VALUE_HOT_HL_REG && Register != "HL")) // We gotta make a copy and ensure the returned register is the copy
+				if ((Hot == 1 && Copy_Requirements == 1) || (Requirements == MAKE_VALUE_HOT_HL_REG && Register != "HL")) // We gotta make a copy and ensure the returned register is the copy
 				{
 					Reg[0].Modified_Counter = 3;
 					Reg[1].Modified_Counter = 3;
@@ -452,7 +487,7 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 				Trace* Copy_Register = &Get_Free_Register(Output_Low_Code, Tracer, Requirements);
 
 				Copy_Register[0].Modified_Counter = 2;
-				if (Hot && Copy_Requirements == 1)
+				if (Hot == 1 && Copy_Requirements == 1)
 				{
 					// we want to create a copy of the register in question
 
@@ -638,6 +673,52 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 	return Temp[0].Name;
 }
 
+std::string Tracer_Operator8(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node, size_t Requirements, size_t Copy_Requirements)
+{
+	const std::map<size_t, std::array<std::string, 2>> Operators = {
+		{ S_PLUS8,		{ "+=",	"S_PLUS8"		}	},
+		{ S_MINUS8,		{ "-=",	"S_MINUS8"		}	},
+		{ S_LESS_THAN8,	{ "<",	"S_LESS_THAN8"	}	}
+	};
+
+	// This will put 'left' into the A register and 'right' into a register of our choice
+		// Then, it'll tell the tracer that the result is stored in 'A'
+
+		//Register_From_Name(Tracer, Right_Operand_)
+
+	std::string Right_Reg = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["right"][0], 0); // no requirements for the right value... algs!
+	Trace* Right_Trace = Register_From_Name(Tracer, Right_Reg.back());
+
+	size_t Previous_Modified_Counter;
+
+	if (Right_Trace)	// Note that this can be an int-literal
+	{
+		Previous_Modified_Counter = Right_Trace->Modified_Counter;
+
+		Right_Trace->Value = "@value@";
+
+		Right_Trace->Modified_Counter = 3;
+	}
+	else
+		Previous_Modified_Counter = 0;
+
+	Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["left"][0], MAKE_VALUE_HOT_A_REG, Copy_Requirements);
+
+	if (Right_Trace)	// note that this can be an int-literal
+	{
+		Right_Trace = Find_Value_In_Tracer_Registers(Tracer, "@value@");
+		Right_Reg = Right_Trace->Name;
+	}
+	// this needs to be a copy because we're going to modify its value
+
+	Output_Low_Code += "\tA " + Operators.at(Node.Syntax_ID)[0] + Right_Reg + ";\t\t# " + Operators.at(Node.Syntax_ID)[1] + "\n";
+
+	if (Right_Trace)		// note that this can be an int-literal
+		Right_Trace->Modified_Counter = Previous_Modified_Counter;		// This returns it to its "pre-modified" state
+
+	return Fit_Register_Requirements(Output_Low_Code, Tracer, "A", Requirements, Copy_Requirements);
+}
+
 std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node, size_t Requirements, size_t Copy_Requirements)
 {
 	// If expression? evaluate and store in register under the name 'value' or whatever
@@ -727,42 +808,7 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 	case S_PLUS8:
 	{
-		// This will put 'left' into the A register and 'right' into a register of our choice
-		// Then, it'll tell the tracer that the result is stored in 'A'
-
-		//Register_From_Name(Tracer, Right_Operand_)
-
-		std::string Right_Reg = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["right"][0], 0); // no requirements for the right value... algs!
-		Trace* Right_Trace = Register_From_Name(Tracer, Right_Reg.back());
-
-		size_t Previous_Modified_Counter;
-		
-		if (Right_Trace)	// Note that this can be an int-literal
-		{
-			Previous_Modified_Counter = Right_Trace->Modified_Counter;
-
-			Right_Trace->Value = "@value@";
-
-			Right_Trace->Modified_Counter = 3;
-		}
-		else
-			Previous_Modified_Counter = 0;
-
-		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["left"][0], MAKE_VALUE_HOT_A_REG, Copy_Requirements);
-
-		if (Right_Trace)	// note that this can be an int-literal
-		{
-			Right_Trace = Find_Value_In_Tracer_Registers(Tracer, "@value@");
-			Right_Reg = Right_Trace->Name;
-		}
-		// this needs to be a copy because we're going to modify its value
-
-		Output_Low_Code += "\tA += " + Right_Reg + ";\t\t# S_PLUS8\n";
-
-		if(Right_Trace)		// note that this can be an int-literal
-			Right_Trace->Modified_Counter = Previous_Modified_Counter;		// This returns it to its "pre-modified" state
-
-		return Fit_Register_Requirements(Output_Low_Code, Tracer, "A", Requirements, Copy_Requirements);
+		return Tracer_Operator8(Output_Low_Code, Tracer, Node, Requirements, Copy_Requirements);
 	}
 
 	case S_PLUS16_8:
@@ -954,21 +1000,36 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 	if (Node["id"][0].Syntax_ID == S_ID8)
 	{
-		std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], 0, PULL_IDENTIFIER_COPY);
+		std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG, PULL_IDENTIFIER_COPY);
 
-		Trace* Value = Register_From_Name(Tracer, Register[0]);
+		Trace* Current_ID = Find_Value_In_Tracer_Registers(Tracer, Node["id"][0].Value);
+
+		Trace* Value = Register_From_Name(Tracer, Register.back());
 		Value->Value = Node["id"][0].Value;
 		Value->Modified_Counter = 1;
+
+		if (Current_ID)
+		{
+			Current_ID->Modified_Counter = 0;	// This ID is no longer 'hot', we've assigned this a new ID
+		}
 	}
 	else
 	{
 		std::string Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG_PAIR, PULL_IDENTIFIER_COPY);
+
+		Trace* Current_ID = Find_Value_In_Tracer_Registers(Tracer, Node["id"][0].Value);
 
 		Trace* Value = Register_From_Name(Tracer, Registers[0]);
 		Value[0].Value = Node["id"][0].Value;
 		Value[1].Value = Node["id"][0].Value;
 		Value[0].Modified_Counter = 1;
 		Value[1].Modified_Counter = 1;
+
+		if (Current_ID)
+		{
+			Current_ID[0].Modified_Counter = 2;
+			Current_ID[1].Modified_Counter = 2;
+		}
 	}
 }
 
@@ -1250,10 +1311,96 @@ void Node_Stack_Declaration(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 	// Generates corresponding 'Low' code
 }
 
+void Get_Register_Snapshot(Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot)
+{
+	for (size_t Index = 0; Index < 7; Index++)
+	{
+		if (Tracer.Registers[Index].Modified_Counter == 1)	// if this register is 'hot'
+		{
+			Trace* Stack_Value = &Tracer.Stack[Tracer.Stack.size() - 1 - Find_Value_In_Tracer_Stack(Tracer, Tracer.Registers[Index].Value)];
+
+			Trace Snapshot = Tracer.Registers[Index];
+
+			Snapshot.Pointer_Flag = Stack_Value->Pointer_Flag;
+
+			ID_Snapshot.push_back(Snapshot);
+		}
+	}
+}
+
+size_t Evaluate_Condition(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)	// Returns CON_ALWAYS, CON_ZERO, CON_CARRY, CON_NOT_ZERO, CON_NOT_CARRY etc etc
+{
+
+	switch (Node.Syntax_ID)
+	{
+		case S_NOT:
+		{
+			size_t Condition;
+
+			Condition = Evaluate_Condition(Output_Low_Code, Tracer, Node["value"][0]);
+
+			return CON_NOT(Condition);	// This just flips the condition
+		}
+
+		case S_BIT:
+		{
+			std::string Value = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG);
+
+			Output_Low_Code += "\t" + Value + "." + Node["bit"][0].Value + ";\t\t# Gets conditional\n";
+
+			return CON_NOT_ZERO;	// expression is true when NOT_ZERO
+		}
+
+		//
+
+		case S_LESS_THAN8:
+		{
+			Tracer_Operator8(Output_Low_Code, Tracer, Node, 0, 0); // This doesn't change any values so no copies are required
+
+			return CON_CARRY;		// expression is LESS THAN when a < b results in a 'carry' flag
+		}
+
+		//
+
+		case S_NOT_ZERO:
+		{
+			std::string Value = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_A_REG);
+
+			Output_Low_Code += "\tA |= A;\t\t# This just gets the CPU flags\n";
+
+			return CON_NOT_ZERO;
+		}
+	}
+}
+
+void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	// This will look for values that are in a certain place
+
+	// evaluate condition?
+
+	std::string Condition = Conditionals[CON_NOT(Evaluate_Condition(Output_Low_Code, Tracer, Node))];
+	// we only want to jump over the statement if the condition ISN'T met
+
+	size_t Label = Tracer.Label_Count;
+
+	Tracer.Label_Count++;
+
+	std::vector<Trace> ID_Snapshot;
+	
+	Get_Register_Snapshot(Tracer, ID_Snapshot); // This records the current 'hot' registers and what identifiers are stored in them (if any)
+}
+
 //
 
 void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
 {
+	if (Node.Syntax_ID == S_IF_STATEMENT)
+	{
+		If_Statement(Output_Low_Code, Tracer, Node);
+		return;
+	}
+
 	if (Node.Syntax_ID == S_STACK_DECLARATION_STATEMENT)
 	{
 		Node_Stack_Declaration(Output_Low_Code, Tracer, Node);

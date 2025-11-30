@@ -100,6 +100,38 @@ const std::vector<Grammar_Checker> Expression16_Grammars =
 
 	Grammar_Checker(
 		{
+			Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Parse_Recursive_Check, Expression16_Grammars),
+			Checker_Function(Is_Token, T_PLUS),
+			Checker_Function(Parse_Recursive_Check, Expression16_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_BR)
+		},
+		Node_Init
+		{
+			Node_Copy("left", Recursively_Generated_Nodes[0]);
+			Node_Copy("right", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(S_PLUS16_8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Parse_Recursive_Check, Expression16_Grammars),
+			Checker_Function(Is_Token, T_PLUS),
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_BR)
+		},
+		Node_Init
+		{
+			Node_Copy("left", Recursively_Generated_Nodes[0]);
+			Node_Copy("right", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(S_PLUS16_8);
+		}
+	),
+
+	Grammar_Checker(
+		{
 			Checker_Function(Is_ID, S_ID16),
 			Checker_Function(Is_Token, T_PLUS),
 			Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
@@ -149,6 +181,19 @@ const std::vector<Grammar_Checker> Expression16_Grammars =
 
 const std::vector<Grammar_Checker> Expression8_Grammars =
 {
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Is_Token, T_BYTE),
+			Checker_Function(Is_Token, T_CLOSE_BR),
+			Checker_Function(Parse_Recursive_Check, Expression16_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+		}
+	),
+
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_HIGH),
@@ -698,6 +743,76 @@ const std::vector<Grammar_Checker> Statements_Grammars =
 		Node_Init
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
+		}
+	)
+};
+
+const std::vector<Grammar_Checker> Condition_Grammars =
+{
+	Grammar_Checker(
+		{
+		Checker_Function(Is_Token, T_NOT),
+		Checker_Function(Parse_Recursive_Check, Condition_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("value", Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_NOT);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_BIT), Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Is_Token, T_COMMA),
+			Checker_Function(Parse_Recursive_Check, Int_Literals_Grammars),	// Note we only really care about 1 (one) int literal
+			Checker_Function(Is_Token, T_CLOSE_BR)
+		},
+		Node_Init
+		{
+			Node_Copy("value", Recursively_Generated_Nodes[0]);
+			Node_Copy("bit", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(S_BIT);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Is_Token, T_LESS_THAN),
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("left", Recursively_Generated_Nodes[0]),
+			Node_Copy("right", Recursively_Generated_Nodes[1]),
+			Node_Set_Syntax(S_LESS_THAN8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Is_Token, T_GREATER_THAN),
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("left", Recursively_Generated_Nodes[1]),		// We'll use the same operator, just swap the operands around
+			Node_Copy("right", Recursively_Generated_Nodes[0]),
+			Node_Set_Syntax(S_LESS_THAN8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("value", Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_NOT_ZERO);
 		}
 	)
 };

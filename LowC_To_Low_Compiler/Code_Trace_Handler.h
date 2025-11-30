@@ -46,6 +46,23 @@ public:
 	}
 };
 
+#define CON_ALWAYS	0
+#define CON_ZERO	1
+#define CON_CARRY	2
+#define CON_NOT_ZERO	3
+#define CON_NOT_CARRY	4
+
+#define CON_NOT(condition) (condition + (2 - 4 * (condition > 2)))
+
+const char* Conditionals[] =
+{
+	"",
+	" zero",
+	" carry",
+	" not_zero",
+	" not_carry"
+};
+
 class Tracer_Data
 {
 public:

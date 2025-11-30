@@ -15,6 +15,8 @@ void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW im
 
 #define store_high(id16, expression8)
 
+#define bit(expression, bit_number) (1 & (expression >> bit_number))
+
 // 	call(Function_Pointer, void, byte)(Value);
 /*
 

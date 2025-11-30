@@ -180,12 +180,18 @@ enum Syntax_IDs
 
 	S_HIGH,						// gets the high-byte of a 2-byte expression
 
+	S_BIT,						// gets a bit in an expression
+
 	S_INT_LITERAL,				// an int literal (of any kind)
 	S_EXPRESSION8,				// an expression with an 8-bit value
 	S_EXPRESSION16,				// an expression with a 16-bit value
 	
 	S_DEREF8,					// an 8-bit value, collected from some 16-bit address
 
+	S_NOT,						// This logical 'nots' a conditional statement (! operator)
+	S_NOT_ZERO,					// This is a simple conditional that evaluates if a value is non-zero or not
+	S_LESS_THAN8,
+	S_MINUS8,
 	S_PLUS8,					// addition between two 8-bit values
 		/*
 			(left)
