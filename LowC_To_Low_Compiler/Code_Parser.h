@@ -159,6 +159,12 @@ enum Syntax_IDs
 			(local_statements)
 		*/
 
+	S_DO_WHILE_LOOP,
+		/*
+			(condition)
+			(local_statements)
+		*/
+
 	S_IF_STATEMENT,
 		/*
 			(condition)

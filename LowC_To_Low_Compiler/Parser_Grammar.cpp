@@ -179,6 +179,29 @@ const std::vector<Grammar_Checker> Expression16_Grammars =
 	)
 };
 
+const std::vector<Grammar_Checker> Operator8_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_PLUS)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_PLUS8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_MINUS)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_MINUS8);
+		}
+	)
+};
+
 const std::vector<Grammar_Checker> Expression8_Grammars =
 {
 	Grammar_Checker(
@@ -224,28 +247,28 @@ const std::vector<Grammar_Checker> Expression8_Grammars =
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_INT_LITERAL),
-			Checker_Function(Is_Token, T_PLUS),
+			Checker_Function(Parse_Recursive_Check, Operator8_Grammars),
 			Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
 		},
 		Node_Init
 		{
 			Node_Copy("left", Parse_Node(S_INT_LITERAL, Tokens[0].Name));
-			Node_Copy("right", Recursively_Generated_Nodes[0]);
-			Node_Set_Syntax(S_PLUS8);
+			Node_Copy("right", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(Recursively_Generated_Nodes[0].Syntax_ID);
 		}
 	),
 
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_IDENTIFIER),
-			Checker_Function(Is_Token, T_PLUS),
+			Checker_Function(Parse_Recursive_Check, Operator8_Grammars),
 			Checker_Function(Parse_Recursive_Check, Expression8_Grammars)
 		},
 		Node_Init
 		{
 			Node_Copy("left", Parse_Node(S_ID8, Tokens[0].Name));
-			Node_Copy("right", Recursively_Generated_Nodes[0]);
-			Node_Set_Syntax(S_PLUS8);
+			Node_Copy("right", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(Recursively_Generated_Nodes[0].Syntax_ID);
 		}
 	),
 
@@ -484,6 +507,22 @@ const std::vector<Grammar_Checker> Stack_Definition_Grammars =
 	),
 
 	Grammar_Checker(
+		{	// byte* Id;
+			Checker_Function(Is_Token, T_CONST), Checker_Function(Is_Token, T_BYTE), Checker_Function(Is_Token, T_POINTER), Checker_Function(Is_Token, T_IDENTIFIER), Checker_Function(Is_Token, T_SEMI)
+		},
+
+		Node_Init
+		{
+			Node_Add("type", S_BYTE_POINTER, "byte*");
+			Node_Add("id", S_ID16, Tokens[3].Name);
+
+			Add_To_Parser_Identifiers({ S_ID16, Tokens[3].Name });
+
+			Node_Add("size", S_INT_LITERAL, "2");
+		}
+	),
+
+	Grammar_Checker(
 		{	// word Id;
 			Checker_Function(Is_Token, T_WORD), Checker_Function(Is_Token, T_IDENTIFIER), Checker_Function(Is_Token, T_SEMI)
 		},
@@ -709,6 +748,26 @@ const std::vector<Grammar_Checker> Statement_Grammars =
 
 	Grammar_Checker(
 		{
+			Checker_Function(Parse_Recursive_Check, While_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Do_While_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+		}
+	),
+
+	Grammar_Checker(
+		{
 			Checker_Function(Is_Token, T_STORE_HIGH), Checker_Function(Is_Token, T_OPEN_BR),
 			Checker_Function(Is_ID, S_ID16), Checker_Function(Is_Token, T_COMMA),
 			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
@@ -817,12 +876,79 @@ const std::vector<Grammar_Checker> Condition_Grammars =
 	)
 };
 
+const std::vector<Grammar_Checker> Do_While_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_DO), Checker_Function(Is_Token, T_OPEN_SC),
+			Checker_Function(Parse_Recursive_Check, Statements_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_SC),
+			Checker_Function(Is_Token, T_WHILE),
+			Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Parse_Recursive_Check, Condition_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_BR),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Copy("local_statements", Recursively_Generated_Nodes[0]);
+			Node_Copy("condition", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(S_DO_WHILE_LOOP);
+		}
+	)
+};
+
+const std::vector<Grammar_Checker> While_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_WHILE), Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Parse_Recursive_Check, Condition_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_BR),
+			Checker_Function(Is_Token, T_OPEN_SC),
+			Checker_Function(Parse_Recursive_Check, Statements_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_SC)
+		},
+		Node_Init
+		{
+			/*
+			
+			while(condition)
+			{
+				statements
+			}
+
+			is equivalent to
+
+			if(condition)
+			{
+				do
+				{
+					statements
+				} while(condition);
+			}
+			
+			So I'll just store it as such
+			
+			*/
+
+			Parse_Node Do_While_Loop;
+			Do_While_Loop.Child_Nodes["local_statements"].push_back(Recursively_Generated_Nodes[1]);
+			Do_While_Loop.Child_Nodes["condition"].push_back(Recursively_Generated_Nodes[0]);
+			Do_While_Loop.Syntax_ID = S_DO_WHILE_LOOP;
+			Node_Copy("local_statements", Do_While_Loop);
+			Node_Copy("condition", Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_IF_STATEMENT);
+		}
+	)
+};
+
 const std::vector<Grammar_Checker> If_Grammars =
 {
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_IF), Checker_Function(Is_Token, T_OPEN_BR),
-			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Parse_Recursive_Check, Condition_Grammars),
 			Checker_Function(Is_Token, T_CLOSE_BR),
 			Checker_Function(Is_Token, T_OPEN_SC),
 			Checker_Function(Parse_Recursive_Check, Statements_Grammars),
@@ -838,7 +964,7 @@ const std::vector<Grammar_Checker> If_Grammars =
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_IF), Checker_Function(Is_Token, T_OPEN_BR),
-			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Parse_Recursive_Check, Condition_Grammars),
 			Checker_Function(Is_Token, T_CLOSE_BR),
 			Checker_Function(Parse_Recursive_Check, Statement_Grammars)
 		},

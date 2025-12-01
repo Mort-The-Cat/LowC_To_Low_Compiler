@@ -59,12 +59,34 @@ void Test_Logic_Function(byte Value_1, byte Value_2)
 {
 	const byte Local_Array[] = { 0, 1, 4, 3, 2, 5 };
 
+	const byte* Pointer;
+
+	Pointer = Local_Array + 1;
+
 	if (Value_1 < Value_2)
 	{
 		*(SQUARE_CHANNEL_0 + Value_1) = 0x80; // just random testing
 	}
 
 	*CONTROLLER_REGISTER = *(Local_Array + Value_2);
+
+	return;
+}
+
+void Test_Memcpy(byte* Source, byte* Destination, byte Count)
+{
+	Source = Source;
+	Destination = Destination;
+	Count = Count;
+
+	while (Count)
+	{
+		*Destination = *Source;
+
+		Destination = Destination + 1;
+		Source = Source + 1;
+		Count = Count - 1;
+	}
 
 	return;
 }

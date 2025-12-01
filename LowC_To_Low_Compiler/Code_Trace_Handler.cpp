@@ -2,6 +2,20 @@
 #include "Code_Parser.h"
 #include "LowC_Tokeniser.h"
 
+size_t CON_NOT(size_t Condition)
+{
+	return (Condition + (2 - 4 * (Condition > 2)));
+}
+
+const char* Conditionals[] =
+{
+	"",
+	" zero",
+	" carry",
+	" not_zero",
+	" not_carry"
+};
+
 Trace* Register_From_Name(Tracer_Data& Tracer, char Letter)
 {
 	size_t Index = Letter - 'A';
@@ -454,18 +468,21 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 
 					Trace* Copy_Register = &Get_Free_Register(Output_Low_Code, Tracer, Requirements);
 
-					Output_Low_Code += "\t" + Copy_Register[0].Name + " = " + Reg[0].Name + ";\t\t# Creates copy of " + Reg[0].Value + "\n";
-					Output_Low_Code += "\t" + Copy_Register[1].Name + " = " + Reg[1].Name + ";\t\t# Creates copy of " + Reg[1].Value + "\n";
+					if (Copy_Register->Name != Reg->Name)
+					{
+						Output_Low_Code += "\t" + Copy_Register[0].Name + " = " + Reg[0].Name + ";\t\t# Creates copy of " + Reg[0].Value + "\n";
+						Output_Low_Code += "\t" + Copy_Register[1].Name + " = " + Reg[1].Name + ";\t\t# Creates copy of " + Reg[1].Value + "\n";
+					}
 
 					Copy_Register[0].Value = Reg[0].Value;
 					Copy_Register[1].Value = Reg[1].Value;
 
 					if (Copy_Requirements == 1)
 					{
-						Reg[0].Modified_Counter = 1;
-						Reg[1].Modified_Counter = 1;
 						Copy_Register[0].Modified_Counter = 2;
 						Copy_Register[1].Modified_Counter = 2;
+						Reg[0].Modified_Counter = 1;
+						Reg[1].Modified_Counter = 1;
 					}
 					else
 					{
@@ -663,7 +680,7 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 		// Need to do two
 		Output_Low_Code += "\t" + Temp[0].Name + Temp[1].Name + " = " + Name + ";\n";
 
-		Temp[0].Modified_Counter = 2;
+		Temp[1].Modified_Counter = 2;
 
 		return Temp[0].Name + Temp[1].Name;
 	}
@@ -676,9 +693,9 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 std::string Tracer_Operator8(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node, size_t Requirements, size_t Copy_Requirements)
 {
 	const std::map<size_t, std::array<std::string, 2>> Operators = {
-		{ S_PLUS8,		{ "+=",	"S_PLUS8"		}	},
-		{ S_MINUS8,		{ "-=",	"S_MINUS8"		}	},
-		{ S_LESS_THAN8,	{ "<",	"S_LESS_THAN8"	}	}
+		{ S_PLUS8,		{ "+= ",	"S_PLUS8"		}	},
+		{ S_MINUS8,		{ "-= ",	"S_MINUS8"		}	},
+		{ S_LESS_THAN8,	{ "< ",	"S_LESS_THAN8"	}	}
 	};
 
 	// This will put 'left' into the A register and 'right' into a register of our choice
@@ -689,11 +706,15 @@ std::string Tracer_Operator8(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 	std::string Right_Reg = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["right"][0], 0); // no requirements for the right value... algs!
 	Trace* Right_Trace = Register_From_Name(Tracer, Right_Reg.back());
 
+	std::string Right_Trace_Name;// = Right_Trace->Value;
+
 	size_t Previous_Modified_Counter;
 
 	if (Right_Trace)	// Note that this can be an int-literal
 	{
 		Previous_Modified_Counter = Right_Trace->Modified_Counter;
+
+		Right_Trace_Name = Right_Trace->Value;
 
 		Right_Trace->Value = "@value@";
 
@@ -714,7 +735,10 @@ std::string Tracer_Operator8(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 	Output_Low_Code += "\tA " + Operators.at(Node.Syntax_ID)[0] + Right_Reg + ";\t\t# " + Operators.at(Node.Syntax_ID)[1] + "\n";
 
 	if (Right_Trace)		// note that this can be an int-literal
+	{
 		Right_Trace->Modified_Counter = Previous_Modified_Counter;		// This returns it to its "pre-modified" state
+		Right_Trace->Value = Right_Trace_Name;
+	}
 
 	return Fit_Register_Requirements(Output_Low_Code, Tracer, "A", Requirements, Copy_Requirements);
 }
@@ -806,6 +830,7 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 		}
 	}
 
+	case S_MINUS8:
 	case S_PLUS8:
 	{
 		return Tracer_Operator8(Output_Low_Code, Tracer, Node, Requirements, Copy_Requirements);
@@ -836,6 +861,8 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 		Right_Registers = Right_Trace[0].Name + Right_Trace[1].Name;
 
 		Output_Low_Code += "\tHL += " + Right_Registers + ";\t\t# S_PLUS16\n";
+
+		Clear_Tracer_Registers(Tracer);
 
 		return Fit_Register_Requirements(Output_Low_Code, Tracer, "HL", Requirements, Copy_Requirements);
 	}
@@ -1004,14 +1031,14 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 		Trace* Current_ID = Find_Value_In_Tracer_Registers(Tracer, Node["id"][0].Value);
 
-		Trace* Value = Register_From_Name(Tracer, Register.back());
-		Value->Value = Node["id"][0].Value;
-		Value->Modified_Counter = 1;
-
 		if (Current_ID)
 		{
 			Current_ID->Modified_Counter = 0;	// This ID is no longer 'hot', we've assigned this a new ID
 		}
+
+		Trace* Value = Register_From_Name(Tracer, Register.back());
+		Value->Value = Node["id"][0].Value;
+		Value->Modified_Counter = 1;
 	}
 	else
 	{
@@ -1019,17 +1046,17 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 		Trace* Current_ID = Find_Value_In_Tracer_Registers(Tracer, Node["id"][0].Value);
 
-		Trace* Value = Register_From_Name(Tracer, Registers[0]);
-		Value[0].Value = Node["id"][0].Value;
-		Value[1].Value = Node["id"][0].Value;
-		Value[0].Modified_Counter = 1;
-		Value[1].Modified_Counter = 1;
-
 		if (Current_ID)
 		{
 			Current_ID[0].Modified_Counter = 2;
 			Current_ID[1].Modified_Counter = 2;
 		}
+
+		Trace* Value = Register_From_Name(Tracer, Registers[0]);
+		Value[0].Value = Node["id"][0].Value;
+		Value[1].Value = Node["id"][0].Value;
+		Value[0].Modified_Counter = 1;
+		Value[1].Modified_Counter = 1;
 	}
 }
 
@@ -1311,6 +1338,57 @@ void Node_Stack_Declaration(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 	// Generates corresponding 'Low' code
 }
 
+void Restore_Register_Snapshot(std::string& Output_Low_Code, Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot)
+{
+	// This will make registers hot and swap them around as necessary until the previous register snapshot is restored.
+
+	for (size_t Index = 0; Index < ID_Snapshot.size(); Index++)
+	{
+		Parse_Node Node;
+		Node.Value = ID_Snapshot[Index].Value;
+		Node.Syntax_ID = ID_Snapshot[Index].Pointer_Flag ? S_ID16 : S_ID8;
+
+		Trace* Desired_Reg = Register_From_Name(Tracer, ID_Snapshot[Index].Name[0]);
+
+		std::string Identifier = Get_Back_Register(Output_Low_Code, Tracer, Node, 0, 0); // This makes the value 'hot'
+
+		Trace* ID_Reg = Register_From_Name(Tracer, Identifier[0]);
+
+		for (size_t Reg = 0; Reg < 1 + ID_Snapshot[Index].Pointer_Flag/2; Reg++)
+		{
+
+			if (Desired_Reg[Reg].Value != ID_Snapshot[Index].Value || Desired_Reg[Reg].Modified_Counter != 1) // if not the 'hot' register
+			{
+				if (Desired_Reg[Reg].Modified_Counter)
+				{
+					// some kind of swap is required...
+
+					Trace* Temp = &Get_Free_Register(Output_Low_Code, Tracer, 0);	// Gets a free register to temporarily use
+
+					Output_Low_Code += "\t" + Temp->Name + " = " + Desired_Reg[Reg].Name + ";\t\t# Temporarily stores value here\n";
+					Output_Low_Code += "\t" + Desired_Reg[Reg].Name + " = " + ID_Reg[Reg].Name + ";\t\t# Moves value into expected register\n";
+					Output_Low_Code += "\t" + ID_Reg[Reg].Name + " = " + Temp->Name + ";\t\t# Swaps temporarily value\n";
+
+					std::swap(ID_Reg[Reg].Value, Desired_Reg[Reg].Value); // This just swaps their values around
+
+					Temp->Modified_Counter = 0;							// frees up 'temp'
+				}
+				else
+				{
+					// just get register and store it here!
+
+					Desired_Reg[Reg].Value = ID_Reg[Reg].Value;
+					Desired_Reg[Reg].Modified_Counter = 1;
+
+					ID_Reg[Reg].Modified_Counter = 0;
+
+					Output_Low_Code += "\t" + Desired_Reg[Reg].Name + " = " + ID_Reg[Reg].Name + ";\t\t# Moves value into expected register\n";
+				}
+			}
+		}
+	}
+}
+
 void Get_Register_Snapshot(Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot)
 {
 	for (size_t Index = 0; Index < 7; Index++)
@@ -1321,7 +1399,10 @@ void Get_Register_Snapshot(Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot)
 
 			Trace Snapshot = Tracer.Registers[Index];
 
-			Snapshot.Pointer_Flag = Stack_Value->Pointer_Flag;
+			Snapshot.Pointer_Flag = 2 * Stack_Value->Pointer_Flag;
+
+			if (Stack_Value->Pointer_Flag)
+				Index++;
 
 			ID_Snapshot.push_back(Snapshot);
 		}
@@ -1373,22 +1454,74 @@ size_t Evaluate_Condition(std::string& Output_Low_Code, Tracer_Data& Tracer, con
 	}
 }
 
+void Do_While_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	// very similar to 'if' statement but backwards in a way
+
+	Output_Low_Code += "\n";
+
+	size_t Label = Tracer.Label_Count;
+
+	std::string Label_Name = "__do_while_statement__" + std::to_string(Label);
+
+	Tracer.Label_Count++;
+
+	Output_Low_Code += "\tlabel " + Label_Name + ";\t\t# do/while loop label\n";
+
+	std::vector<Trace> ID_Snapshot;
+
+	Get_Register_Snapshot(Tracer, ID_Snapshot); // This records the current 'hot' registers and what identifiers are stored in them (if any)
+
+	// writes statements code
+
+	Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["local_statements"][0]);
+
+	// at the end of the if statement? return the registers to the snapshot state
+
+	// get label
+	std::string Condition = Conditionals[Evaluate_Condition(Output_Low_Code, Tracer, Node["condition"][0])];
+
+	// we want to jump back to top if condition IS met
+
+	Restore_Register_Snapshot(Output_Low_Code, Tracer, ID_Snapshot);	// After the local statement code is generated, set registers back to expected values
+
+	Output_Low_Code += "\tjump " + Label_Name + Condition + ";\t\t# do/while loop jump\n\n";
+}
+
 void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
 {
 	// This will look for values that are in a certain place
 
 	// evaluate condition?
 
-	std::string Condition = Conditionals[CON_NOT(Evaluate_Condition(Output_Low_Code, Tracer, Node))];
+	Output_Low_Code += "\n";
+
+	std::string Condition = Conditionals[CON_NOT(Evaluate_Condition(Output_Low_Code, Tracer, Node["condition"][0]))];
 	// we only want to jump over the statement if the condition ISN'T met
 
 	size_t Label = Tracer.Label_Count;
+
+	std::string Label_Name = "__if_statement__" + std::to_string(Label);
+
+	Output_Low_Code += "\tjump " + Label_Name + Condition + ";\t\t# If statement jump\n";
 
 	Tracer.Label_Count++;
 
 	std::vector<Trace> ID_Snapshot;
 	
 	Get_Register_Snapshot(Tracer, ID_Snapshot); // This records the current 'hot' registers and what identifiers are stored in them (if any)
+
+	// writes statements code
+
+	Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["local_statements"][0]);
+
+	Restore_Register_Snapshot(Output_Low_Code, Tracer, ID_Snapshot);	// After the local statement code is generated, set registers back to expected values
+
+	// at the end of the if statement? return the registers to the snapshot state
+
+	// get label
+
+	Output_Low_Code += "\tlabel " + Label_Name + ";\t\t# If statement label\n\n";
 }
 
 //
@@ -1398,6 +1531,12 @@ void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 	if (Node.Syntax_ID == S_IF_STATEMENT)
 	{
 		If_Statement(Output_Low_Code, Tracer, Node);
+		return;
+	}
+
+	if (Node.Syntax_ID == S_DO_WHILE_LOOP)
+	{
+		Do_While_Statement(Output_Low_Code, Tracer, Node);
 		return;
 	}
 

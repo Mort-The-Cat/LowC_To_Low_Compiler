@@ -33,13 +33,21 @@ Define_Grammar(Global_Declarations_Grammars);
 
 Define_Grammar(ID_Assign_Grammars);
 
+Define_Grammar(ID_Inc_Dec_Grammars);		// either ++ or --, simple
+Define_Grammar(Dest_Inc_Dec_Grammars);		// either ++ or --, simple
+											// these will be considered distinct because there are explicit instructions
+											// for these operations to massively optimise them, so it's appropriate
+
 Define_Grammar(Store_High_Grammars);	// This defines the "store_high(" usage 
 
 Define_Grammar(Condition_Grammars);
 Define_Grammar(Expression8_Grammars);
 Define_Grammar(Expression16_Grammars);
 
-Define_Grammar(If_Grammars)
+Define_Grammar(If_Grammars);
+Define_Grammar(Do_While_Grammars);
+Define_Grammar(While_Grammars);
+
 Define_Grammar(Function_Call_Grammars);	// Note that this is specifically a call to a constant function, not any kind of dynamic function pointer
 
 void Generate_Parse_Tree(const Token* Tokens, std::vector<Parse_Node>* Node);

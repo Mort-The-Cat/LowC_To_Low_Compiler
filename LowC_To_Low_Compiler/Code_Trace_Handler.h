@@ -52,16 +52,11 @@ public:
 #define CON_NOT_ZERO	3
 #define CON_NOT_CARRY	4
 
-#define CON_NOT(condition) (condition + (2 - 4 * (condition > 2)))
+size_t CON_NOT(size_t Condition);
 
-const char* Conditionals[] =
-{
-	"",
-	" zero",
-	" carry",
-	" not_zero",
-	" not_carry"
-};
+//#define CON_NOT(condition) (condition + (2 - 4 * (condition > 2)))
+
+extern const char* Conditionals[];
 
 class Tracer_Data
 {
