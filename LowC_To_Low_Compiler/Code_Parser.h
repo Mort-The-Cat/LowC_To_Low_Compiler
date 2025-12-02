@@ -118,6 +118,17 @@ enum Syntax_IDs
 			(data)[S_INT_LITERALS]
 		*/
 
+	S_ID_INC_DEC,
+		/*
+			(id)
+			(operator)
+		*/
+	S_DEST_INC_DEC,
+		/*
+			(destination)
+			(operator)
+		*/
+
 	S_ID_ASSIGN,				// assigns value to some ID
 		/*
 			(id)

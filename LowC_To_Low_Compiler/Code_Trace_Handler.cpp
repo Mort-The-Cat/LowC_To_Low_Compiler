@@ -1016,6 +1016,35 @@ void Store_High_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, con
 	}
 }
 
+void ID_Inc_Dec_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	// This will get the value into a register and then just run an inc/dec operation on it
+	// Easy!!
+
+	std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["id"][0], 0, 0);	// We wanna increment the value itself, not a copy
+
+	const std::map<size_t, std::string> Operators =
+	{
+		{ S_PLUS8,		"++;\t\t# Increments "		},
+		{ S_MINUS8,		"--;\t\t# Decrements "		}
+	};
+
+	Output_Low_Code += "\t" + Register + Operators.at(Node["operator"][0].Syntax_ID) + Node["id"][0].Value + "\n";
+}
+
+void Dest_Inc_Dec_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["destination"][0], MAKE_VALUE_HOT_HL_REG, 0);
+
+	const std::map<size_t, std::string> Operators =
+	{
+		{ S_PLUS8,		"++;\t\t# Increments "		},
+		{ S_MINUS8,		"--;\t\t# Decrements "		}
+	};
+
+	Output_Low_Code += "\t[HL]" + Operators.at(Node["operator"][0].Syntax_ID) + "address\n";
+}
+
 void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
 {
 	// Write some kind of code to evaluate expressions and store them in registers etc
@@ -1531,6 +1560,18 @@ void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 	if (Node.Syntax_ID == S_IF_STATEMENT)
 	{
 		If_Statement(Output_Low_Code, Tracer, Node);
+		return;
+	}
+
+	if (Node.Syntax_ID == S_ID_INC_DEC)
+	{
+		ID_Inc_Dec_Statement(Output_Low_Code, Tracer, Node);
+		return;
+	}
+
+	if (Node.Syntax_ID == S_DEST_INC_DEC)
+	{
+		Dest_Inc_Dec_Statement(Output_Low_Code, Tracer, Node);
 		return;
 	}
 

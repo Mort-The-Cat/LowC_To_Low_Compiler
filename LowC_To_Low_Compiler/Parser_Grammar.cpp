@@ -323,6 +323,74 @@ const std::vector<Grammar_Checker> Dest_Assign_Grammars =
 	)
 };
 
+const std::vector<Grammar_Checker> Inc_Dec_Operator_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_PLUS_PLUS)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_PLUS8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_MINUS_MINUS)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_MINUS8);
+		}
+	)
+};
+
+const std::vector<Grammar_Checker> ID_Inc_Dec_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_ID, S_ID8), Checker_Function(Parse_Recursive_Check, Inc_Dec_Operator_Grammars),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Add("id", S_ID8, Tokens[0].Name);
+			Node_Copy("operator", Recursively_Generated_Nodes[0]);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_ID, S_ID16), Checker_Function(Parse_Recursive_Check, Inc_Dec_Operator_Grammars),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Add("id", S_ID16, Tokens[0].Name);
+			Node_Copy("operator", Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_ID_INC_DEC);
+		}
+	)
+};
+
+const std::vector<Grammar_Checker> Dest_Inc_Dec_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_POINTER), Checker_Function(Parse_Recursive_Check, Expression16_Grammars),
+			Checker_Function(Parse_Recursive_Check, Inc_Dec_Operator_Grammars),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Copy("destination", Recursively_Generated_Nodes[0]);
+			Node_Copy("operator", Recursively_Generated_Nodes[1]);
+			Node_Set_Syntax(S_DEST_INC_DEC);
+		}
+	)
+};
+
 const std::vector<Grammar_Checker> ID_Assign_Grammars =
 {
 	Grammar_Checker(
@@ -699,6 +767,28 @@ const std::vector<Grammar_Checker> Statement_Grammars =
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 			Node_Set_Syntax(S_ROM_DECLARATION_STATEMENT);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, ID_Inc_Dec_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_ID_INC_DEC);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Dest_Inc_Dec_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_DEST_INC_DEC);
 		}
 	),
 

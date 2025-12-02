@@ -79,13 +79,13 @@ void Test_Memcpy(byte* Source, byte* Destination, byte Count)
 	Destination = Destination;
 	Count = Count;
 
-	while (Count)
+	while (bit(Count, 1))
 	{
 		*Destination = *Source;
 
-		Destination = Destination + 1;
-		Source = Source + 1;
-		Count = Count - 1;
+		Destination++;
+		Source++;
+		Count--;
 	}
 
 	return;
