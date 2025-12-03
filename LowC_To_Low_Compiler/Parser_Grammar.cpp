@@ -9,11 +9,31 @@ void Generate_Parse_Tree(const Token* Tokens, std::vector<Parse_Node>* Node)
 	Parse_Recursive_Check(Tokens, Node, Global_Declarations_Grammars, T_INVALID);
 }
 
-size_t Get_Depth_Of_Node(Parse_Node Node, const char* Sub_ID)
+size_t Line_Length(std::string& Value)
+{
+	size_t Counter = 0;
+
+	for (size_t Index = 0; Index < Value.size(); Index++)
+	{
+		if (Value[Index] == '\n')
+			Counter = 0;
+		else
+			Counter++;
+	}
+
+	return Counter;
+}
+
+size_t Get_Depth_Of_Node(std::string& Value, const Parse_Node& Node, const char* Sub_ID)
 {
 	size_t Val = 1;
+	Value += Node.Value; // +" ";
+	if (Line_Length(Value) > 40)
+		Value += "\n\t";
+	else
+		Value += " ";
 	if (Node.Child_Nodes.contains(Sub_ID))
-		Val += Get_Depth_Of_Node(Node.Child_Nodes[Sub_ID][0], Sub_ID);
+		Val += Get_Depth_Of_Node(Value, Node.Child_Nodes.at(Sub_ID)[0], Sub_ID);
 	return Val;
 }
 
@@ -517,9 +537,13 @@ const std::vector<Grammar_Checker> ROM_Declaration_Grammars =
 
 			Add_To_Parser_Identifiers({ S_ID16, Name });
 
-			Node_Add("size", S_INT_LITERAL, std::to_string(Get_Depth_Of_Node(Recursively_Generated_Nodes[0], "int_literals")));
+			std::string Value = "";
 
-			Node_Copy("data", Recursively_Generated_Nodes[0]);
+			Node_Add("size", S_INT_LITERAL, std::to_string(Get_Depth_Of_Node(Value, Recursively_Generated_Nodes[0], "int_literals")));
+
+			Node_Add("data", S_INT_LITERAL, Value);
+
+			//Node_Copy("data", Recursively_Generated_Nodes[0]);
 		}
 	)
 };
@@ -1231,23 +1255,23 @@ const std::vector<Grammar_Checker> Global_Declaration_Grammars =
 {
 	Grammar_Checker(
 		{
-			Checker_Function(Parse_Recursive_Check, Function_Grammars)
-		},
-		Node_Init
-		{
-			Node_Set(Recursively_Generated_Nodes[0]);
-			Node_Set_Syntax(S_FUNCTION_DEFINE);
-		}
-	),
-
-	Grammar_Checker(
-		{
 			Checker_Function(Parse_Recursive_Check, ROM_Declaration_Grammars)
 		},
 		Node_Init
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 			Node_Set_Syntax(S_ROM_DECLARATION_STATEMENT);
+		}
+	),
+	
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Function_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_FUNCTION_DEFINE);
 		}
 	)
 };

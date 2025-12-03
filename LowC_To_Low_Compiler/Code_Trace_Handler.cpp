@@ -347,7 +347,7 @@ bool Find_Value_In_Global_Stack(Tracer_Data& Tracer, std::string Value)
 {
 	for (size_t Index = 0; Index < Tracer.Global_Const_Declarations.size(); Index++)
 	{
-		if (Tracer.Global_Const_Declarations[Index]->Value == Value)
+		if (Tracer.Global_Const_Declarations[Index]->Child_Nodes.at("id")[0].Value == Value)
 			return true;
 	}
 
@@ -1514,7 +1514,7 @@ void Do_While_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const
 
 	Restore_Register_Snapshot(Output_Low_Code, Tracer, ID_Snapshot);	// After the local statement code is generated, set registers back to expected values
 
-	Output_Low_Code += "\tjump " + Label_Name + Condition + ";\t\t# do/while loop jump\n\n";
+	Output_Low_Code += "\tjump" + Condition + " " + Label_Name + ";\t\t# do/while loop jump\n\n";
 }
 
 void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
@@ -1532,7 +1532,7 @@ void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse
 
 	std::string Label_Name = "__if_statement__" + std::to_string(Label);
 
-	Output_Low_Code += "\tjump " + Label_Name + Condition + ";\t\t# If statement jump\n";
+	Output_Low_Code += "\tjump" + Condition + " " + Label_Name + ";\t\t# If statement jump\n";
 
 	Tracer.Label_Count++;
 
@@ -1680,11 +1680,11 @@ void Write_Const_Data_Definition(std::string& Output_Low_Code, Tracer_Data& Trac
 
 		Output_Low_Code += "\t" + Current_Node->Value + "\n";
 
-		while (Current_Node->Child_Nodes.count("int_literals"))
-		{
-			Current_Node = &(*Current_Node)["int_literals"][0];
-			Output_Low_Code += "\t" + Current_Node->Value + "\n";
-		}
+		//while (Current_Node->Child_Nodes.count("int_literals"))
+		//{
+		//	Current_Node = &(*Current_Node)["int_literals"][0];
+		//	Output_Low_Code += "\t" + Current_Node->Value + "\n";
+		//}
 	}
 
 	Output_Low_Code += "}\n\n";

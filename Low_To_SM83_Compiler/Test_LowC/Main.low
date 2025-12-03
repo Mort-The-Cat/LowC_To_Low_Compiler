@@ -1,0 +1,15 @@
+file Logo_Data.td;
+
+file LOW_Macros.low;
+
+data Placeholder $0150
+{
+    # No data
+}
+
+file Test_LowC/Test_LowC.low;
+
+subroutine program_entry $0100
+{
+    jump main;
+}

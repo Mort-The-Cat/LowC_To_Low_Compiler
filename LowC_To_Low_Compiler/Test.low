@@ -1,0 +1,92 @@
+subroutine Wait_For_Vblank
+{
+	SP += 254;		# byte* Register;
+	SP += 255;		# byte Scanline;
+	BC = $FF44;
+
+	label __do_while_statement__0;		# do/while loop label
+	H = B;		# Creates copy of Register
+	L = C;		# Creates copy of Register
+	A = [HL];		# Dereferences address
+	A < $90;		# S_LESS_THAN8
+	B = H;		# Moves value into expected register
+	C = L;		# Moves value into expected register
+	jump carry __do_while_statement__0;		# do/while loop jump
+
+	HL = $FF40;
+	[HL] = 0; 		# Stores value into memory location
+	SP += 3;		# Remove local variables from stack
+	return;
+}
+
+subroutine Load_Graphics_Into_VRAM
+{
+	SP += 254;		# byte* Write_Head;
+	SP += 254;		# byte* Read_Head;
+	SP += 255;		# byte Counter;
+	BC = $8000;
+	DE = Brick_Graphics;
+	A = 208;
+
+	A |= A;		# This just gets the CPU flags
+	jump zero __if_statement__1;		# If statement jump
+
+	label __do_while_statement__2;		# do/while loop label
+	H = D;		# Creates copy of Read_Head
+	L = E;		# Creates copy of Read_Head
+	E = [HL];		# Dereferences address
+	push HL;		# Push 16-bit word to stack to free up registers
+	H = B;		# Creates copy of Write_Head
+	L = C;		# Creates copy of Write_Head
+	[HL] = E; 		# Stores value into memory location
+	pop BC;		# Fixes 'panic' push, places value back into register
+	HL++;		# Increments Write_Head
+	BC++;		# Increments Read_Head
+	A--;		# Decrements Counter
+	A |= A;		# This just gets the CPU flags
+	E = B;		# Temporarily stores value here
+	B = H;		# Moves value into expected register
+	H = E;		# Swaps temporarily value
+	E = C;		# Temporarily stores value here
+	C = L;		# Moves value into expected register
+	L = E;		# Swaps temporarily value
+	D = H;		# Moves value into expected register
+	E = L;		# Moves value into expected register
+	jump not_zero __do_while_statement__2;		# do/while loop jump
+
+	label __if_statement__1;		# If statement label
+
+	SP += 5;		# Remove local variables from stack
+	return;
+}
+
+subroutine main
+{
+	call Wait_For_Vblank;		# Calls function
+	call Load_Graphics_Into_VRAM;		# Calls function
+	return;
+}
+
+data Brick_Graphics
+{
+	$FF $FF $FF $80 $C0 $BF $C0 $BF $C0 $BF $FF
+	$FF $FF $81 $C1 $BF $FF $FF $FF $20 $30 $EF
+	$30 $EF $30 $EF $FF $FF $FF $00 $80 $7F $C1
+	$BF $C1 $BF $FF $FF $FF $80 $C0 $BF $C0 $BF
+	$C0 $BF $FF $FF $80 $7F $80 $7F $FF $FF $FF
+	$40 $60 $DF $60 $DF $60 $DF $FF $FF $FF $FF
+	$FF $81 $C1 $BF $C1 $BF $C1 $BF $FF $FF $FF
+	$01 $81 $7F $81 $7F $81 $7F $FF $FF $FF $21
+	$31 $EF $31 $EF $31 $EF $FF $FF $FF $FF $FF
+	$80 $80 $FF $80 $FF $FF $FF $10 $1F $0F $0F
+	$00 $00 $FF $FF $FF $00 $00 $FF $00 $FF $FF
+	$FF $81 $81 $00 $00 $00 $00 $FF $FF $FF $01
+	$01 $FF $01 $FF $FF $FF $04 $FC $F8 $F8 $00
+	$00 $FF $7F $DF $E0 $8F $F0 $C7 $B8 $E3 $9C
+	$F1 $8E $F8 $87 $FC $83 $FF $FE $FB $07 $F1
+	$0F $E3 $1D $C7 $39 $8F $71 $9F $61 $7F $81
+	$FE $81 $F9 $86 $F1 $8E $E3 $9C $C7 $B8 $8F
+	$F0 $DF $E0 $FF $7F $3F $C1 $1F $E1 $8F $71
+	$C7 $39 $E3 $1D $F1 $0F $FB $07 $FF $FE 
+}
+

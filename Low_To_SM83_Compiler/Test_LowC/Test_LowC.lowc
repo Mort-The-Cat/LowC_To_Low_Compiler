@@ -1,0 +1,58 @@
+#include "../../stdlow.h"
+
+#include "../../low_macros.h"
+
+#include "Test_Bricks.h"
+
+void Wait_For_Vblank()
+{
+	byte* Register;
+	byte Scanline;
+	
+	Register = LCDY_REGISTER;
+
+	do
+	{
+		Scanline = *Register;
+	} while (Scanline < VBLANK_SCANLINE);
+
+	*LCDC_REGISTER = 0;	// This turns off the screen to allow writes to VRAM
+
+	return;
+}
+
+void Load_Graphics_Into_VRAM()
+{
+	byte* Write_Head;
+	byte* Read_Head;
+	byte Counter;
+
+	Write_Head = VRAM_BLOCK_0;
+	Read_Head = Brick_Graphics;
+
+	Counter = 208; // There are 208
+
+	while (Counter)
+	{
+		*Write_Head = *Read_Head;
+		Write_Head++;
+		Read_Head++;
+		Counter--;
+	}
+
+	return;
+}
+
+void main()
+{
+	// This will wait until VBlank, disable the LCDC register, and then load the graphics into VRAM
+
+	// Then it'll just enter a loop for testing sake
+
+	Wait_For_Vblank();
+
+	Load_Graphics_Into_VRAM();
+
+	return;
+}
+

@@ -16,6 +16,17 @@ long Get_Value_From_String(const char* String)
 	return Value;
 }
 
+std::string Fix_LowC_Hexadecimal(std::string Hex)
+{
+	// Check for LowC hex prefix
+
+	if (Hex.find("0x") != Hex.length())
+		return "$" + Hex.substr(Hex.find("0x"));
+		// This is a hex value of some kind!
+
+	return Hex;
+}
+
 //
 
 Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
@@ -123,7 +134,7 @@ void Get_C_Project_File_Contents(std::string* String, const char* File_Directory
 {
 	// This'll load line-by-line recursively 
 
-	if (!strcmp(File_Directory, "stdlow.h"))	// We don't actually want the compiler to compile the stdlow file because it's not designed for the SM83 architecture
+	if (strstr(File_Directory, "stdlow.h"))	// We don't actually want the compiler to compile the stdlow file because it's not designed for the SM83 architecture
 		return;
 
 	std::ifstream File(File_Directory);
@@ -285,11 +296,13 @@ size_t Token_Check_Int_Literal(const char* File, std::vector<Token>& Target_Toke
 
 		Token New_Token;
 
-		New_Token.Name.resize(Count);
+		New_Token.Name.resize(Count - 1);
 
-		for (size_t Index = 0; Index < Count; Index++)
+		New_Token.Name[0] = '$';
+
+		for (size_t Index = 1; Index < Count - 1; Index++)
 		{
-			New_Token.Name[Index] = File[Index + Delta];
+			New_Token.Name[Index] = File[Index + Delta + 1];
 		}
 
 		New_Token.Token = T_INT_LITERAL;

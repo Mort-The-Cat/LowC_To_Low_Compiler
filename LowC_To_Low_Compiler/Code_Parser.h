@@ -226,7 +226,7 @@ enum Syntax_IDs
 	New_Node->Value = New_Value
 
 #define Node_Copy(Sub_ID, Generated_Node)\
-	New_Node->Child_Nodes[Sub_ID].push_back(Generated_Node)
+	New_Node->Child_Nodes[Sub_ID].push_back(std::move(Generated_Node))
 
 #define Node_Copy_Syntax(Sub_ID, S_ID)\
 	New_Node->Child_Nodes[Sub_ID].back().Syntax_ID = S_ID
