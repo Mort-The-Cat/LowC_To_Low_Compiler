@@ -187,6 +187,8 @@ enum Syntax_IDs
 			(int_literals)
 		*/
 
+	S_SIZEOF,
+
 	S_BYTE,						// a byte type
 	S_BYTE_POINTER,				// a pointer to a byte type
 	S_BYTE_ARRAY,				// a local byte array pointer
@@ -232,7 +234,7 @@ enum Syntax_IDs
 	New_Node->Child_Nodes[Sub_ID].back().Syntax_ID = S_ID
 
 #define Node_Set(Generated_Node)\
-	*New_Node = Generated_Node\
+	*New_Node = std::move(Generated_Node)\
 
 #define Node_Set_Syntax(S_ID)\
 	New_Node->Syntax_ID = S_ID

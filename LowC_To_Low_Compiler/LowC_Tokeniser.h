@@ -38,7 +38,7 @@ enum
 
 	T_STORE_HIGH,	// This stores a byte in the upper-byte of a word
 
-
+	T_SIZEOF,
 
 	T_RETURN,
 	T_IF,

@@ -4,35 +4,33 @@
 
 #include "Test_Bricks.h"
 
+#include "Alphabet_Tiles.h"
+
+void Load_Graphics_Into_VRAM(byte* Write_Head, byte* Read_Head, word Counter);	// Declares the function
+
 void Wait_For_Vblank()
 {
-	byte* Register;
 	byte Scanline;
-	
-	Register = LCDY_REGISTER;
 
 	do
 	{
-		Scanline = *Register;
+		Scanline = *LCDY_REGISTER;
 	} while (Scanline < VBLANK_SCANLINE);
 
 	*LCDC_REGISTER = 0;	// This turns off the screen to allow writes to VRAM
 
+	Load_Graphics_Into_VRAM(VRAM_BLOCK_2, addressof(0x0104), 0x40);
+
 	return;
 }
 
-void Load_Graphics_Into_VRAM()
+void Load_Graphics_Into_VRAM(byte* Write_Head, byte* Read_Head, word Counter)
 {
-	byte* Write_Head;
-	byte* Read_Head;
-	byte Counter;
+	Write_Head = Write_Head;
+	Read_Head = Read_Head;
+	Counter = Counter;
 
-	Write_Head = VRAM_BLOCK_0;
-	Read_Head = Brick_Graphics;
-
-	Counter = 208; // There are 208
-
-	while (Counter)
+	while (Counter + high(Counter))
 	{
 		*Write_Head = *Read_Head;
 		Write_Head++;
@@ -51,7 +49,9 @@ void main()
 
 	Wait_For_Vblank();
 
-	Load_Graphics_Into_VRAM();
+	Load_Graphics_Into_VRAM(VRAM_BLOCK_0, Brick_Graphics, sizeof(Brick_Graphics));
+
+	Load_Graphics_Into_VRAM(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
 
 	return;
 }

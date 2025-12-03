@@ -39,6 +39,7 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 
 	{	T_HIGH,			"high"		},
 	{	T_BIT,			"bit"		},
+	{	T_SIZEOF,		"sizeof"	},
 	{	T_STORE_HIGH,	"store_high"},
 
 	{	T_IF,			"if"		},

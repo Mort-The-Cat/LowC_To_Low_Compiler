@@ -27,6 +27,7 @@ Define_Grammar(Statement_Grammars);
 Define_Grammar(Statements_Grammars);
 Define_Grammar(Type_Grammars);
 Define_Grammar(Return_Type_Grammars);
+Define_Grammar(Function_Dec_Grammars);
 Define_Grammar(Function_Grammars);
 Define_Grammar(Global_Declaration_Grammars);
 Define_Grammar(Global_Declarations_Grammars);

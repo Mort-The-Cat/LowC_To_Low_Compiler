@@ -26,6 +26,33 @@ size_t Line_Length(std::string& Value)
 
 size_t Get_Depth_Of_Node(std::string& Value, const Parse_Node& Node, const char* Sub_ID)
 {
+	const Parse_Node* Current_Node = &Node;
+	size_t Counter = 1;
+
+	Value += Node.Value; // +" ";
+	if (Line_Length(Value) > 40)
+		Value += "\n\t";
+	else
+		Value += " ";
+
+	while (Current_Node->Child_Nodes.contains(Sub_ID))
+	{
+		Counter++;
+
+		Value += Current_Node->Value; // +" ";
+		if (Line_Length(Value) > 40)
+			Value += "\n\t";
+		else
+			Value += " ";
+
+		Current_Node = &Current_Node->Child_Nodes.at(Sub_ID)[0];
+	}
+
+	return Counter;
+}
+
+/*size_t Get_Depth_Of_Node_Old(std::string& Value, const Parse_Node& Node, const char* Sub_ID)
+{
 	size_t Val = 1;
 	Value += Node.Value; // +" ";
 	if (Line_Length(Value) > 40)
@@ -35,7 +62,7 @@ size_t Get_Depth_Of_Node(std::string& Value, const Parse_Node& Node, const char*
 	if (Node.Child_Nodes.contains(Sub_ID))
 		Val += Get_Depth_Of_Node(Value, Node.Child_Nodes.at(Sub_ID)[0], Sub_ID);
 	return Val;
-}
+}*/
 
 size_t Get_Syntax_ID_Of_Identifier(const char* Name)
 {
@@ -77,9 +104,44 @@ const std::vector<Grammar_Checker> Identifier_Grammars =
 	)
 };
 
+size_t Parse_Int_Literals_Check(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID)
+{
+	// 'Node' is the recursively generated nodes
+
+	// We'll only output 1
+
+	if (Tokens[0].Token == T_INT_LITERAL)
+	{
+		Parse_Node Root_Node;
+
+		Root_Node.Value = Tokens[0].Name;
+		Root_Node.Syntax_ID = S_INT_LITERAL;
+
+		size_t Index = 1;
+
+		while (Tokens[Index].Token == T_COMMA)
+		{
+			Root_Node.Value += " ";
+
+			if (Line_Length(Root_Node.Value) > 40)
+				Root_Node.Value += "\n\t";
+
+			Root_Node.Value += Tokens[Index + 1].Name;
+
+			Index += 2;
+		}
+
+		Node->push_back(std::move(Root_Node));
+
+		return Index;
+	}
+	else
+		return 0;
+}
+
 const std::vector<Grammar_Checker> Int_Literals_Grammars =
 {
-	Grammar_Checker(	// int literal, int literals
+	/*Grammar_Checker(	// int literal, int literals
 		{
 			Checker_Function(Is_Token, T_INT_LITERAL), Checker_Function(Is_Token, T_COMMA),
 			Checker_Function(Parse_Recursive_Check, Int_Literals_Grammars)
@@ -100,6 +162,16 @@ const std::vector<Grammar_Checker> Int_Literals_Grammars =
 		{
 			Node_Set(Parse_Node(S_INT_LITERAL, Tokens[0].Name));
 		}
+	)*/
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Int_Literals_Check, 0)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+		}
 	)
 };
 
@@ -114,7 +186,21 @@ const std::vector<Grammar_Checker> Expression16_Grammars =
 		Node_Init
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
-			//Node_Set_Syntax(S_EXPRESSION16)
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_SIZEOF),
+			Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Is_Token, T_IDENTIFIER),
+			Checker_Function(Is_Token, T_CLOSE_BR)
+		},
+
+		Node_Init
+		{
+			Node_Add("id", S_ID16, Tokens[2].Name);
+			Node_Set_Syntax(S_SIZEOF);
 		}
 	),
 
@@ -537,11 +623,11 @@ const std::vector<Grammar_Checker> ROM_Declaration_Grammars =
 
 			Add_To_Parser_Identifiers({ S_ID16, Name });
 
-			std::string Value = "";
+			Node_Add("size", S_INT_LITERAL, std::to_string(1 + std::count(Recursively_Generated_Nodes[0].Value.begin(), Recursively_Generated_Nodes[0].Value.end(), ' ')));
 
-			Node_Add("size", S_INT_LITERAL, std::to_string(Get_Depth_Of_Node(Value, Recursively_Generated_Nodes[0], "int_literals")));
+			//Node_Add("size", S_INT_LITERAL, std::to_string(Get_Depth_Of_Node(Value, Recursively_Generated_Nodes[0], "int_literals")));
 
-			Node_Add("data", S_INT_LITERAL, Value);
+			Node_Add("data", S_INT_LITERAL, Recursively_Generated_Nodes[0].Value);
 
 			//Node_Copy("data", Recursively_Generated_Nodes[0]);
 		}
@@ -1146,6 +1232,46 @@ const std::vector<Grammar_Checker> Return_Type_Grammars =
 	)
 };
 
+const std::vector<Grammar_Checker> Function_Dec_Grammars =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Return_Type_Grammars), Checker_Function(Parse_Recursive_Check, Identifier_Grammars),
+			Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Parse_Recursive_Check, Parameters_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_BR), Checker_Function(Is_Token, T_SEMI)
+		},
+
+		Node_Init
+		{
+			Node_Copy("return_type", Recursively_Generated_Nodes[0]);
+			Node_Copy("id", Recursively_Generated_Nodes[1]);
+			Node_Copy_Syntax("id", S_ID16);						// we want to specify that this is an ID16
+
+			Add_To_Parser_Identifiers({ S_ID16, Recursively_Generated_Nodes[1].Value });
+
+			Node_Copy("parameters", Recursively_Generated_Nodes[2]);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Return_Type_Grammars), Checker_Function(Parse_Recursive_Check, Identifier_Grammars),
+			Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Is_Token, T_CLOSE_BR), Checker_Function(Is_Token, T_SEMI)
+		},
+
+		Node_Init
+		{
+			Node_Copy("return_type", Recursively_Generated_Nodes[0]);
+			Node_Copy("id", Recursively_Generated_Nodes[1]);
+			Node_Copy_Syntax("id", S_ID16);						// we want to specify that this is an ID16
+
+			Add_To_Parser_Identifiers({ S_ID16, Recursively_Generated_Nodes[1].Value });
+		}
+	)
+};
+
 const std::vector<Grammar_Checker> Function_Grammars =
 {
 	Grammar_Checker(
@@ -1272,6 +1398,17 @@ const std::vector<Grammar_Checker> Global_Declaration_Grammars =
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 			Node_Set_Syntax(S_FUNCTION_DEFINE);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Function_Dec_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_FUNCTION_DEC);
 		}
 	)
 };
