@@ -41,6 +41,8 @@ Define_Grammar(Dest_Inc_Dec_Grammars);		// either ++ or --, simple
 
 Define_Grammar(Store_High_Grammars);	// This defines the "store_high(" usage 
 
+Define_Grammar(Shift_Bit_Grammars);
+
 Define_Grammar(Condition_Grammars);
 Define_Grammar(Expression8_Grammars);
 Define_Grammar(Expression16_Grammars);

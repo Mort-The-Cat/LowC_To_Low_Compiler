@@ -305,6 +305,36 @@ const std::vector<Grammar_Checker> Operator8_Grammars =
 		{
 			Node_Set_Syntax(S_MINUS8);
 		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_AND)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_AND8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_OR)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_OR8);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_XOR)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_XOR8);
+		}
 	)
 };
 

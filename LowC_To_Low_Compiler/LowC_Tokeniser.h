@@ -78,8 +78,11 @@ enum
 	T_MINUS_MINUS,
 	T_MINUS,
 	T_AND_EQUALS,
+	T_AND,
 	T_OR_EQUALS,
+	T_OR,
 	T_XOR_EQUALS,
+	T_XOR,
 
 	T_NOT,
 

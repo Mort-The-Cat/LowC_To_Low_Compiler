@@ -30,7 +30,7 @@ void Load_Graphics_Into_VRAM(byte* Write_Head, byte* Read_Head, word Counter)
 	Read_Head = Read_Head;
 	Counter = Counter;
 
-	while (Counter + high(Counter))
+	while (Counter | high(Counter))
 	{
 		*Write_Head = *Read_Head;
 		Write_Head++;

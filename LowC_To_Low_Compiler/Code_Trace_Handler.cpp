@@ -718,6 +718,9 @@ std::string Tracer_Operator8(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 	const std::map<size_t, std::array<std::string, 2>> Operators = {
 		{ S_PLUS8,		{ "+= ",	"S_PLUS8"		}	},
 		{ S_MINUS8,		{ "-= ",	"S_MINUS8"		}	},
+		{ S_OR8,		{ "|= ",	"S_OR8"			}	},
+		{ S_AND8,		{ "&= ",	"S_AND8"		}	},
+		{ S_XOR8,		{ "^= ",	"S_XOR8"		}	},
 		{ S_LESS_THAN8,	{ "< ",	"S_LESS_THAN8"	}	}
 	};
 
@@ -902,6 +905,9 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 		}
 	}
 
+	case S_XOR8:
+	case S_AND8:
+	case S_OR8:
 	case S_MINUS8:
 	case S_PLUS8:
 	{

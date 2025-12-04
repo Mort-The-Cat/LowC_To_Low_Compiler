@@ -47,7 +47,7 @@ subroutine Load_Graphics_Into_VRAM
 	L = A;		# Move lower byte from temp register
 
 	A = H;		# Stores @register@ into 'A' register for use
-	A += L;		# S_PLUS8
+	A |=L;		# S_OR8
 	A |= A;		# This just gets the CPU flags
 	jump zero __if_statement__1;		# If statement jump
 
@@ -66,7 +66,7 @@ subroutine Load_Graphics_Into_VRAM
 	DE++;		# Increments Read_Head
 	BC--;		# Decrements Counter
 	A = B;		# Stores @register@ into 'A' register for use
-	A += C;		# S_PLUS8
+	A |= C;		# S_OR8
 	A |= A;		# This just gets the CPU flags
 	A = B;		# Temporarily stores value here
 	B = H;		# Moves value into expected register
