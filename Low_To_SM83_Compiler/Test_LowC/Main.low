@@ -7,6 +7,8 @@ data Placeholder $0150
     # No data
 }
 
+file Test_LowC/lowc_lib.low;
+
 file Test_LowC/Test_LowC.low;
 
 subroutine program_entry $0100

@@ -1,0 +1,99 @@
+
+# Here is the direct Low implementation of the lowc_lib.h functions etc
+
+macro DMA_HRAM_Function $FF80;
+
+subroutine __dma_HRAM_code__
+{
+    [$FF00 + C] = A;		# 2 cycle - $01
+			# Begins DMA transfer
+	label DMA_Loop;
+	    B--;				# 1 cycle - $02
+	jump not_zero DMA_Loop;	# 3 cycles - $04
+	
+    return;					# 4 cycles - $05
+}
+
+subroutine dma_transfer
+{
+    A = $C0;    # This is the location of the OAM buffer
+    BC = $2946;
+
+    jump DMA_HRAM_Function; # Defined in lowc_lib.h
+}
+
+subroutine init_dma
+{
+    # This is the function that initialises the DMA functionality
+
+    BC = DMA_HRAM_Function; # Dest
+    push BC;
+    BC = __dma_HRAM_code__; # Source
+    push BC;
+    BC = $05;               # Length
+    push BC;
+    call memcpy;
+
+    return;
+}
+
+subroutine memcpy
+{
+    # SP + $07 high byte 'Dest'
+    # SP + $06 low byte 'Dest'
+    # SP + $05 high byte 'Source'
+    # SP + $04 low byte 'Source'
+    # SP + $03 high byte 'Count'
+    # SP + $02 low byte 'Count'
+    # SP + $01 function return pointers
+    # SP + $00
+
+    # Loads values from registers
+
+    SP += 2;    # SP += 2
+    pop DE;     # SP += 2
+    pop HL;     # SP += 2
+    pop BC;     # SP += 2
+    SP += 248;  # SP -= 8
+
+    # gets stack pointer back into original position
+
+    label Copy_Loop;
+    A = [HL++];         # Gets source and increments it
+    [BC] = A;           # Writes to dest
+    BC++;               # Increments dest
+    DE--;               # Decrements count
+    A = D;
+    A |= E;
+    jump not_zero Copy_Loop;    # As long as counter != 0, repeat
+
+    return;
+}
+
+subroutine memset
+{
+    # SP + $05 and $06 are 'Dest'
+    # SP + $04 is 'Value'
+    # SP + $02 and $03 are 'Count'
+    # SP + $00 and $01 are function ret pointers
+
+    SP += 2;            # (SP + 2)
+    pop DE;             # (SP + 4)      Count
+    HL = SP + $00;
+    A = [HL++];         #               Value
+    SP = HL;            # (SP + 5)
+    pop HL;             # (SP + 7)      Dest
+
+    SP += 249;          # (SP + 0)
+
+    label Set_Loop;
+    [HL++] = A;         # Writes value
+    B = A;              # Temporarily stores value
+    DE--;               # Decrements Count
+    A = D;
+    A |= E;             # Checks count != 0
+    A = B;              # Gets value back into A register
+    jump not_zero Set_Loop;
+
+    return;
+}

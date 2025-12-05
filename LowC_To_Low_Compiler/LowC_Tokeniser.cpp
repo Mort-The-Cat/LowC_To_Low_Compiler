@@ -41,6 +41,9 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_BIT,			"bit"		},
 	{	T_SIZEOF,		"sizeof"	},
 	{	T_STORE_HIGH,	"store_high"},
+	{	T_STORE_LOW,	"store_low"	},
+	{	T_SHIFT_RIGHT,	"shift_right"},
+	{	T_SHIFT_LEFT,	"shift_left"},
 
 	{	T_IF,			"if"		},
 	{	T_WHILE,		"while"		},
@@ -48,7 +51,6 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_RETURN,		"return"	},
 
 	{	T_IDENTIFIER,	""			},
-	{	T_MEM,			"mem"		},
 	{	T_ADDRESSOF,	"addressof" },
 
 	{	T_OPEN_BR,		"("			},

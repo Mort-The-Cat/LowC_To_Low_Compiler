@@ -24,6 +24,24 @@
 #define VBLANK_SCANLINE addressof(0x90)
 
 #define LCDC_REGISTER addressof(0xFF40)
+/*
+		# bit 7 controls LCD and PPU (MAY ONLY BE CHANGED DURING VBLANK!!)
+		# bit 6 window tile map 9800 - 9BFF or 9C00 - 9FFF
+		# bit 5 window enable
+		# bit 4 controls addressing mode for tile * data *
+
+		# if bit 4 is not, 0-127 corresponds to $9000-97FF, and 128-255 corresponds to $8800-8FFF
+		# if bit 4 is set, 0-127 corresponds to $8000-87FF, and 128-255 corresponds to $8800-8FFF
+		# Note that objects always use the latter unsigned addressing mode for tile data
+
+		# bit 3 background tile map 9800 - 9BFF or 9C00 - 9FFF
+
+		# bit 2 OBJ 8x8 or 8x16
+
+		# bit 1 controls if objects are enabled
+
+		# bit 0 background / window enable
+*/
 
 #define DMA_REGISTER addressof(0xFF46)
 

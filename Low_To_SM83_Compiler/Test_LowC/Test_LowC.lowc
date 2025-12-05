@@ -2,11 +2,18 @@
 
 #include "../../low_macros.h"
 
+#include "lowc_lib.h"
+
 #include "Test_Bricks.h"
 
 #include "Alphabet_Tiles.h"
 
-void Load_Graphics_Into_VRAM(byte* Write_Head, byte* Read_Head, word Counter);	// Declares the function
+#define CH_Cursor_X (byte)0x00
+#define CH_Cursor_Y (byte)0x01
+#define CH_Tilemap_Low (byte)0x02
+#define CH_Tilemap_High (byte)0x03
+
+void Load_Graphics_Into_VRAM(byte* Write_Head, const byte* Read_Head, word Counter);	// Declares the function
 
 void Wait_For_Vblank()
 {
@@ -19,12 +26,12 @@ void Wait_For_Vblank()
 
 	*LCDC_REGISTER = 0;	// This turns off the screen to allow writes to VRAM
 
-	Load_Graphics_Into_VRAM(VRAM_BLOCK_2, addressof(0x0104), 0x40);
+	// memcpy(VRAM_BLOCK_2, addressof(0x0104), 0x40);
 
 	return;
 }
 
-void Load_Graphics_Into_VRAM(byte* Write_Head, byte* Read_Head, word Counter)
+void Load_Graphics_Into_VRAM(byte* Write_Head, const byte* Read_Head, word Counter)
 {
 	Write_Head = Write_Head;
 	Read_Head = Read_Head;
@@ -41,6 +48,55 @@ void Load_Graphics_Into_VRAM(byte* Write_Head, byte* Read_Head, word Counter)
 	return;
 }
 
+void init_console_handle(byte* Console_Handle)
+{
+	*Console_Handle = 0;
+	Console_Handle++;
+	*Console_Handle = 0;
+	Console_Handle++;
+
+	*Console_Handle = VRAM_TILEM_0;
+	Console_Handle++;
+	*Console_Handle = high(VRAM_TILEM_0);
+
+	return;
+}
+
+void printf(byte* Console_Handle, const byte* String);
+
+void printf(byte* Console_Handle, const byte* String)
+{
+	// Note that there are 32 bytes per tilemap line
+
+	byte* Write_Pointer;
+
+	store_low(Write_Pointer, *(Console_Handle + CH_Tilemap_Low) );
+	store_high(Write_Pointer, *(Console_Handle + CH_Tilemap_High) );
+
+	// Wait_For_Vblank();
+
+	String = String;
+	Write_Pointer = Write_Pointer;
+
+	do
+	{
+		*(Write_Pointer) = *(String);
+		Write_Pointer++;
+		String++;
+	}while(*String);
+
+	store_low(Write_Pointer, ( 224 & (byte)Write_Pointer) );
+	Write_Pointer = (Write_Pointer + (byte)32);
+
+	*(Console_Handle + CH_Tilemap_Low) = (byte)Write_Pointer;
+	*(Console_Handle + CH_Tilemap_High) = high(Write_Pointer);
+
+	return;
+}
+
+const byte Other_Test_String[] = "ABSOLUTELY INCREDIBLE...";
+const byte Hacking[] = "DONT YOU KNOW? HACKING IS A SIN";
+
 void main()
 {
 	// This will wait until VBlank, disable the LCDC register, and then load the graphics into VRAM
@@ -49,9 +105,43 @@ void main()
 
 	Wait_For_Vblank();
 
-	Load_Graphics_Into_VRAM(VRAM_BLOCK_0, Brick_Graphics, sizeof(Brick_Graphics));
+	memcpy(VRAM_BLOCK_0, Brick_Graphics, sizeof(Brick_Graphics));
 
-	Load_Graphics_Into_VRAM(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
+	memcpy(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
+
+	byte Console_Handle[4];
+	const byte Test_String[] = "HELLO! THIS IS A TEST";
+
+	init_console_handle(Console_Handle);
+	printf(Console_Handle, Test_String);
+	printf(Console_Handle, Other_Test_String);
+	printf(Console_Handle, Hacking);
+
+	*LCDC_REGISTER = 0x81;	// This'll display the screen accordingly!
+
+	word Frame_Counter;
+
+	Frame_Counter = 0;
+
+	do
+	{
+		if (!*(LCDY_REGISTER))
+		{
+			Frame_Counter++;
+
+			if ((byte)Frame_Counter > 20)	// at 60FPS, this'll roughly be three times per second
+			{
+				*(BACKGROUND_SCROLL_X_REGISTER)++;
+
+				Frame_Counter = 0;
+			}
+
+			do
+			{
+				init_dma();				// just do random busy-work (waiting)
+			} while (!*(LCDY_REGISTER));
+		}
+	} while (1);
 
 	return;
 }

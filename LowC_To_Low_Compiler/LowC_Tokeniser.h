@@ -37,12 +37,15 @@ enum
 	T_BIT,		// This gets the true/false of a bit as a conditional
 
 	T_STORE_HIGH,	// This stores a byte in the upper-byte of a word
+	T_STORE_LOW,	// This stores a byte into the lower-byte of a word
+
+	T_SHIFT_RIGHT,
+	T_SHIFT_LEFT,
 
 	T_SIZEOF,
 
 	T_RETURN,
 	T_IF,
-	T_MEM,
 	T_DO,
 	T_WHILE,
 

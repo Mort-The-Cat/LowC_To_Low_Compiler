@@ -7,15 +7,19 @@ void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW im
 
 //_call(function);	// Function implementation included elsewhere (NOTE THIS RESULTS IN UNDEFINED BEHAVIOUR UNLESS DONE IN LOWC)
 
-#define mem ((unsigned char*)(0))
-
 #define addressof(location) (byte*)(location)
 
 #define high(expression8) ((word)expression8 << 8)
 
 #define store_high(id16, expression8)
 
+#define store_low(id16, expression8)
+
 #define bit(expression, bit_number) (1 & (expression >> bit_number))
+
+#define shift_left(expression) (expression << 1)
+
+#define shift_right(expression) (expression >> 1)
 
 // 	call(Function_Pointer, void, byte)(Value);
 /*

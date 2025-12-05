@@ -10,16 +10,6 @@ subroutine Wait_For_Vblank
 
 	HL = $FF40;
 	[HL] = 0; 		# Stores value into memory location
-	HL = SP + 0;		# Memory location of Scanline
-	[HL] = A;		# Stores Scanline back into memory
-	BC = $9000;
-	push BC;		# Pushes Write_Head to the stack
-	BC = $0104;
-	push BC;		# Pushes Read_Head to the stack
-	BC = $40;
-	push BC;		# Pushes Counter to the stack
-	call Load_Graphics_Into_VRAM;		# Calls function
-	SP += 6;		# Removes pushed parameters from stack
 	SP += 1;		# Remove local variables from stack
 	return;
 }
@@ -46,8 +36,8 @@ subroutine Load_Graphics_Into_VRAM
 	H = [HL];		# Store upper byte
 	L = A;		# Move lower byte from temp register
 
-	A = H;		# Stores @register@ into 'A' register for use
-	A += L;		# S_PLUS8
+	A = L;		# Stores @register@ into 'A' register for use
+	A |= H;		# S_OR8
 	A |= A;		# This just gets the CPU flags
 	jump zero __if_statement__1;		# If statement jump
 
@@ -56,8 +46,6 @@ subroutine Load_Graphics_Into_VRAM
 	H = D;		# Creates copy of Read_Head
 	L = E;		# Creates copy of Read_Head
 	A = [HL];		# Dereferences address
-	D = H;		# Frees up H register for use
-	E = L;		# Frees up L register for use
 	H = B;		# Creates copy of Write_Head
 	L = C;		# Creates copy of Write_Head
 	[HL] = A; 		# Stores value into memory location
@@ -65,8 +53,8 @@ subroutine Load_Graphics_Into_VRAM
 	HL++;		# Increments Write_Head
 	DE++;		# Increments Read_Head
 	BC--;		# Decrements Counter
-	A = B;		# Stores @register@ into 'A' register for use
-	A += C;		# S_PLUS8
+	A = C;		# Stores @register@ into 'A' register for use
+	A |= B;		# S_OR8
 	A |= A;		# This just gets the CPU flags
 	A = B;		# Temporarily stores value here
 	B = H;		# Moves value into expected register
@@ -81,25 +69,163 @@ subroutine Load_Graphics_Into_VRAM
 	return;
 }
 
+subroutine init_console_handle
+{
+	HL = SP + 2;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	[HL] = 0; 		# Stores value into memory location
+	HL++;		# Increments Console_Handle
+	[HL] = 0; 		# Stores value into memory location
+	HL++;		# Increments Console_Handle
+	[HL] = $9800; 		# Stores value into memory location
+	HL++;		# Increments Console_Handle
+	BC = $9800;
+	[HL] = B; 		# Stores value into memory location
+	return;
+}
+
+subroutine printf
+{
+	SP += 254;		# byte* Write_Pointer;
+	BC = $02;
+	HL = SP + 6;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	A = [HL];		# Dereferences address
+	HL = SP + 0;		# Fetches Write_Pointer off the stack
+	E = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = E;		# Move lower byte from temp register
+	L = A;		# Moves value into low-byte of Write_Pointer
+	BC = $03;
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	HL = SP + 6;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	A = [HL];		# Dereferences address
+	D = A;		# Moves value into high-byte of Write_Pointer
+	HL = SP + 4;		# Fetches String off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = D;		# Creates copy of Write_Pointer
+	C = E;		# Creates copy of Write_Pointer
+
+	label __do_while_statement__3;		# do/while loop label
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	A = [HL];		# Dereferences address
+	push HL;		# Push 16-bit word to stack to free up registers
+	H = B;		# Creates copy of Write_Pointer
+	L = C;		# Creates copy of Write_Pointer
+	[HL] = A; 		# Stores value into memory location
+	SP += 2;		# Fixes 'panic' push
+	HL++;		# Increments Write_Pointer
+	DE++;		# Increments String
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	H = D;		# Creates copy of String
+	L = E;		# Creates copy of String
+	A = [HL];		# Dereferences address
+	A |= A;		# This just gets the CPU flags
+	H = D;		# Moves value into expected register
+	L = E;		# Moves value into expected register
+	jump not_zero __do_while_statement__3;		# do/while loop jump
+
+	A = 225;
+	A &= C;		# S_AND8
+	C = A;		# Moves value into low-byte of Write_Pointer
+	DE = 32;
+	push HL;		# Push 16-bit word to stack to free up registers
+	H = B;		# Creates copy of Write_Pointer
+	L = C;		# Creates copy of Write_Pointer
+	HL += DE;		# S_PLUS16
+	pop BC;		# Fixes 'panic' push, places value back into register
+	DE = $02;
+	push BC;		# Push 16-bit word to stack to free up registers
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 6;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += DE;		# S_PLUS16
+	[HL] = C; 		# Stores value into memory location
+	pop DE;		# Fixes 'panic' push, places value back into register
+	push HL;		# Push 16-bit word to stack to free up registers
+	HL = $03;
+	push DE;		# Push 16-bit word to stack to free up registers
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	HL = SP + 0;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += DE;		# S_PLUS16
+	[HL] = B; 		# Stores value into memory location
+	pop DE;		# Fixes 'panic' push, places value back into register
+	SP += 2;		# Fixes 'panic' push
+	SP += 2;		# Remove local variables from stack
+	return;
+}
+
 subroutine main
 {
 	call Wait_For_Vblank;		# Calls function
 	BC = $8000;
-	push BC;		# Pushes Write_Head to the stack
+	push BC;		# Pushes Destination to the stack
 	BC = Brick_Graphics;
-	push BC;		# Pushes Read_Head to the stack
+	push BC;		# Pushes Source to the stack
 	BC = 208;
-	push BC;		# Pushes Counter to the stack
-	call Load_Graphics_Into_VRAM;		# Calls function
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	BC = $8800;
-	push BC;		# Pushes Write_Head to the stack
+	push BC;		# Pushes Destination to the stack
 	BC = Alphabet_Graphics;
-	push BC;		# Pushes Read_Head to the stack
+	push BC;		# Pushes Source to the stack
 	BC = 736;
-	push BC;		# Pushes Counter to the stack
-	call Load_Graphics_Into_VRAM;		# Calls function
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
+	SP += 252;		# byte[] Console_Handle;
+	HL = SP + 0;		# Gets Console_Handle address
+	push HL;		# Pushes Console_Handle to the stack
+	call init_console_handle;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	HL = SP + 0;		# Gets Console_Handle address
+	push HL;		# Pushes Console_Handle to the stack
+	BC = __main__Test_String;
+	push BC;		# Pushes String to the stack
+	call printf;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	HL = SP + 0;		# Gets Console_Handle address
+	push HL;		# Pushes Console_Handle to the stack
+	BC = Other_Test_String;
+	push BC;		# Pushes String to the stack
+	call printf;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	HL = SP + 0;		# Gets Console_Handle address
+	push HL;		# Pushes Console_Handle to the stack
+	BC = Hacking;
+	push BC;		# Pushes String to the stack
+	call printf;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	SP += 4;		# Remove local variables from stack
 	return;
 }
 
@@ -204,5 +330,20 @@ data Alphabet_Graphics
 	$FF $7E $81 $42 $81 $66 $81 $3C $42 $FF 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
 	$FF $FF $FF $FF $FF
+}
+
+data Other_Test_String
+{
+	"ABSOLUTELY INCREDIBLE..." 0
+}
+
+data Hacking
+{
+	"DONT YOU KNOW? HACKING IS A SIN" 0
+}
+
+data __main__Test_String
+{
+	"HELLO! THIS IS A TEST" 0
 }
 

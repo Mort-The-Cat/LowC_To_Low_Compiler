@@ -149,6 +149,7 @@ enum Syntax_IDs
 			(parameters)
 		*/
 
+	S_STORE_LOW,
 	S_STORE_HIGH,
 		/*
 			(id)
@@ -213,8 +214,12 @@ enum Syntax_IDs
 	S_OR8,
 	S_AND8,
 	S_XOR8,
-	S_LEFT_SHIFT,	// These are unique because it can be applied to any register/register pair!!
-	S_RIGHT_SHIFT,	// These are unique because it can be applied to any register/register pair!!
+	S_LEFT_SHIFT8,	// These are unique because it can be applied to any register/register pair!!
+	S_RIGHT_SHIFT8,	// These are unique because it can be applied to any register/register pair!!
+
+	S_LEFT_SHIFT16,
+	S_RIGHT_SHIFT16,
+
 	S_MINUS8,
 	S_PLUS8,					// addition between two 8-bit values
 		/*
