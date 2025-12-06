@@ -1,0 +1,403 @@
+subroutine Wait_For_Vblank
+{
+	SP += 255;		# byte Scanline;
+
+	label __do_while_statement__0;		# do/while loop label
+	HL = $FF44;
+	A = [HL];		# Dereferences address
+	A < $90;		# S_LESS_THAN8
+	jump carry __do_while_statement__0;		# do/while loop jump
+
+	HL = $FF40;
+	[HL] = 0; 		# Stores value into memory location
+	SP += 1;		# Remove local variables from stack
+	return;
+}
+
+subroutine Load_Graphics_Into_VRAM
+{
+	HL = SP + 6;		# Fetches Write_Head off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 4;		# Fetches Read_Head off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	HL = SP + 2;		# Fetches Counter off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+
+	A = L;		# Stores @register@ into 'A' register for use
+	A |= H;		# S_OR8
+	A |= A;		# This just gets the CPU flags
+	jump zero __if_statement__1;		# If statement jump
+
+	label __do_while_statement__2;		# do/while loop label
+	push HL;		# Push 16-bit word to stack to free up registers
+	H = D;		# Creates copy of Read_Head
+	L = E;		# Creates copy of Read_Head
+	A = [HL];		# Dereferences address
+	H = B;		# Creates copy of Write_Head
+	L = C;		# Creates copy of Write_Head
+	[HL] = A; 		# Stores value into memory location
+	pop BC;		# Fixes 'panic' push, places value back into register
+	HL++;		# Increments Write_Head
+	DE++;		# Increments Read_Head
+	BC--;		# Decrements Counter
+	A = C;		# Stores @register@ into 'A' register for use
+	A |= B;		# S_OR8
+	A |= A;		# This just gets the CPU flags
+	A = B;		# Temporarily stores value here
+	B = H;		# Moves value into expected register
+	H = A;		# Swaps temporarily value
+	A = C;		# Temporarily stores value here
+	C = L;		# Moves value into expected register
+	L = A;		# Swaps temporarily value
+	jump not_zero __do_while_statement__2;		# do/while loop jump
+
+	label __if_statement__1;		# If statement label
+
+	return;
+}
+
+subroutine init_console_handle
+{
+	HL = SP + 2;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	[HL] = 0; 		# Stores value into memory location
+	HL++;		# Increments Console_Handle
+	[HL] = 0; 		# Stores value into memory location
+	HL++;		# Increments Console_Handle
+	[HL] = $9800; 		# Stores value into memory location
+	HL++;		# Increments Console_Handle
+	BC = $9800;
+	[HL] = B; 		# Stores value into memory location
+	return;
+}
+
+subroutine printf
+{
+	SP += 254;		# byte* Write_Pointer;
+	BC = $02;
+	HL = SP + 6;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	A = [HL];		# Dereferences address
+	HL = SP + 0;		# Fetches Write_Pointer off the stack
+	E = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = E;		# Move lower byte from temp register
+	L = A;		# Moves value into low-byte of Write_Pointer
+	BC = $03;
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	HL = SP + 6;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	A = [HL];		# Dereferences address
+	D = A;		# Moves value into high-byte of Write_Pointer
+	HL = SP + 4;		# Fetches String off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = D;		# Creates copy of Write_Pointer
+	C = E;		# Creates copy of Write_Pointer
+
+	label __do_while_statement__3;		# do/while loop label
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	A = [HL];		# Dereferences address
+	push HL;		# Push 16-bit word to stack to free up registers
+	H = B;		# Creates copy of Write_Pointer
+	L = C;		# Creates copy of Write_Pointer
+	[HL] = A; 		# Stores value into memory location
+	SP += 2;		# Fixes 'panic' push
+	HL++;		# Increments Write_Pointer
+	DE++;		# Increments String
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	H = D;		# Creates copy of String
+	L = E;		# Creates copy of String
+	A = [HL];		# Dereferences address
+	A |= A;		# This just gets the CPU flags
+	H = D;		# Moves value into expected register
+	L = E;		# Moves value into expected register
+	jump not_zero __do_while_statement__3;		# do/while loop jump
+
+	A = 224;
+	A &= C;		# S_AND8
+	C = A;		# Moves value into low-byte of Write_Pointer
+	DE = 32;
+	push HL;		# Push 16-bit word to stack to free up registers
+	H = B;		# Creates copy of Write_Pointer
+	L = C;		# Creates copy of Write_Pointer
+	HL += DE;		# S_PLUS16
+	pop BC;		# Fixes 'panic' push, places value back into register
+	DE = $02;
+	push BC;		# Push 16-bit word to stack to free up registers
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 8;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += DE;		# S_PLUS16
+	[HL] = C; 		# Stores value into memory location
+	pop DE;		# Fixes 'panic' push, places value back into register
+	push HL;		# Push 16-bit word to stack to free up registers
+	HL = $03;
+	push DE;		# Push 16-bit word to stack to free up registers
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	HL = SP + 10;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += DE;		# S_PLUS16
+	[HL] = B; 		# Stores value into memory location
+	pop DE;		# Fixes 'panic' push, places value back into register
+	SP += 2;		# Fixes 'panic' push
+	SP += 2;		# Remove local variables from stack
+	return;
+}
+
+subroutine main
+{
+	call Wait_For_Vblank;		# Calls function
+	BC = $8000;
+	push BC;		# Pushes Destination to the stack
+	BC = Brick_Graphics;
+	push BC;		# Pushes Source to the stack
+	BC = 208;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	BC = $8800;
+	push BC;		# Pushes Destination to the stack
+	BC = Alphabet_Graphics;
+	push BC;		# Pushes Source to the stack
+	BC = 736;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	SP += 252;		# byte[] Console_Handle;
+	HL = SP + 0;		# Gets Console_Handle address
+	push HL;		# Pushes Console_Handle to the stack
+	call init_console_handle;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	HL = SP + 0;		# Gets Console_Handle address
+	push HL;		# Pushes Console_Handle to the stack
+	BC = __main__Test_String;
+	push BC;		# Pushes String to the stack
+	call printf;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	HL = SP + 0;		# Gets Console_Handle address
+	push HL;		# Pushes Console_Handle to the stack
+	BC = Other_Test_String;
+	push BC;		# Pushes String to the stack
+	call printf;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	HL = SP + 0;		# Gets Console_Handle address
+	push HL;		# Pushes Console_Handle to the stack
+	BC = Hacking;
+	push BC;		# Pushes String to the stack
+	call printf;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	HL = $FF40;
+	[HL] = $81; 		# Stores value into memory location
+	SP += 254;		# word Frame_Counter;
+	BC = 0;
+
+	label __do_while_statement__4;		# do/while loop label
+
+	HL = $FF44;
+	A = [HL];		# Dereferences address
+	A |= A;		# This just gets the CPU flags
+	jump not_zero __if_statement__5;		# If statement jump
+	BC++;		# Increments Frame_Counter
+
+	A = 20;
+	A < C;		# S_LESS_THAN8
+	jump not_carry __if_statement__6;		# If statement jump
+	HL = $FF43;
+	[HL]++;		# Increments address
+	DE = 0;
+	B = D;		# Moves value into expected register
+	C = E;		# Moves value into expected register
+	label __if_statement__6;		# If statement label
+
+
+	label __do_while_statement__7;		# do/while loop label
+	HL = SP + 0;		# Memory location of Frame_Counter
+	[HL] = C;		# Stores Frame_Counter back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Frame_Counter back into memory
+	call init_dma;		# Calls function
+	HL = $FF44;
+	A = [HL];		# Dereferences address
+	A |= A;		# This just gets the CPU flags
+	HL = SP + 0;		# Fetches Frame_Counter off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = H;		# Moves value into expected register
+	C = L;		# Moves value into expected register
+	jump zero __do_while_statement__7;		# do/while loop jump
+
+	label __if_statement__5;		# If statement label
+
+	A = 1;
+	A |= A;		# This just gets the CPU flags
+	jump not_zero __do_while_statement__4;		# do/while loop jump
+
+	SP += 6;		# Remove local variables from stack
+	return;
+}
+
+data Brick_Graphics
+{
+	$FF $FF $FF $80 $C0 $BF $C0 $BF $C0 $BF $FF 
+	$FF $FF $81 $C1 $BF $FF $FF $FF $20 $30 
+	$EF $30 $EF $30 $EF $FF $FF $FF $00 $80 
+	$7F $C1 $BF $C1 $BF $FF $FF $FF $80 $C0 
+	$BF $C0 $BF $C0 $BF $FF $FF $80 $7F $80 
+	$7F $FF $FF $FF $40 $60 $DF $60 $DF $60 
+	$DF $FF $FF $FF $FF $FF $81 $C1 $BF $C1 
+	$BF $C1 $BF $FF $FF $FF $01 $81 $7F $81 
+	$7F $81 $7F $FF $FF $FF $21 $31 $EF $31 
+	$EF $31 $EF $FF $FF $FF $FF $FF $80 $80 
+	$FF $80 $FF $FF $FF $10 $1F $0F $0F $00 
+	$00 $FF $FF $FF $00 $00 $FF $00 $FF $FF 
+	$FF $81 $81 $00 $00 $00 $00 $FF $FF $FF 
+	$01 $01 $FF $01 $FF $FF $FF $04 $FC $F8 
+	$F8 $00 $00 $FF $7F $DF $E0 $8F $F0 $C7 
+	$B8 $E3 $9C $F1 $8E $F8 $87 $FC $83 $FF 
+	$FE $FB $07 $F1 $0F $E3 $1D $C7 $39 $8F 
+	$71 $9F $61 $7F $81 $FE $81 $F9 $86 $F1 
+	$8E $E3 $9C $C7 $B8 $8F $F0 $DF $E0 $FF 
+	$7F $3F $C1 $1F $E1 $8F $71 $C7 $39 $E3 
+	$1D $F1 $0F $FB $07 $FF $FE
+}
+
+data Alphabet_Graphics
+{
+	$00 $00 $3C $3C $66 $66 $42 $42 $42 $42 $66 
+	$66 $3C $3C $00 $00 $18 $18 $38 $38 $18 
+	$18 $18 $18 $18 $18 $18 $18 $7E $7E $00 
+	$00 $1C $1C $36 $36 $66 $66 $0C $0C $18 
+	$18 $30 $30 $7E $7E $00 $00 $3C $3C $66 
+	$66 $06 $06 $1C $1C $06 $06 $66 $66 $3C 
+	$3C $00 $00 $00 $00 $66 $66 $66 $66 $7E 
+	$7E $06 $06 $06 $06 $06 $06 $00 $00 $00 
+	$00 $7E $7E $60 $60 $7C $7C $06 $06 $46 
+	$46 $3C $3C $00 $00 $00 $00 $3C $3C $40 
+	$40 $7C $7C $42 $42 $42 $42 $3C $3C $00 
+	$00 $00 $00 $7E $7E $02 $02 $06 $06 $0C 
+	$0C $18 $18 $30 $30 $00 $00 $3C $3C $66 
+	$66 $66 $66 $3C $3C $66 $66 $66 $66 $3C 
+	$3C $00 $00 $3C $3C $66 $66 $66 $66 $3E 
+	$3E $06 $06 $06 $06 $06 $06 $00 $00 $00 
+	$00 $3C $3C $66 $62 $66 $62 $7E $7E $66 
+	$62 $66 $62 $00 $00 $00 $00 $78 $78 $64 
+	$6C $7C $7C $6E $62 $6E $62 $7C $7C $00 
+	$00 $00 $00 $7E $7E $62 $66 $60 $60 $60 
+	$60 $62 $66 $7E $7E $00 $00 $00 $00 $7C 
+	$7C $66 $62 $66 $62 $66 $62 $66 $62 $7C 
+	$7C $00 $00 $00 $00 $7E $7E $60 $60 $7C 
+	$7C $60 $60 $60 $60 $7E $7E $00 $00 $00 
+	$00 $7E $7E $60 $60 $7C $7C $60 $60 $60 
+	$60 $60 $60 $00 $00 $00 $00 $7E $7E $60 
+	$60 $6E $66 $66 $62 $66 $62 $7E $7E $00 
+	$00 $00 $00 $62 $66 $62 $66 $7E $7E $62 
+	$66 $62 $66 $62 $66 $00 $00 $00 $00 $7E 
+	$7E $18 $18 $18 $18 $18 $18 $18 $18 $7E 
+	$7E $00 $00 $00 $00 $7E $7E $0C $0C $0C 
+	$0C $4C $4C $4C $4C $7C $7C $00 $00 $00 
+	$00 $64 $64 $68 $68 $70 $70 $68 $68 $64 
+	$64 $64 $64 $00 $00 $00 $00 $60 $60 $60 
+	$60 $60 $60 $60 $60 $62 $62 $7E $7E $00 
+	$00 $00 $00 $62 $62 $76 $76 $6A $6A $62 
+	$62 $62 $62 $62 $62 $00 $00 $00 $00 $62 
+	$62 $72 $72 $6A $6A $66 $66 $66 $66 $66 
+	$66 $00 $00 $00 $00 $3C $3C $66 $66 $42 
+	$42 $42 $42 $66 $66 $3C $3C $00 $00 $00 
+	$00 $7C $7C $62 $62 $62 $62 $7C $7C $60 
+	$60 $60 $60 $00 $00 $00 $00 $3C $3C $42 
+	$42 $42 $42 $4A $4A $44 $44 $3A $3A $01 
+	$01 $00 $00 $78 $78 $64 $64 $64 $64 $78 
+	$78 $64 $64 $66 $66 $00 $00 $00 $00 $7E 
+	$7E $60 $60 $7E $7E $06 $06 $06 $06 $7E 
+	$7E $00 $00 $00 $00 $7E $7E $18 $18 $18 
+	$18 $18 $18 $18 $18 $18 $18 $00 $00 $00 
+	$00 $66 $66 $66 $66 $66 $66 $66 $66 $66 
+	$66 $7E $7E $00 $00 $00 $00 $66 $66 $66 
+	$66 $66 $66 $24 $24 $3C $3C $18 $18 $00 
+	$00 $00 $00 $62 $62 $62 $62 $6A $6A $6A 
+	$6A $6A $6A $3E $3E $00 $00 $00 $00 $46 
+	$46 $6C $6C $38 $38 $38 $38 $6C $6C $46 
+	$46 $00 $00 $00 $00 $66 $66 $66 $66 $66 
+	$66 $7E $7E $06 $06 $06 $06 $7E $7E $00 
+	$00 $7E $7E $46 $46 $0C $0C $18 $18 $32 
+	$32 $7E $7E $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $60 $60 $60 $60 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $60 $60 $20 $20 $20 $20 $06 $06 $0E 
+	$0E $0E $0E $1C $1C $18 $18 $00 $00 $60 
+	$60 $60 $60 $3C $3C $66 $66 $46 $46 $0C 
+	$0C $08 $08 $00 $00 $18 $18 $18 $18 $00 
+	$00 $12 $12 $36 $36 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $18 $00 $18 $18 $18 
+	$18 $FF $7E $FF $7E $18 $18 $18 $18 $18 
+	$00 $00 $00 $62 $62 $06 $06 $1C $1C $38 
+	$38 $60 $60 $46 $46 $00 $00 $00 $00 $00 
+	$00 $00 $00 $7E $7E $7E $7E $00 $00 $00 
+	$00 $00 $00 $00 $7E $00 $DB $00 $DB $00 
+	$FF $7E $81 $42 $81 $66 $81 $3C $42 $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF
+}
+
+data Other_Test_String
+{
+	"ABSOLUTELY INCREDIBLE..." 0
+}
+
+data Hacking
+{
+	"DONT YOU KNOW? HACKING IS A SIN" 0
+}
+
+data String_Table
+{
+	Other_Test_String high(Other_Test_String) 
+	Hacking high(Hacking)
+}
+
+data __main__Test_String
+{
+	"HELLO! THIS IS A TEST" 0
+}
+

@@ -198,6 +198,7 @@ enum Syntax_IDs
 	S_ID8,						// an 8-bit ID
 	S_ID16,						// a 16-bit ID
 
+	S_REFERENCE,				// This gets the address of a local identifier (& identifier)
 	S_HIGH,						// gets the high-byte of a 2-byte expression
 
 	S_BIT,						// gets a bit in an expression

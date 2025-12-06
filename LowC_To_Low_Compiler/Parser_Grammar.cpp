@@ -110,7 +110,7 @@ size_t Parse_Int_Literals_Check(const Token* Tokens, std::vector<Parse_Node>* No
 
 	// We'll only output 1
 
-	if (Tokens[0].Token == T_INT_LITERAL)
+	if (Tokens[0].Token == T_INT_LITERAL || Tokens[0].Token == T_IDENTIFIER || Tokens[0].Token == T_HIGH)
 	{
 		Parse_Node Root_Node;
 
@@ -118,6 +118,14 @@ size_t Parse_Int_Literals_Check(const Token* Tokens, std::vector<Parse_Node>* No
 		Root_Node.Syntax_ID = S_INT_LITERAL;
 
 		size_t Index = 1;
+
+		if (Tokens[0].Token == T_HIGH) // if this is a 'high' expression
+		{
+			Root_Node.Value += Tokens[Index + 2].Name; // (
+			Root_Node.Value += Tokens[Index + 3].Name; // value
+			Root_Node.Value += Tokens[Index + 4].Name; // )
+			Index += 3;
+		}
 
 		while (Tokens[Index].Token == T_COMMA)
 		{
@@ -127,6 +135,14 @@ size_t Parse_Int_Literals_Check(const Token* Tokens, std::vector<Parse_Node>* No
 				Root_Node.Value += "\n\t";
 
 			Root_Node.Value += Tokens[Index + 1].Name;
+
+			if (Tokens[Index + 1].Token == T_HIGH) // if this is a 'high' expression
+			{
+				Root_Node.Value += Tokens[Index + 2].Name; // (
+				Root_Node.Value += Tokens[Index + 3].Name; // value
+				Root_Node.Value += Tokens[Index + 4].Name; // )
+				Index += 3;
+			}
 
 			Index += 2;
 		}
@@ -177,6 +193,18 @@ const std::vector<Grammar_Checker> Int_Literals_Grammars =
 
 const std::vector<Grammar_Checker> Expression16_Grammars =
 {
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_AND),	// & token (this is used for the and operator AS WELL AS the reference operator)
+			Checker_Function(Is_Token, T_IDENTIFIER)	// Some kind of local identifier (can be 8-bit or 16-bit
+		},
+		Node_Init
+		{
+			Node_Add("id", S_ID8, Tokens[1].Name);
+			Node_Set_Syntax(S_REFERENCE);
+		}
+	),
+
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_SHIFT_RIGHT),

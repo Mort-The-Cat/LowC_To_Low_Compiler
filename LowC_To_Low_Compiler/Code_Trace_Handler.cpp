@@ -924,6 +924,29 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 		}
 	}
 
+	case S_REFERENCE:
+	{
+		// This will get the value address off the stack
+
+		long Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node["id"][0].Value);
+
+		// Sets HL to the address and then fits register
+
+		if (Stack_Index)
+		{
+			printf("FATAL ERROR!\n\n\t\tCan't find local variable on tracer stack!\n");
+		}
+
+		Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_HL_REG); // Frees up HL register pair for use
+
+		Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Gets the address of " + Node["id"][0].Value + "\n";
+
+		Tracer.Registers[5].Modified_Counter = 2;
+		Tracer.Registers[6].Modified_Counter = 2;
+
+		return Fit_Register_Requirements(Output_Low_Code, Tracer, "HL", Requirements, 0); // there are no copy requirements since this is just an address
+	}
+
 	case S_DEREF8:
 	{
 		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["address"][0], MAKE_VALUE_HOT_HL_REG, 1);

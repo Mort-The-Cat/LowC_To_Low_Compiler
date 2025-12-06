@@ -97,6 +97,12 @@ void printf(byte* Console_Handle, const byte* String)
 const byte Other_Test_String[] = "ABSOLUTELY INCREDIBLE...";
 const byte Hacking[] = "DONT YOU KNOW? HACKING IS A SIN";
 
+
+const byte String_Table[] = {
+	Other_Test_String,	high(Other_Test_String),
+	Hacking,			high(Hacking)
+};
+
 void main()
 {
 	// This will wait until VBlank, disable the LCDC register, and then load the graphics into VRAM
