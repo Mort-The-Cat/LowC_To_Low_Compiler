@@ -1,0 +1,17 @@
+file Logo_Data.td;
+
+file LOW_Macros.low;
+
+data Placeholder $0150
+{
+    # No data
+}
+
+file FNAF_World/lowc_lib.low;
+
+file FNAF_World/FNAF_World.low;
+
+subroutine program_entry $0100
+{
+    jump main;
+}

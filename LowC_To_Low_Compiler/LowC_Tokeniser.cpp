@@ -210,9 +210,16 @@ void Get_File_Contents(std::string* String, const char* File_Directory)
 			Macros[W].Representation.resize(Index);
 
 		// Replaces macros with the representations
+
+		size_t Offset = 0;
 		
-		while((Index = String->find(Macros[W].Name)) != std::string::npos)
-			String->replace(Index, Macros[W].Name.length(), Macros[W].Representation);
+		while ((Index = String->find(Macros[W].Name, Offset)) != std::string::npos)
+		{
+			if (Is_Alphanumeric(String->at(Index + Macros[W].Name.length() + 1)) == CHARACTER_NONALPHANUMERIC)
+				String->replace(Index, Macros[W].Name.length(), Macros[W].Representation);
+			else
+				Offset = Index + 1;
+		}
 	}
 }
 

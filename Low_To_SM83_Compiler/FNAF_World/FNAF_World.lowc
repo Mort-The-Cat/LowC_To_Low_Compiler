@@ -1,0 +1,63 @@
+#include "../../stdlow.h"
+
+#include "../../low_macros.h"
+
+#include "lowc_lib.h"
+
+#include "Alphabet_Tiles.h"
+#include "Test_Bricks.h"
+
+#define OAM_BUFFER addressof(0xC000)
+
+void Wait_For_VBlank()
+{
+	byte Scanline;
+
+	do
+	{
+		Scanline = *LCDY_REGISTER;
+	} while (Scanline < VBLANK_SCANLINE);
+
+	return;
+}
+
+const byte OAM_Tester[] =
+{
+	//	0xYY	0xXX	0xTT	0xFF
+		0x30,	0x40,	0x00,	0x00,
+		0x30,	0x48,	0x04,	0x00,
+
+		0x38,	0x40,	0x02,	0x00,
+		0x38,	0x48,	0x05,	0x00
+};
+
+void main()
+{
+	Wait_For_VBlank();
+
+	*LCDC_REGISTER = 0;
+
+	memcpy(VRAM_BLOCK_0, Brick_Graphics, sizeof(Brick_Graphics));
+
+	memcpy(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
+
+	const byte String[] = "TESTING MEMCPY";
+
+	memcpy(VRAM_TILEM_0, String, sizeof(String));
+
+	memcpy(OAM_BUFFER, OAM_Tester, sizeof(OAM_Tester));
+
+	init_dma();	// This initialises the DMA code
+
+	*OBJECT_PALETTE_0_REGISTER = 0xE4;
+
+	*LCDC_REGISTER = 0x83;
+
+	do
+	{
+		Wait_For_VBlank();
+		dma_transfer();		// This places the OAM buffer into OAM
+	} while (1);
+
+	return;
+}

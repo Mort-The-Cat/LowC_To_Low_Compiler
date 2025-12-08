@@ -24,12 +24,51 @@
 #define VBLANK_SCANLINE addressof(0x90)
 
 #define LCDC_REGISTER addressof(0xFF40)
+//      bit 7 controls LCD and PPU			(MAY ONLY BE CHANGED DURING VBLANK!!)
+	
+//      bit 6 window tile map 9800-9BFF or 9C00-9FFF
+	
+//      bit 5 window enable
+	
+//      bit 4 controls addressing mode for tile *data
+//          if bit 4 is not, 0-127 corresponds to $9000-97FF, and 128-255 corresponds to $8800-8FFF
+//	        if bit 4 is set, 0-127 corresponds to $8000-87FF, and 128-255 corresponds to $8800-8FFF
+//	            Note that objects always use the latter unsigned addressing mode for tile data
+	
+//      bit 3 background tile map 9800-9BFF or 9C00-9FF
+	
+//      bit 2 OBJ 8x8 or 8x1
+	
+//      bit 1 controls if objects are enable
+	
+//      bit 0 background/window enable
 
 #define DMA_REGISTER addressof(0xFF46)
 
 #define OAM addressof(0xFE00)
+    // byte 0 is y-position + 16
+	// byte 1 is x-position + 8
+	// byte 2 is tile index
+	// byte 3 are the flags
+		// bit 7 is the priority bit (set this to decrease object priority)
+	    // bit 6 is the Y flip
+	    // bit 5 is the X flip
+		// bit 4 is the palette (palette 0 or palette 1)
+
+	// 4 bytes per object
 
 // C000 - DFFF is work RAM! we can do whatever we want there
+
+#define VRAM_BANK addressof(0xFF4F)
+// This is used to swap the VRAM bank
+// (write either 0 or 1 to the LSB)
+
+#define CGB_BG_PALETTE_SPECIFIER addressof(0xFF68)
+#define CGB_BG_PALETTE addressof(0xFF69)
+
+#define CGB_OBJ_PALETTE_SPECIFIER addressof(0xFF6A)
+#define CGB_OBJ_PALETTE addressof(0xFF6B)
+// 5 bits per channel across 2 bytes
 
 #define HRAM addressof(0xFF80) // FF80 - FFFE
 
