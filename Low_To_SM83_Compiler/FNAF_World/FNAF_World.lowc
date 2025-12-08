@@ -31,6 +31,52 @@ const byte OAM_Tester[] =
 		0x38,	0x48,	0x05,	0x00
 };
 
+const byte Test_Palettes[] =
+{
+	0, 0,				// black
+	31, 0,				// red
+	0xE0, 0x03,			// green
+
+	0, 252				// blue
+};
+
+void Write_Tilemap_Attributes()
+{
+	memset(VRAM_TILEM_0, 0, 1024);
+
+	return;
+}
+
+void Generate_Palettes(byte* Destination)
+{
+	byte* Data;
+	byte Palette;
+	byte Count;
+
+	*Destination = 0x80;	// start from the beginning and auto-increment to the end
+
+	Destination++;
+
+	Palette = 8;			// there are 8 palettes
+	do
+	{
+		Data = Test_Palettes;
+		Count = sizeof(Test_Palettes);
+
+		do
+		{
+			*Destination = *Data;
+			Data++;
+			Count--;
+		} while (Count);
+
+		Palette--;
+
+	} while (Palette);
+
+	return;
+}
+
 void main()
 {
 	Wait_For_VBlank();
@@ -48,6 +94,16 @@ void main()
 	memcpy(OAM_BUFFER, OAM_Tester, sizeof(OAM_Tester));
 
 	init_dma();	// This initialises the DMA code
+
+	Generate_Palettes(CGB_BG_PALETTE_SPECIFIER);
+
+	Generate_Palettes(CGB_OBJ_PALETTE_SPECIFIER);
+
+	*VRAM_BANK = 1;			// Swaps to attribute bank
+
+	Write_Tilemap_Attributes();
+
+	*VRAM_BANK = 0;			// Swaps back to regular bank
 
 	*OBJECT_PALETTE_0_REGISTER = 0xE4;
 

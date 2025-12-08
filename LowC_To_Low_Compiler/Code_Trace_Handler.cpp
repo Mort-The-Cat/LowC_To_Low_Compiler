@@ -226,7 +226,7 @@ long Find_Value_In_Tracer_Stack(Tracer_Data& Tracer, std::string Value)
 
 	for (long Index = Tracer.Stack.size() - 1; Index >= 0; Index--, Offset++)
 	{
-		if (Tracer.Stack[Index].Value == Value && Tracer.Stack[Index].Name != "@panic@")
+		if (Tracer.Stack[Index].Value == Value)// && Tracer.Stack[Index].Name != "@panic@")
 		{
 			return Offset;
 		}
@@ -321,6 +321,8 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 
 		Trace* New_Value_Address = Find_Value_In_Tracer_Registers(Tracer, Value);	// We MIGHT need to overwrite this?
 
+		Stack_Position = Find_Value_In_Tracer_Stack(Tracer, Variable->Value);
+
 		Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Position) + ";\t\t# Memory location of " + Value + "\n";
 
 		Output_Low_Code += "\t[HL] = " + New_Value_Address[1].Name + ";\t\t# Stores " + Value + " back into memory\n";
@@ -335,6 +337,8 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 		Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_HL_REG);
 
 		Trace* New_Value_Address = Find_Value_In_Tracer_Registers(Tracer, Value);	// Me MIGHT need to overwrite this when freeing HL
+
+		Stack_Position = Find_Value_In_Tracer_Stack(Tracer, Variable->Value);
 
 		Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Position) + ";\t\t# Memory location of " + Value + "\n";
 		Output_Low_Code += "\t[HL] = " + New_Value_Address->Name + ";\t\t# Stores " + Value + " back into memory\n";
@@ -486,10 +490,19 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 
 				if ((Hot == 1 && Copy_Requirements == 1) || (Requirements == MAKE_VALUE_HOT_HL_REG && Register != "HL")) // We gotta make a copy and ensure the returned register is the copy
 				{
+					std::string Name = Reg[1].Value;
+
 					Reg[0].Modified_Counter = 3;
 					Reg[1].Modified_Counter = 3;
+					Reg[0].Value = "@register_fitter@";
+					Reg[1].Value = "@register_fitter@";
 
 					Trace* Copy_Register = &Get_Free_Register(Output_Low_Code, Tracer, Requirements);
+
+					Reg = Find_Value_In_Tracer_Registers(Tracer, "@register_fitter@");
+
+					Reg[0].Value = Name;
+					Reg[1].Value = Name;
 
 					if (Copy_Register->Name != Reg->Name)
 					{
@@ -595,13 +608,19 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 		Found = &Tracer.Stack[Tracer.Stack.size() - 1 - Stack_Index];
 
-		Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
-
 		if (Found->Pointer_Flag)
 		{
 			// if it's a word? just get a valid register and store it there
 
 			Trace* Temp = &Get_Free_Register(Output_Low_Code, Tracer, 0); // just get a temp register to simplify things
+
+				// Need to do this AFTER we've gotten a free register just for safety
+				Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node.Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
+
+				Found = &Tracer.Stack[Tracer.Stack.size() - 1 - Stack_Index];
+
+				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
+				// Need to do this AFTER we've gotten a free register just for safety
 
 			Output_Low_Code += "\t" + Temp->Name + " = [HL];\t\t# Store lower byte temporarily\n";
 			Output_Low_Code += "\tHL++;\n\tH = [HL];\t\t# Store upper byte\n\tL = " + Temp->Name + ";\t\t# Move lower byte from temp register\n";
@@ -620,6 +639,14 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 			{
 				Trace* Temp = &Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_A_REG);
 
+					// Need to do this AFTER we get the free register
+					Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node.Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
+
+					Found = &Tracer.Stack[Tracer.Stack.size() - 1 - Stack_Index];
+
+					Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
+					// Need to do this AFTER we get the free register
+
 				Output_Low_Code += "\tA = [HL];\t\t# Store value into 'A' register\n";
 
 				Temp->Modified_Counter = 1 + Copy_Requirements;
@@ -632,6 +659,8 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 			}
 			else if (Requirements == MAKE_VALUE_HOT_HL_REG || Requirements == MAKE_VALUE_HOT_REG_PAIR)	// we specifically need HL?
 			{
+				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
+
 				Output_Low_Code += "\tL = [HL];\t\t# Stores " + Node.Value + " into lower byte of HL\n";
 				Output_Low_Code += "\tH = $00;\t\t# Zeroes out upper byte\n";
 
@@ -645,6 +674,8 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 			}
 			else // no issue
 			{
+				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
+
 				Tracer.Registers[5].Modified_Counter = 0;
 				Tracer.Registers[6].Modified_Counter = 0;
 
@@ -1522,6 +1553,22 @@ void Restore_Register_Snapshot(std::string& Output_Low_Code, Tracer_Data& Tracer
 {
 	// This will make registers hot and swap them around as necessary until the previous register snapshot is restored.
 
+	//
+
+	Output_Low_Code += "\t# Current tracer registers:\n";
+	for (size_t Reg = 0; Reg < Tracer.Registers.size(); Reg++)
+	{
+		Output_Low_Code += "\t\t# " + Tracer.Registers[Reg].Name + " = " + Tracer.Registers[Reg].Value + "; " + std::to_string(Tracer.Registers[Reg].Modified_Counter) + "\n";
+	}
+
+	Output_Low_Code += "\t# Register snapshot:\n";
+	for (size_t ID = 0; ID < ID_Snapshot.size(); ID++)
+	{
+		Output_Low_Code += "\t\t# " + ID_Snapshot[ID].Name + " = " + ID_Snapshot[ID].Value + "; " + std::to_string(ID_Snapshot[ID].Modified_Counter) + "\n";
+	}
+
+	//
+
 	for (size_t Index = 0; Index < ID_Snapshot.size(); Index++)
 	{
 		Parse_Node Node;
@@ -1663,17 +1710,24 @@ void Do_While_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const
 	// at the end of the if statement? return the registers to the snapshot state
 
 	// get label
-	std::string Condition = Conditionals[Evaluate_Condition(Output_Low_Code, Tracer, Node["condition"][0])];
+	std::string Condition = Conditionals[CON_NOT(Evaluate_Condition(Output_Low_Code, Tracer, Node["condition"][0]))];
 
 	Clear_Tracer_Registers(Tracer);
 
-	// we want to jump back to top if condition IS met
+	// we want to stay in the loop code if condition IS met
 
-	Restore_Register_Snapshot(Output_Low_Code, Tracer, ID_Snapshot);	// After the local statement code is generated, set registers back to expected values
+	std::string Handle_Stack_Code;	// This will need to be copied for both scenarios...
 
-	Writeback_Panic_Push(Output_Low_Code, Tracer);
+	Restore_Register_Snapshot(Handle_Stack_Code, Tracer, ID_Snapshot);	// After the local statement code is generated, set registers back to expected values
 
-	Output_Low_Code += "\tjump" + Condition + " " + Label_Name + ";\t\t# do/while loop jump\n\n";
+	Writeback_Panic_Push(Handle_Stack_Code, Tracer);
+
+	Output_Low_Code += "\tjump " + Condition + " " + Label_Name + "_memory_cleanup;\t\t# do/while memory-cleanup loop jump\n";
+
+	Output_Low_Code += Handle_Stack_Code;
+	Output_Low_Code += "\tjump" + Label_Name + ";\t\t# do/while loop jump\n";
+	Output_Low_Code += "\tlabel " + Label_Name + "_memory_cleanup;\n";
+	Output_Low_Code += Handle_Stack_Code + "\n\n";
 }
 
 void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
@@ -1720,6 +1774,12 @@ void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse
 
 void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
 {
+	Output_Low_Code += "\t# Current tracer registers:\n";
+	for (size_t Reg = 0; Reg < Tracer.Registers.size(); Reg++)
+	{
+		Output_Low_Code += "\t\t# " + Tracer.Registers[Reg].Name + " = " + Tracer.Registers[Reg].Value + "; " + std::to_string(Tracer.Registers[Reg].Modified_Counter) + "\n";
+	}
+
 	if (Node.Syntax_ID == S_IF_STATEMENT)
 	{
 		If_Statement(Output_Low_Code, Tracer, Node);
@@ -1798,6 +1858,12 @@ void Analyse_Statements_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 	Analyse_Statement_LowC(Output_Low_Code, Tracer, Node);
 
 	Clear_Tracer_Registers(Tracer);
+
+	for (size_t Register = 0; Register < Tracer.Registers.size(); Register++)
+	{
+		if (Tracer.Registers[Register].Modified_Counter == 3)
+			Tracer.Registers[Register].Modified_Counter = 1;	// Just set ts back to 1 vro </3
+	}
 
 	while (Writeback_Panic_Push(Output_Low_Code, Tracer));
 

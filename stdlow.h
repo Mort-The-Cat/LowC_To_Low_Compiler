@@ -39,12 +39,5 @@ void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW im
 
 typedef unsigned char byte;		// 'byte' is the most common type you'll be using
 typedef unsigned short word;	// 'word' is used for 16-bit integers
-//
-
-void memset(byte* Destination, byte Value, byte Length) // these functions don't need to be included in the codebase
-{
-	while (Length--)
-		(Destination++)[0] = Value;
-}
 
 #endif

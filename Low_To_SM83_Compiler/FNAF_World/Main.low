@@ -15,3 +15,8 @@ subroutine program_entry $0100
 {
     jump main;
 }
+
+data CGB_Flag $0143
+{
+    $80
+}

@@ -1,22 +1,365 @@
 subroutine Wait_For_VBlank
 {
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 255;		# byte Scanline;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 
 	label __do_while_statement__0;		# do/while loop label
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF44;
 	A = [HL];		# Dereferences address
 	A < $90;		# S_LESS_THAN8
-	jump carry __do_while_statement__0;		# do/while loop jump
+	jump not_carry __do_while_statement__0_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = Scanline; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+	jump__do_while_statement__0;		# do/while loop jump
+	label __do_while_statement__0_memory_cleanup;
+	# Current tracer registers:
+		# A = Scanline; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
 
+
+	# Current tracer registers:
+		# A = Scanline; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
 	SP += 1;		# Remove local variables from stack
+	return;
+}
+
+subroutine Write_Tilemap_Attributes
+{
+	# Current tracer registers:
+		# A = Scanline; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $9800;
+	push BC;		# Pushes Destination to the stack
+	A = 0;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	BC = 1024;
+	push BC;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	return;
+}
+
+subroutine Generate_Palettes
+{
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 254;		# byte* Data;
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 255;		# byte Palette;
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 255;		# byte Count;
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	HL = SP + 6;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	[HL] = $80; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	HL++;		# Increments Destination
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	A = 8;
+	# Current tracer registers:
+		# A = Palette; 1
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+
+	label __do_while_statement__1;		# do/while loop label
+	# Current tracer registers:
+		# A = Palette; 1
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	BC = Test_Palettes;
+	# Current tracer registers:
+		# A = Palette; 1
+		# B = Data; 1
+		# C = Data; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	E = 8;
+	# Current tracer registers:
+		# A = Palette; 1
+		# B = Data; 1
+		# C = Data; 1
+		# D = ???; 0
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+
+	label __do_while_statement__2;		# do/while loop label
+	# Current tracer registers:
+		# A = Palette; 1
+		# B = Data; 1
+		# C = Data; 1
+		# D = ???; 0
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	push HL;		# Push 16-bit word to stack to free up registers
+	H = B;		# Creates copy of Data
+	L = C;		# Creates copy of Data
+	D = [HL];		# Dereferences address
+	push BC;		# Push 16-bit word to stack to free up registers
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 5;		# Memory location of Palette
+	[HL] = A;		# Stores Palette back into memory
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	[HL] = D; 		# Stores value into memory location
+	SP += 2;		# Fixes 'panic' push
+	SP += 2;		# Fixes 'panic' push
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = Data; 1
+		# C = Data; 1
+		# D = ???; 0
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	BC++;		# Increments Data
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = Data; 1
+		# C = Data; 1
+		# D = ???; 0
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	E--;		# Decrements Count
+	A = E;		# Stores @register@ into 'A' register for use
+	A |= A;		# This just gets the CPU flags
+	jump zero __do_while_statement__2_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Data; 1
+		# C = Data; 1
+		# D = ???; 0
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	# Register snapshot:
+		# A = Palette; 1
+		# B = Data; 1
+		# E = Count; 1
+		# H = Destination; 1
+	push HL;		# Push 16-bit word to stack to free up registers
+	HL = SP + 3;		# Fetches Palette off the stack
+	A = [HL];		# Stores Palette into A register
+	pop HL;		# Fixes 'panic' push, places value back into register
+	jump __do_while_statement__2;		# do/while loop jump
+	label __do_while_statement__2_memory_cleanup;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Data; 1
+		# C = Data; 1
+		# D = ???; 0
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	# Register snapshot:
+		# A = Palette; 1
+		# B = Data; 1
+		# E = Count; 1
+		# H = Destination; 1
+	push HL;		# Push 16-bit word to stack to free up registers
+	HL = SP + 3;		# Fetches Palette off the stack
+	A = [HL];		# Stores Palette into A register
+	pop HL;		# Fixes 'panic' push, places value back into register
+
+
+	# Current tracer registers:
+		# A = Palette; 1
+		# B = Data; 1
+		# C = Data; 1
+		# D = ???; 0
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	A--;		# Decrements Palette
+	D = A;		# Makes 'A' a copy of Palette
+	A |= A;		# This just gets the CPU flags
+	jump zero __do_while_statement__1_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = Data; 1
+		# C = Data; 1
+		# D = Palette; 1
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	# Register snapshot:
+		# A = Palette; 1
+		# H = Destination; 1
+	A = D;		# Moves value into expected register
+	jump __do_while_statement__1;		# do/while loop jump
+	label __do_while_statement__1_memory_cleanup;
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = Data; 1
+		# C = Data; 1
+		# D = Palette; 1
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	# Register snapshot:
+		# A = Palette; 1
+		# H = Destination; 1
+	A = D;		# Moves value into expected register
+
+
+	# Current tracer registers:
+		# A = Palette; 1
+		# B = Data; 1
+		# C = Data; 1
+		# D = Palette; 0
+		# E = Count; 1
+		# H = Destination; 1
+		# L = Destination; 1
+	SP += 4;		# Remove local variables from stack
 	return;
 }
 
 subroutine main
 {
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = Data; 0
+		# C = Data; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = Destination; 0
+		# L = Destination; 0
 	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = Data; 0
+		# C = Data; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = Destination; 0
+		# L = Destination; 0
 	HL = $FF40;
 	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = Data; 0
+		# C = Data; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	BC = $8000;
 	push BC;		# Pushes Destination to the stack
 	BC = Brick_Graphics;
@@ -25,6 +368,14 @@ subroutine main
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	BC = $8800;
 	push BC;		# Pushes Destination to the stack
 	BC = Alphabet_Graphics;
@@ -33,6 +384,22 @@ subroutine main
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	BC = $9800;
 	push BC;		# Pushes Destination to the stack
 	BC = __main__String;
@@ -41,6 +408,14 @@ subroutine main
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	BC = $C000;
 	push BC;		# Pushes Destination to the stack
 	BC = OAM_Tester;
@@ -49,19 +424,149 @@ subroutine main
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	call init_dma;		# Calls function
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $FF68;
+	push BC;		# Pushes Destination to the stack
+	call Generate_Palettes;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $FF6A;
+	push BC;		# Pushes Destination to the stack
+	call Generate_Palettes;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF4F;
+	[HL] = 1; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Write_Tilemap_Attributes;		# Calls function
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF4F;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	HL = $FF48;
 	[HL] = $E4; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	HL = $FF40;
 	[HL] = $83; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 
-	label __do_while_statement__1;		# do/while loop label
+	label __do_while_statement__3;		# do/while loop label
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = Palette; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	call dma_transfer;		# Calls function
 	A = 1;
 	A |= A;		# This just gets the CPU flags
-	jump not_zero __do_while_statement__1;		# do/while loop jump
+	jump zero __do_while_statement__3_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+	jump__do_while_statement__3;		# do/while loop jump
+	label __do_while_statement__3_memory_cleanup;
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
 
+
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Palette; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
 	return;
 }
 
@@ -172,6 +677,11 @@ data OAM_Tester
 {
 	$30 $40 $00 $00 $30 $48 $04 $00 $38 $40 $02 
 	$00 $38 $48 $05 $00
+}
+
+data Test_Palettes
+{
+	0 0 31 0 $E0 $03 0 252
 }
 
 data __main__String
