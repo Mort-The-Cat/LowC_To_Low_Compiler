@@ -33,11 +33,48 @@ const byte OAM_Tester[] =
 
 const byte Test_Palettes[] =
 {
-	0, 0,				// black
+	0xFF, 0xFF,				// black
 	31, 0,				// red
 	0xE0, 0x03,			// green
 
 	0, 252				// blue
+};
+
+const byte Blue_Palette[] =
+{
+	0xFF,	0x7F,			// white
+	0xE7,	252,			// light blue (2 red, 2 green, 31 blue)
+	0,		240,			// blue
+	0,		0				// black
+};
+
+const byte FNAF_World_Palette[] =
+{
+	0xFF,	0x7F,	// white
+	21,		127,	// light blue
+	0,		97,		// blue
+	0,		0,		// black
+	// Bonnie / SKY
+
+	0xFF,	0x7F,	// white
+	30,		91,		// tan
+	243,	0,		// brown
+	0,		0,		// black
+	// Freddy / foxy
+
+	0xFF,	0x7F,	// white
+	27,		79,		// pale
+	121,	22,		// yellow
+	179,	00,		// orange
+	// Chica / Fredbear
+
+	236,	17,		// dark grass green
+	213,	26,		// pale leaf green
+	144,	17,		// autumn wood
+	202,	0		// dark wood
+	// Forest terrain
+
+
 };
 
 void Write_Tilemap_Attributes()
@@ -50,29 +87,21 @@ void Write_Tilemap_Attributes()
 void Generate_Palettes(byte* Destination)
 {
 	byte* Data;
-	byte Palette;
 	byte Count;
 
 	*Destination = 0x80;	// start from the beginning and auto-increment to the end
 
 	Destination++;
 
-	Palette = 8;			// there are 8 palettes
+	Data = FNAF_World_Palette;
+	Count = sizeof(FNAF_World_Palette);
+
 	do
 	{
-		Data = Test_Palettes;
-		Count = sizeof(Test_Palettes);
-
-		do
-		{
-			*Destination = *Data;
-			Data++;
-			Count--;
-		} while (Count);
-
-		Palette--;
-
-	} while (Palette);
+		*Destination = *Data;
+		Data++;
+		Count--;
+	} while (Count);
 
 	return;
 }

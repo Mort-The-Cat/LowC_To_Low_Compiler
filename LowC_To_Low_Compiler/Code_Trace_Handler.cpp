@@ -981,7 +981,21 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 	case S_DEREF8:
 	{
 		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["address"][0], MAKE_VALUE_HOT_HL_REG, 1);
+
+		size_t Previous_Modified_Counter = Tracer.Registers[5].Modified_Counter;
+		std::string Name = Tracer.Registers[5].Value;
+
+		Tracer.Registers[5].Modified_Counter = 3;
+		Tracer.Registers[6].Modified_Counter = 3;
+
+		Tracer.Registers[5].Value = "@deref8@";
+		Tracer.Registers[6].Value = "@deref8@";
+
 		Trace* Output = &Get_Free_Register(Output_Low_Code, Tracer, Requirements);
+
+		Trace* Address = Find_Value_In_Tracer_Registers(Tracer, "@deref8@");
+
+		Fit_Register_Requirements(Output_Low_Code, Tracer, Address[0].Name + Address[1].Name, MAKE_VALUE_HOT_HL_REG, 0);
 
 		if (Requirements == MAKE_VALUE_HOT_REG_PAIR || Requirements == MAKE_VALUE_HOT_HL_REG)
 		{
@@ -993,6 +1007,11 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 			Output_Low_Code += "\t" + Output[0].Name + " = $00;\t\t# Zeros upper byte\n";
 			Output_Low_Code += "\t" + Output[1].Name + " = [HL];\t\t# Dereferences address\n";
 
+			Tracer.Registers[5].Modified_Counter = Previous_Modified_Counter;
+			Tracer.Registers[6].Modified_Counter = Previous_Modified_Counter;
+			Tracer.Registers[5].Value = Name;
+			Tracer.Registers[6].Value = Name;
+
 			return Output[0].Name + Output[1].Name;
 		}
 		else
@@ -1000,6 +1019,11 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 			Output[0].Modified_Counter = 2;
 
 			Output_Low_Code += "\t" + Output[0].Name + " = [HL];\t\t# Dereferences address\n";
+
+			Tracer.Registers[5].Modified_Counter = Previous_Modified_Counter;
+			Tracer.Registers[6].Modified_Counter = Previous_Modified_Counter;
+			Tracer.Registers[5].Value = Name;
+			Tracer.Registers[6].Value = Name;
 
 			return Output->Name;
 		}
