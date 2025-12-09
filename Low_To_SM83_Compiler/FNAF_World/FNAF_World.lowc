@@ -6,6 +6,8 @@
 
 #include "Alphabet_Tiles.h"
 #include "Test_Bricks.h"
+#include "Background_Tiles.h"
+#include "Title_Screen_Tilemap.h"
 
 #define OAM_BUFFER addressof(0xC000)
 
@@ -71,15 +73,20 @@ const byte FNAF_World_Palette[] =
 	236,	17,		// dark grass green
 	213,	26,		// pale leaf green
 	144,	17,		// autumn wood
-	202,	0		// dark wood
+	202,	0,		// dark wood
 	// Forest terrain
 
-
+	43,		126,
+	30,		91,
+	121,	22,
+	175,	125
+	// Sky/background
 };
 
 void Write_Tilemap_Attributes()
 {
-	memset(VRAM_TILEM_0, 0, 1024);
+	memset(VRAM_TILEM_0, 4, 0x180);
+	memset( (VRAM_TILEM_0 + 0x180), 3, 0xC0);
 
 	return;
 }
@@ -116,9 +123,15 @@ void main()
 
 	memcpy(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
 
+	memcpy( (VRAM_BLOCK_1 + sizeof(Alphabet_Graphics)), Title_Screen_UI_Blocks, sizeof(Title_Screen_UI_Blocks));
+
+	memcpy( VRAM_BLOCK_2, Sky_Graphics, sizeof(Sky_Graphics));
+
 	const byte String[] = "TESTING MEMCPY";
 
-	memcpy(VRAM_TILEM_0, String, sizeof(String));
+	memcpy(VRAM_TILEM_0, Title_Screen_Tilemap, sizeof(Title_Screen_Tilemap));
+
+	memcpy(VRAM_TILEM_0, String, (sizeof(String) + 0xFFFF) );
 
 	memcpy(OAM_BUFFER, OAM_Tester, sizeof(OAM_Tester));
 

@@ -77,11 +77,31 @@ subroutine Write_Tilemap_Attributes
 		# L = ; 0
 	BC = $9800;
 	push BC;		# Pushes Destination to the stack
-	A = 0;
+	A = 4;
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Value to stack
 	SP = HL;		# Update stack pointer
-	BC = 1024;
+	BC = $180;
+	push BC;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $180;
+	HL = $9800;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Destination to the stack
+	A = 3;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	BC = $C0;
 	push BC;		# Pushes Count to the stack
 	call memset;		# Calls function
 	SP += 5;		# Removes pushed parameters from stack
@@ -156,7 +176,7 @@ subroutine Generate_Palettes
 		# E = ???; 0
 		# H = Destination; 1
 		# L = Destination; 1
-	A = 32;
+	A = 40;
 	# Current tracer registers:
 		# A = Count; 1
 		# B = Data; 1
@@ -326,6 +346,56 @@ subroutine main
 		# E = Destination; 0
 		# H = ; 0
 		# L = ; 0
+	BC = 736;
+	HL = $8800;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Destination to the stack
+	BC = Title_Screen_UI_Blocks;
+	push BC;		# Pushes Source to the stack
+	BC = 224;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $9000;
+	push BC;		# Pushes Destination to the stack
+	BC = Sky_Graphics;
+	push BC;		# Pushes Source to the stack
+	BC = 1680;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $9800;
+	push BC;		# Pushes Destination to the stack
+	BC = Title_Screen_Tilemap;
+	push BC;		# Pushes Source to the stack
+	BC = 576;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = Count; 0
 		# B = ; 0
@@ -338,8 +408,10 @@ subroutine main
 	push BC;		# Pushes Destination to the stack
 	BC = __main__String;
 	push BC;		# Pushes Source to the stack
-	BC = 15;
-	push BC;		# Pushes Count to the stack
+	BC = $FFFF;
+	HL = 15;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
@@ -582,6 +654,33 @@ data Alphabet_Graphics
 	$FF $FF $FF $FF $FF
 }
 
+data Title_Screen_UI_Blocks
+{
+	$FF $FF $00 $FF $FF $FF $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $FF $00 $FF $FF 
+	$FF $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $FF $FF 
+	$FF $FF $FF $00 $FF $FF $00 $FF $00 $FF 
+	$00 $FF $00 $EF $1F $EF $1F $EF $1F $EF 
+	$1F $EF $1F $EF $1F $EF $1F $EF $1F $EF 
+	$1F $EF $1F $EF $1F $E0 $1F $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $FF $FF $FF $FF 
+	$FF $0F $FF $EF $1F $EF $1F $EF $1F $EF 
+	$1F $DF $3F $DF $3F $DF $3F $C0 $3F $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FD $07 $FD 
+	$07 $FD $07 $FD $07 $FD $07 $FD $07 $FD 
+	$07 $FD $07 $BF $E0 $BF $E0 $BF $E0 $BF 
+	$E0 $BF $E0 $BF $E0 $BF $E0 $BF $E0 $FF 
+	$FF $80 $FF $BF $FF $BF $E0 $BF $E0 $BF 
+	$E0 $BF $E0 $BF $E0 $FF $FF $01 $FF $FD 
+	$FF $FD $07 $FD $07 $FD $07 $FD $07 $FD 
+	$07 $BF $E0 $BF $E0 $BF $E0 $BF $E0 $BF 
+	$E0 $BF $FF $80 $FF $FF $FF $FD $07 $FD 
+	$07 $FD $07 $FD $07 $FD $07 $FD $FF $01 
+	$FF $FF $FF
+}
+
 data Brick_Graphics
 {
 	$FF $FF $FF $80 $C0 $BF $C0 $BF $C0 $BF $FF 
@@ -607,6 +706,240 @@ data Brick_Graphics
 	$1D $F1 $0F $FB $07 $FF $FE
 }
 
+data Sky_Graphics
+{
+	$FF $FF $FF $FF $00 $00 $FE $FF $F1 $FE $0F 
+	$10 $FF $C0 $FF $C0 $FF $FF $FF $FF $00 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $FF $FF $FF $00 $00 $FF $0F $FE 
+	$01 $FE $01 $E7 $18 $EF $10 $FF $FF $FF 
+	$FF $00 $00 $FF $FF $FF $FF $00 $00 $1F 
+	$E3 $FF $00 $FF $FF $FF $FF $00 $00 $FF 
+	$FE $FF $E0 $3F $00 $FF $80 $FF $00 $FF 
+	$FF $FF $FF $1F $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $FF $FF $FF $FC 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $FF $FF $FF $00 $00 $FF $3F $EF 
+	$1F $E0 $18 $F0 $0F $FF $00 $FF $FF $FF 
+	$FF $00 $00 $FF $FF $FF $FF $00 $00 $FF 
+	$01 $FF $00 $FF $FF $FF $FF $03 $00 $FF 
+	$F0 $FF $E0 $1F $00 $EF $F0 $8F $70 $FF 
+	$FF $FF $80 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $FF $FF $1F $FC 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FC 
+	$03 $FF $FF $FF $FF $00 $00 $FF $FF $FF 
+	$7F $80 $00 $7F $FF $FF $FF $FF $FF $FF 
+	$FF $00 $00 $FF $FF $FF $FF $00 $00 $FF 
+	$FF $FF $FF $1F $00 $F7 $F8 $E1 $FE $3F 
+	$00 $FF $80 $FF $80 $7F $00 $FF $C0 $FF 
+	$00 $FF $00 $FE $01 $3F $C0 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $DF $20 $7F 
+	$80 $FB $04 $E3 $1C $CF $30 $87 $60 $3F 
+	$FC $FF $00 $FF $00 $FC $03 $F9 $06 $FF 
+	$00 $FF $00 $FF $00 $FC $03 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $9F $60 $BF 
+	$40 $7F $80 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $EF $10 $9F $60 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FB $04 $F8 
+	$07 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $7F $80 $30 $CF $FF 
+	$00 $FF $00 $FF $00 $FF $00 $F9 $06 $F8 
+	$04 $77 $8F $FF $07 $F0 $00 $DF $3F $C7 
+	$38 $FF $00 $FF $00 $00 $00 $FF $FF $FF 
+	$FF $00 $00 $FF $FF $FF $07 $FE $00 $FF 
+	$00 $00 $00 $FF $FF $FF $FF $00 $00 $FF 
+	$FF $FF $FF $00 $00 $FF $FF $FF $E0 $00 
+	$03 $FF $FF $FF $FF $00 $00 $FF $FF $FF 
+	$FF $00 $00 $F8 $07 $00 $FC $FF $FF $FF 
+	$FF $00 $00 $FF $FF $FF $FF $00 $00 $7F 
+	$FF $00 $00 $FF $FF $FF $FF $00 $00 $FF 
+	$FF $FF $FF $00 $00 $00 $FF $00 $00 $FF 
+	$FF $FF $FF $00 $00 $FF $FF $FF $FF $00 
+	$00 $7F $80 $3F $40 $DF $E0 $F7 $F8 $00 
+	$01 $FF $FF $FF $FF $00 $00 $FF $00 $FF 
+	$00 $FD $02 $FB $04 $E0 $1F $FF $FF $FF 
+	$FF $00 $00 $FF $00 $FE $01 $F8 $07 $C3 
+	$3F $00 $E0 $FF $FF $FF $FF $00 $00 $BF 
+	$40 $3F $C0 $FF $C0 $F9 $E6 $00 $03 $FF 
+	$FF $FF $FF $00 $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $00 $FF $FF $FF $FF $FF $00 
+	$00 $FF $00 $F0 $08 $EF $1F $1F $FF $00 
+	$00 $FF $FF $FF $FF $00 $00 $C7 $3E $00 
+	$00 $FF $FF $FF $FF $00 $00 $FF $FF $FF 
+	$FF $00 $00 $FF $00 $7F $00 $FF $FF $FF 
+	$FF $00 $00 $FF $FF $FF $FF $00 $00 $F9 
+	$07 $00 $F8 $FF $FF $FF $FF $00 $00 $FF 
+	$FF $FF $FF $00 $00 $FF $FF $00 $00 $FF 
+	$FF $FF $FF $00 $00 $FF $FF $FF $FF $00 
+	$00 $FF $FF $00 $00 $00 $00 $FF $FF $00 
+	$00 $00 $00 $FF $FF $03 $00 $FF $FF $00 
+	$00 $00 $00 $FF $FC $0F $00 $1F $00 $FF 
+	$E0 $CF $30 $FF $FF $00 $00 $03 $00 $FB 
+	$0C $F3 $0C $FF $00 $FF $00 $F3 $0C $FF 
+	$FF $00 $00 $F8 $00 $FF $03 $FE $00 $FF 
+	$00 $FF $00 $FF $00 $FF $FF $00 $00 $00 
+	$00 $FF $FF $00 $00 $E0 $00 $FF $03 $BF 
+	$40 $FF $FF $00 $00 $00 $00 $FF $FF $00 
+	$00 $00 $00 $FF $FF $00 $00 $FF $FF $00 
+	$00 $00 $00 $FF $FF $00 $00 $01 $00 $FF 
+	$FC $18 $07 $FF $FF $00 $00 $00 $00 $FF 
+	$83 $FE $00 $FF $00 $FF $00 $FF $00 $FF 
+	$FF $00 $00 $00 $00 $FF $F8 $1F $00 $1F 
+	$20 $1F $E0 $F7 $08 $FF $FF $00 $00 $00 
+	$00 $FF $3F $F0 $00 $F8 $00 $FF $03 $FC 
+	$00 $0F $00 $FF $E0 $1F $00 $1F $00 $FF 
+	$E0 $0F $00 $00 $03 $FF $FF $FB $04 $FD 
+	$02 $FF $00 $FF $00 $FF $00 $FC $03 $00 
+	$FC $FF $FF $E9 $16 $FF $00 $FF $00 $BF 
+	$40 $03 $FC $00 $03 $00 $00 $FF $FF $FE 
+	$01 $DF $20 $FF $00 $FF $00 $FF $00 $7F 
+	$80 $00 $7F $FF $FF $7F $80 $FF $00 $FF 
+	$00 $FF $00 $F8 $07 $C0 $3C $00 $E0 $FF 
+	$FF $80 $00 $7F $FF $00 $80 $00 $80 $FF 
+	$FF $00 $00 $00 $00 $FF $FF $7E $01 $FF 
+	$00 $FF $00 $FF $00 $FF $80 $00 $1F $00 
+	$00 $FF $FF $7E $81 $EC $13 $FF $00 $FF 
+	$00 $3F $C0 $1F $20 $03 $1C $FC $FF $7F 
+	$80 $FE $01 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FC $03 $03 $FF $F3 $0C $3F $C0 $FF 
+	$00 $FF $00 $FF $00 $0F $F0 $00 $8F $FF 
+	$FF $E0 $00 $FF $03 $FE $00 $FC $02 $F9 
+	$07 $C0 $3C $00 $E0 $FF $FF $00 $00 $FF 
+	$FF $00 $00 $00 $00 $FF $FF $00 $00 $00 
+	$00 $FF $FF $00 $00 $00 $00 $00 $00 $FF 
+	$FF $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $FF $FF $00 $00 $03 
+	$00 $07 $00 $0F $00 $00 $00 $00 $00 $00 
+	$00 $FF $F0 $3F $00 $BF $00 $FF $00 $CF 
+	$30 $00 $00 $00 $00 $00 $00 $FF $FF $C0 
+	$00 $DF $00 $FF $00 $DF $20 $00 $00 $00 
+	$00 $00 $00 $FF $FF $00 $00 $00 $00 $C0 
+	$00 $E0 $00 $00 $00 $00 $00 $00 $00 $FF 
+	$FF $00 $00 $00 $00 $00 $00 $18 $04 $00 
+	$00 $00 $00 $00 $00 $FF $FF $00 $01 $1E 
+	$01 $3F $00 $7F $00 $00 $00 $03 $00 $07 
+	$00 $7F $80 $77 $88 $FB $04 $FB $04 $FE 
+	$01 $00 $00 $C0 $00 $E0 $00 $FF $0F $F0 
+	$00 $E0 $10 $E0 $10 $E4 $18 $00 $00 $00 
+	$00 $00 $00 $FF $FE $03 $00 $07 $00 $07 
+	$00 $03 $04 $00 $00 $03 $00 $07 $00 $F7 
+	$38 $E7 $18 $FF $00 $F7 $08 $EB $14 $00 
+	$00 $E0 $00 $F0 $00 $FF $06 $F9 $00 $F9 
+	$00 $F0 $08 $E0 $10 $00 $00 $00 $00 $80 
+	$00 $FF $DF $80 $00 $00 $00 $00 $00 $00 
+	$00 $0F $00 $1F $00 $7F $00 $7F $00 $7F 
+	$00 $7E $01 $10 $0E $00 $00 $E7 $18 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $1F $E0 $38 
+	$07 $00 $00 $1F $E0 $7F $80 $FF $00 $FF 
+	$00 $FF $00 $18 $87 $00 $00 $00 $00 $F0 
+	$00 $E0 $10 $E0 $10 $C0 $20 $00 $C0 $00 
+	$00 $00 $00 $00 $00 $19 $06 $3F $00 $3F 
+	$00 $1F $00 $1F $00 $3F $00 $08 $07 $00 
+	$00 $E0 $00 $E0 $00 $F0 $00 $FC $00 $FC 
+	$02 $3C $C2 $70 $0C $00 $00 $7F $00 $7F 
+	$00 $3E $01 $00 $1F $01 $00 $01 $00 $00 
+	$00 $00 $00 $FF $00 $3F $C0 $7F $80 $FF 
+	$00 $FF $00 $FE $01 $FC $02 $00 $7C $7E 
+	$80 $FF $00 $FF $00 $DE $21 $3C $C3 $78 
+	$07 $00 $3C $00 $00 $12 $0D $3F $00 $7F 
+	$00 $7F $00 $7F $00 $3E $01 $00 $1E $00 
+	$00 $1E $E1 $FF $00 $FF $00 $FF $00 $DC 
+	$23 $30 $CC $60 $10 $00 $00 $93 $60 $F8 
+	$00 $7F $80 $BF $40 $7F $80 $7D $02 $84 
+	$08 $20 $00 $00 $00 $40 $00 $00 $00 $80 
+	$00 $A0 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $03 $00 $0F 
+	$00 $1F $00 $7F $00 $00 $00 $00 $00 $00 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $00 $00 $00 $00 $00 $00 $7F $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $80 $00 $F0 $00 $FF 
+	$00 $FF $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $10 $10 $00 $00 $00 $00 $C0 $00 $00 
+	$00 $02 $00 $00 $00 $40 $00 $00 $00 $04 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $20 
+	$20 $00 $00 $00 $00 $00 $00 $94 $00 $6B 
+	$00 $00 $00 $00 $00 $00 $00 $04 $04 $00 
+	$00 $00 $00 $48 $00 $B7 $00 $01 $00 $07 
+	$00 $0F $00 $1F $00 $3F $00 $7F $00 $FF 
+	$00 $6B $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $B7 $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $6B $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $B7 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $6B $00 $F0 $00 $F8 
+	$00 $FE $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $B7 $00 $00 $00 $00 $00 $08 $08 $00 
+	$00 $E0 $00 $FE $00 $F6 $00 $6B $00
+}
+
+data Title_Screen_Tilemap
+{
+	$00 $01 $02 $03 $04 $05 $06 $07 $08 $09 $0A 
+	$0B $0C $0D $0D $0D $00 $01 $02 $03 $04 
+	$05 $06 $07 $08 $09 $0A $0B $0C $0D $0D 
+	$0D $0E $0F $10 $11 $12 $13 $14 $15 $16 
+	$17 $18 $19 $1A $1B $1B $1B $0E $0F $10 
+	$11 $12 $13 $14 $15 $16 $17 $18 $19 $1A 
+	$1B $1B $1B $1C $1D $1E $1F $1F $20 $21 
+	$22 $23 $24 $25 $1C $1D $29 $29 $29 $1C 
+	$1D $1E $1F $1F $20 $21 $22 $23 $24 $25 
+	$26 $27 $29 $29 $29 $00 $01 $02 $03 $04 
+	$05 $06 $07 $08 $09 $0A $0B $0C $0D $0D 
+	$0D $00 $01 $02 $03 $04 $05 $06 $07 $08 
+	$09 $0A $0B $0C $0D $0D $0D $0E $0F $10 
+	$11 $12 $13 $14 $15 $16 $17 $18 $19 $1A 
+	$1B $1B $1B $0E $0F $10 $11 $12 $13 $14 
+	$15 $16 $17 $18 $19 $1A $1B $1B $1B $1C 
+	$1D $1E $1F $1F $20 $21 $22 $23 $24 $25 
+	$1C $1D $29 $29 $29 $1C $1D $1E $1F $1F 
+	$20 $21 $22 $23 $24 $25 $26 $27 $29 $29 
+	$29 $2A $2B $2C $2D $2E $2F $30 $31 $32 
+	$33 $2F $2F $2F $2F $2F $2F $2A $2B $2C 
+	$2D $2E $2F $30 $31 $32 $33 $2F $2F $2F 
+	$2F $2F $2F $34 $35 $36 $37 $38 $3F $3A 
+	$3B $3C $3D $3E $3F $3F $3F $3F $3F $34 
+	$35 $36 $37 $38 $3F $3A $3B $3C $3D $3E 
+	$3F $3F $3F $3F $3F $41 $42 $43 $44 $45 
+	$45 $46 $47 $48 $49 $4A $4B $4C $40 $40 
+	$40 $41 $42 $43 $44 $45 $45 $46 $47 $48 
+	$49 $4A $4B $4C $40 $40 $40 $4D $4E $4F 
+	$50 $51 $52 $53 $54 $55 $56 $57 $58 $59 
+	$59 $59 $59 $4D $4E $4F $50 $51 $52 $53 
+	$54 $55 $56 $57 $58 $59 $59 $59 $59 $FF 
+	$FF $FF $FF $5A $5B $5C $5D $5E $5E $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $61 $60 $61 $62 $63 $64 $65 $66 $67 
+	$68 $60 $61 $60 $61 $60 $61 $60 $61 $60 
+	$61 $60 $61 $60 $61 $60 $61 $60 $61 $60 
+	$61 $60 $61 $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5E $5F $5F $5F $5F $5F $5E $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5E $5F $5F 
+	$5F $5F $5F $5E $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F $5F $5F $5F $5F $5F 
+	$5F $5F $5F $5F $5F
+}
+
 data OAM_Tester
 {
 	$30 $40 $00 $00 $30 $48 $04 $00 $38 $40 $02 
@@ -627,7 +960,8 @@ data FNAF_World_Palette
 {
 	$FF $7F 21 127 0 97 0 0 $FF $7F 30 91 243 
 	0 0 0 $FF $7F 27 79 121 22 179 00 236 17 
-	213 26 144 17 202 0
+	213 26 144 17 202 0 43 126 30 91 121 22 
+	175 125
 }
 
 data __main__String
