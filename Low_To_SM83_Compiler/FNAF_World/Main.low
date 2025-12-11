@@ -16,6 +16,16 @@ subroutine program_entry $0100
     jump main;
 }
 
+subroutine vblank_entry $0040
+{
+    jump $FF85; # These will use self-modifying code (in HRAM) to jump to the desired function for vblank/hblank
+}
+
+subroutine hblank_entry $0048
+{
+    jump $FF88;
+}
+
 data CGB_Flag $0143
 {
     $80

@@ -1,5 +1,4 @@
 #define INTERRUPT_ENABLE_REGISTER addressof(0xFFFF)
-
 //	bit 0 - VBLANK
 //	bit 1 - LCD interrupts i.e. HBlank or LYC
 
@@ -20,6 +19,11 @@
 #define LYC_REGISTER addressof(0xFF45)		// this is the value that's compared against
 
 #define LCD_STATUS_REGISTER addressof(0xFF41)
+//		bit 6 is set when you want a STAT interrupt to occur during LYC == LCDY
+//		bit 3 is set when you want HBLANK interrupts 
+//		bit 2 is set when LYC == LCDY
+//		bits 1 and 0 determine the current PPU mode (0 if HBlank or currently disabled, 1 if VBlank)
+
 
 #define VBLANK_SCANLINE addressof(0x90)
 
@@ -54,6 +58,8 @@
 	    // bit 6 is the Y flip
 	    // bit 5 is the X flip
 		// bit 4 is the palette (palette 0 or palette 1)
+
+		// bit 3,2,1 is the CGB palette (between 0 and 7)
 
 	// 4 bytes per object
 

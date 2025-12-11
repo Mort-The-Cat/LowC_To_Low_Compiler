@@ -8,6 +8,37 @@
 #include "Test_Bricks.h"
 #include "Background_Tiles.h"
 #include "Title_Screen_Tilemap.h"
+#include "Plush_Graphics.h"
+
+#include "Screen_Interrupt_Scheduler.h"
+
+const byte Plush_Spritechain[] =
+{
+	0x00, 0x00, 0x00, 1,
+	0x00, 0x08, 0x01, 1,
+	0x00, 0x10, 0x02, 1,
+	0x00, 0x18, 0x03, 1,
+	
+	0x08, 0x00, 0x04, 1,
+	0x08, 0x08, 0x05, 1,
+	0x08, 0x10, 0x06, 1,
+	0x08, 0x18, 0x07, 1,
+	
+	0x10, 0x00, 0x08, 1,
+	0x10, 0x08, 0x09, 1,
+	0x10, 0x10, 0x0A, 1,
+	0x10, 0x18, 0x0B, 1,
+	
+	0x18, 0x00, 0x0C, 1,
+	0x18, 0x08, 0x0D, 1,
+	0x18, 0x10, 0x0E, 1,
+	0x18, 0x18, 0x0F, 1,
+	
+	0x20, 0x00, 0x10, 1,
+	0x20, 0x08, 0x11, 1,
+	0x20, 0x10, 0x12, 1,
+	0x20, 0x18, 0x13, 1
+};
 
 #define OAM_BUFFER addressof(0xC000)
 
@@ -59,7 +90,7 @@ const byte FNAF_World_Palette[] =
 	// Bonnie / SKY
 
 	0xFF,	0x7F,	// white
-	30,		91,		// tan
+	29,		66,
 	243,	0,		// brown
 	0,		0,		// black
 	// Freddy / foxy
@@ -77,7 +108,7 @@ const byte FNAF_World_Palette[] =
 	// Forest terrain
 
 	43,		126,
-	30,		91,
+	217,	90,		// tan
 	121,	22,
 	175,	125
 	// Sky/background
@@ -119,7 +150,9 @@ void main()
 
 	*LCDC_REGISTER = 0;
 
-	memcpy(VRAM_BLOCK_0, Brick_Graphics, sizeof(Brick_Graphics));
+	// memcpy(VRAM_BLOCK_0, Brick_Graphics, sizeof(Brick_Graphics));
+
+	memcpy(VRAM_BLOCK_0, Plush_Graphics, sizeof(Plush_Graphics));
 
 	memcpy(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
 
@@ -136,6 +169,7 @@ void main()
 	memcpy(OAM_BUFFER, OAM_Tester, sizeof(OAM_Tester));
 
 	init_dma();	// This initialises the DMA code
+	init_screen_interrupts();
 
 	Generate_Palettes(CGB_BG_PALETTE_SPECIFIER);
 
@@ -143,16 +177,20 @@ void main()
 
 	*VRAM_BANK = 1;			// Swaps to attribute bank
 
-	Write_Tilemap_Attributes();
+	memcpy(VRAM_TILEM_0, Title_Screen_Attribute_Map, sizeof(Title_Screen_Attribute_Map));
+
+	// Write_Tilemap_Attributes();
 
 	*VRAM_BANK = 0;			// Swaps back to regular bank
 
-	*OBJECT_PALETTE_0_REGISTER = 0xE4;
+	// *OBJECT_PALETTE_0_REGISTER = 0xE4;
 
 	*LCDC_REGISTER = 0x83;
 
 	do
 	{
+		*OAM_BUFFER_COUNTER = 0;
+		place_spritechain_in_oam_buffer(Plush_Spritechain, 20, 70, 75);
 		Wait_For_VBlank();
 		dma_transfer();		// This places the OAM buffer into OAM
 	} while (1);

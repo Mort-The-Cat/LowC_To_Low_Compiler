@@ -3,6 +3,15 @@
 
 macro DMA_HRAM_Function $FF80;
 
+subroutine init_screen_interrupts
+{
+    A = $C3;
+    [$FF00 + $FF85] = A;
+    [$FF00 + $FF88] = A;
+
+    return;
+}
+
 subroutine __dma_HRAM_code__
 {
     [$FF00 + C] = A;		# 2 cycle - $01
@@ -95,6 +104,68 @@ subroutine memset
     A |= E;             # Checks count != 0
     A = B;              # Gets value back into A register
     jump not_zero Set_Loop;
+
+    return;
+}
+
+subroutine place_spritechain_in_oam_buffer
+{
+    # SP + 6        - Spritechain data (high)
+    # SP + 5        - Spritechain data (low)
+    # SP + 4        - Count
+    # SP + 3        - Y
+    # SP + 2        - X
+    # SP + 0 & 1    - Function pointer high+low
+
+    BC = $C0A0;
+    A = [BC];
+    HL = SP + $04;  # Gets count
+    H = [HL];
+    H <<>= 1;
+    H <<>= 1;
+    L = A;
+    A += H;
+    [BC] = A;
+
+    C = L;      # Sets BC to the OAM buffer pointer
+
+    HL = SP + $05;
+    E = [HL];
+    HL++;
+    D = [HL];   # Sets DE to the spritechain pointer
+
+    label Sprite_Assign_Loop;
+        HL = SP + $03;
+        A = [DE];   # Gets delta Y off spritechain data
+        A += [HL];  # adds Y position to spritechain delta y
+        [BC] = A;
+        C++;        # Next OAM buffer value
+        HL--;       # Goes to the delta X value on the stack
+        DE++;       # Goes to next value in spritechain data
+
+        A = [DE];   # Delta X
+        A += [HL];  # Adds X position to spritechain delta x
+        [BC] = A;
+        C++;
+        DE++;       # Goes to next value in spritechain data
+
+        A = [DE];   # Tile data
+        [BC] = A;
+        C++;
+        DE++;
+        
+        A = [DE];   # Attribute/flags data
+        [BC] = A;
+        C++;
+        DE++;
+
+        HL = SP + $04;
+        [HL]--;     # Decrement counter
+    jump not_zero Sprite_Assign_Loop;
+
+    # We've done everything!
+    # Callers of this function will handle the deallocating of the parameters
+    # So we don't worry about that here, just return
 
     return;
 }
