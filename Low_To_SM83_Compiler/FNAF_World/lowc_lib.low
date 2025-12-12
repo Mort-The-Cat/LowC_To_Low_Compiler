@@ -9,7 +9,7 @@ subroutine init_screen_interrupts
     [$FF00 + $FF85] = A;
     [$FF00 + $FF88] = A;
 
-    return;
+    returni;
 }
 
 subroutine __dma_HRAM_code__

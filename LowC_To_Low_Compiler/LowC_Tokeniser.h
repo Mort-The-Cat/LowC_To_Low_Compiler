@@ -39,6 +39,12 @@ enum
 	T_STORE_HIGH,	// This stores a byte in the upper-byte of a word
 	T_STORE_LOW,	// This stores a byte into the lower-byte of a word
 
+	T_PUSH_REGISTERS,
+	T_POP_REGISTERS,
+
+	T_ENABLEI,
+	T_DISABLEI,
+
 	T_SHIFT_RIGHT,
 	T_SHIFT_LEFT,
 

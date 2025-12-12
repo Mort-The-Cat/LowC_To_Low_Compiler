@@ -1852,6 +1852,34 @@ void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 		return;
 	}
 
+	if (Node.Syntax_ID == S_PUSH)
+	{
+		Output_Low_Code += "\tpush HL;\n\tpush AF;\n\tpush BC;\n\tpush DE;\n";
+		Tracer.Stack.resize(Tracer.Stack.size() + 8);
+
+		return;
+	}
+
+	if (Node.Syntax_ID == S_POP)
+	{
+		Output_Low_Code += "\tpop HL;\n\tpop AF;\n\tpop BC;\n\tpop DE;\n";
+		Tracer.Stack.resize(Tracer.Stack.size() - 8);
+
+		return;
+	}
+
+	if (Node.Syntax_ID == S_ENABLEI)
+	{
+		Output_Low_Code += "\tenablei;\n";
+		return;
+	}
+
+	if (Node.Syntax_ID == S_DISABLEI)
+	{
+		Output_Low_Code += "\tdisablei;\n";
+		return;
+	}
+
 	if (Node.Syntax_ID == S_ID_ASSIGN)
 	{
 		Node_ID_Assign_Statement(Output_Low_Code, Tracer, Node);

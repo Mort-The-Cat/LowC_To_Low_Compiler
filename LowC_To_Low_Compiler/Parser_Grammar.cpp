@@ -1096,11 +1096,11 @@ const std::vector<Grammar_Checker> Statement_Grammars =
 	),
 
 	Grammar_Checker(
-	{
-		Checker_Function(Is_Token, T_STORE_LOW), Checker_Function(Is_Token, T_OPEN_BR),
-		Checker_Function(Is_ID, S_ID16), Checker_Function(Is_Token, T_COMMA),
-		Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
-		Checker_Function(Is_Token, T_CLOSE_BR), Checker_Function(Is_Token, T_SEMI)
+		{
+			Checker_Function(Is_Token, T_STORE_LOW), Checker_Function(Is_Token, T_OPEN_BR),
+			Checker_Function(Is_ID, S_ID16), Checker_Function(Is_Token, T_COMMA),
+			Checker_Function(Parse_Recursive_Check, Expression8_Grammars),
+			Checker_Function(Is_Token, T_CLOSE_BR), Checker_Function(Is_Token, T_SEMI)
 		},
 		Node_Init
 		{
@@ -1108,7 +1108,55 @@ const std::vector<Grammar_Checker> Statement_Grammars =
 			Node_Copy("value", Recursively_Generated_Nodes[0]);
 			Node_Set_Syntax(S_STORE_LOW);
 		}
-		)
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_PUSH_REGISTERS), 
+			Checker_Function(Is_Token, T_OPEN_BR), Checker_Function(Is_Token, T_CLOSE_BR),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_PUSH);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_POP_REGISTERS),
+			Checker_Function(Is_Token, T_OPEN_BR), Checker_Function(Is_Token, T_CLOSE_BR),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_POP);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_ENABLEI),
+			Checker_Function(Is_Token, T_OPEN_BR), Checker_Function(Is_Token, T_CLOSE_BR),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_ENABLEI);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_DISABLEI),
+			Checker_Function(Is_Token, T_OPEN_BR), Checker_Function(Is_Token, T_CLOSE_BR),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Set_Syntax(S_DISABLEI);
+		}
+	)
 };
 
 const std::vector<Grammar_Checker> Statements_Grammars =

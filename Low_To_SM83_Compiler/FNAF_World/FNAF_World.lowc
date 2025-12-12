@@ -144,6 +144,30 @@ void Generate_Palettes(byte* Destination)
 	return;
 }
 
+void Set_Interrupt_Function(byte* Address, byte* Function_Pointer)
+{
+	*Address = (byte)Function_Pointer;
+	Address++;
+	*Address = high(Function_Pointer);
+
+	return;
+}
+
+void Test_Titlescreen_Vblank()
+{
+	push();
+
+	*BACKGROUND_SCROLL_Y_REGISTER = 40;
+
+	*BACKGROUND_SCROLL_X_REGISTER = 228;
+
+	pop();
+
+	enablei();
+
+	return;
+}
+
 void main()
 {
 	Wait_For_VBlank();
@@ -182,6 +206,10 @@ void main()
 	// Write_Tilemap_Attributes();
 
 	*VRAM_BANK = 0;			// Swaps back to regular bank
+
+	Set_Interrupt_Function(VBLANK_HRAM_FUNCTION_JUMP_ADDRESS, Test_Titlescreen_Vblank);
+
+	*INTERRUPT_ENABLE_REGISTER = 1;
 
 	// *OBJECT_PALETTE_0_REGISTER = 0xE4;
 

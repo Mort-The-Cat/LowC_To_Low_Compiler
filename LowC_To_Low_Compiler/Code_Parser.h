@@ -149,6 +149,11 @@ enum Syntax_IDs
 			(parameters)
 		*/
 
+	S_PUSH,
+	S_POP,
+	S_ENABLEI,
+	S_DISABLEI,
+
 	S_STORE_LOW,
 	S_STORE_HIGH,
 		/*

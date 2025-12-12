@@ -42,6 +42,10 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_SIZEOF,		"sizeof"	},
 	{	T_STORE_HIGH,	"store_high"},
 	{	T_STORE_LOW,	"store_low"	},
+	{	T_PUSH_REGISTERS,	"push"	},
+	{	T_POP_REGISTERS,	"pop"	},
+	{	T_ENABLEI,		"enablei"	},
+	{	T_DISABLEI,		"disablei"	},
 	{	T_SHIFT_RIGHT,	"shift_right"},
 	{	T_SHIFT_LEFT,	"shift_left"},
 

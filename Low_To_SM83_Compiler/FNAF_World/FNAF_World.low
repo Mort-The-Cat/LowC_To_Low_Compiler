@@ -285,7 +285,7 @@ subroutine Generate_Palettes
 	return;
 }
 
-subroutine main
+subroutine Set_Interrupt_Function
 {
 	# Current tracer registers:
 		# A = Count; 0
@@ -295,21 +295,139 @@ subroutine main
 		# E = Destination; 0
 		# H = Destination; 0
 		# L = Destination; 0
+	HL = SP + 2;		# Fetches Function_Pointer off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 4;		# Fetches Address off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	[HL] = C; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 1
+		# C = Function_Pointer; 1
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Address; 1
+		# L = Address; 1
+	HL++;		# Increments Address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 1
+		# C = Function_Pointer; 1
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Address; 1
+		# L = Address; 1
+	[HL] = B; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 1
+		# C = Function_Pointer; 1
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Address; 1
+		# L = Address; 1
+	return;
+}
+
+subroutine Test_Titlescreen_Vblank
+{
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Address; 0
+		# L = Address; 0
+	push HL;
+	push AF;
+	push BC;
+	push DE;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Address; 0
+		# L = Address; 0
+	HL = $FF42;
+	[HL] = 40; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF43;
+	[HL] = 228; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	pop HL;
+	pop AF;
+	pop BC;
+	pop DE;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	enablei;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	return;
+}
+
+subroutine main
+{
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
 	call Wait_For_VBlank;		# Calls function
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Data; 0
-		# C = Data; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
 		# D = Destination; 0
 		# E = Destination; 0
-		# H = Destination; 0
-		# L = Destination; 0
+		# H = ; 0
+		# L = ; 0
 	HL = $FF40;
 	[HL] = 0; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Data; 0
-		# C = Data; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ; 0
@@ -508,6 +626,30 @@ subroutine main
 		# L = ; 0
 	HL = $FF4F;
 	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $FF86;
+	push BC;		# Pushes Address to the stack
+	BC = Test_Titlescreen_Vblank;
+	push BC;		# Pushes Function_Pointer to the stack
+	call Set_Interrupt_Function;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FFFF;
+	[HL] = 1; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Count; 0
 		# B = ; 0
@@ -1141,7 +1283,7 @@ data Blue_Palette
 
 data FNAF_World_Palette
 {
-	$FF $7F 21 127 0 97 0 0 $FF $7F 31 66 243 
+	$FF $7F 21 127 0 97 0 0 $FF $7F 29 66 243 
 	0 0 0 $FF $7F 27 79 121 22 179 00 236 17 
 	213 26 144 17 202 0 43 126 217 90 121 22 
 	175 125

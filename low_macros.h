@@ -4,7 +4,7 @@
 
 
 #define BACKGROUND_SCROLL_X_REGISTER addressof(0xFF43)
-#define BACKGROUND_SCROLL_Y_REGISTER addressof(0xFF42
+#define BACKGROUND_SCROLL_Y_REGISTER addressof(0xFF42)
 
 #define WINDOW_SCROLL_X_REGISTER addressof(0xFF4B)
 #define WINDOW_SCROLL_Y_REGISTER addressof(0xFF4A)
