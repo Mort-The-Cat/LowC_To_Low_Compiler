@@ -867,13 +867,13 @@ std::string Tracer_Shift(std::string& Output_Low_Code, Tracer_Data& Tracer, cons
 
 		if (Node.Syntax_ID == S_RIGHT_SHIFT16)
 		{
-			Output_Low_Code += "\t" + Value.substr(1, 1) + " >>= 1;\n";
-			Output_Low_Code += "\t" + Value.substr(0, 1) + " |>><= 1;\n";
+			Output_Low_Code += "\t" + Value.substr(0, 1) + " >>= 1;\n";
+			Output_Low_Code += "\t" + Value.substr(1, 1) + " |>><= 1;\n";
 		}
 		else
 		{
-			Output_Low_Code += "\t" + Value.substr(0, 1) + " <<= 1;\n";
-			Output_Low_Code += "\t" + Value.substr(1, 1) + " <<>|= 1;\n";
+			Output_Low_Code += "\t" + Value.substr(1, 1) + " <<= 1;\n";
+			Output_Low_Code += "\t" + Value.substr(0, 1) + " <<>|= 1;\n";
 		}
 	}
 	else

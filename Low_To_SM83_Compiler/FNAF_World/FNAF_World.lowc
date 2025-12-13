@@ -153,17 +153,69 @@ void Set_Interrupt_Function(byte* Address, byte* Function_Pointer)
 	return;
 }
 
+#define Frame_Counter addressof(0xC100)	// This is a 2-byte value
+#define Parallax_LYC_Data addressof(0xC103) // The LYC at which the next parallax interrupt should be triggered
+	// LYC pos
+#define Parallax_Scroll_Data addressof(0xC106) // The scroll value that should be applied to the scanlines
+#define Parallax_Index addressof(0xC102) // This is the index into the parallax_data table
+
 void Test_Titlescreen_Vblank()
 {
 	push();
 
 	*BACKGROUND_SCROLL_Y_REGISTER = 40;
 
-	*BACKGROUND_SCROLL_X_REGISTER = 228;
+	*BACKGROUND_SCROLL_X_REGISTER = *Parallax_Scroll_Data;
 
 	pop();
 
 	enablei();
+
+	return;
+}
+
+void Init_Parallax_Data()
+{
+	const byte Parallax_Data[] =
+	{
+		47, 63, 79, 255
+	};
+
+	memcpy(Parallax_LYC_Data, Parallax_Data, sizeof(Parallax_Data));
+
+	return;
+}
+
+void Write_Parallax_Data()
+{
+	*Parallax_Index = 0;
+
+	byte* Address;
+	word Frame_Count;
+	Address = Frame_Counter;
+	Frame_Count = *Address;
+	Address++;
+	store_high(Frame_Count, *Address);
+
+	Frame_Count = shift_left(Frame_Count);
+
+	Address = Parallax_Scroll_Data;
+	*Address = (byte)Frame_Count;	// Top set of clouds
+	Address++;
+	Frame_Count = shift_right(Frame_Count);
+	*Address = (byte)Frame_Count;	// medium clouds
+	Address++;
+	Frame_Count = shift_right(Frame_Count);
+	*Address = (byte)Frame_Count;	// bottom clouds
+	Address++;
+	*Address = 0;					// land, (no scroll)
+
+	return;
+}
+
+void Increment_Frame_Counter()
+{
+	*(Frame_Counter)++;
 
 	return;
 }
@@ -195,6 +247,8 @@ void main()
 	init_dma();	// This initialises the DMA code
 	init_screen_interrupts();
 
+	Init_Parallax_Data();
+
 	Generate_Palettes(CGB_BG_PALETTE_SPECIFIER);
 
 	Generate_Palettes(CGB_OBJ_PALETTE_SPECIFIER);
@@ -218,6 +272,8 @@ void main()
 	do
 	{
 		*OAM_BUFFER_COUNTER = 0;
+		Increment_Frame_Counter();
+		Write_Parallax_Data();
 		place_spritechain_in_oam_buffer(Plush_Spritechain, 20, 70, 75);
 		Wait_For_VBlank();
 		dma_transfer();		// This places the OAM buffer into OAM

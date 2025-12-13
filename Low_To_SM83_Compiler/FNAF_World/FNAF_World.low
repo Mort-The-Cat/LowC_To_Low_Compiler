@@ -369,8 +369,10 @@ subroutine Test_Titlescreen_Vblank
 		# E = Destination; 0
 		# H = ; 0
 		# L = ; 0
+	HL = $C106;
+	A = [HL];		# Dereferences address
 	HL = $FF43;
-	[HL] = 228; 		# Stores value into memory location
+	[HL] = A; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Count; 0
 		# B = Function_Pointer; 0
@@ -403,7 +405,7 @@ subroutine Test_Titlescreen_Vblank
 	return;
 }
 
-subroutine main
+subroutine Init_Parallax_Data
 {
 	# Current tracer registers:
 		# A = Count; 0
@@ -413,7 +415,6 @@ subroutine main
 		# E = Destination; 0
 		# H = ; 0
 		# L = ; 0
-	call Wait_For_VBlank;		# Calls function
 	# Current tracer registers:
 		# A = Count; 0
 		# B = Function_Pointer; 0
@@ -422,14 +423,271 @@ subroutine main
 		# E = Destination; 0
 		# H = ; 0
 		# L = ; 0
+	BC = $C103;
+	push BC;		# Pushes Destination to the stack
+	BC = __Init_Parallax_Data__Parallax_Data;
+	push BC;		# Pushes Source to the stack
+	BC = 4;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	return;
+}
+
+subroutine Write_Parallax_Data
+{
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $C102;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 254;		# byte* Address;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 254;		# word Frame_Count;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $C100;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	H = B;		# Creates copy of Address
+	L = C;		# Creates copy of Address
+	D = $00;		# Zeros upper byte
+	E = [HL];		# Dereferences address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 0
+		# L = Address; 0
+	BC++;		# Increments Address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 0
+		# L = Address; 0
+	H = B;		# Creates copy of Address
+	L = C;		# Creates copy of Address
+	A = [HL];		# Dereferences address
+	D = A;		# Moves value into high-byte of Frame_Count
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 0
+		# L = Address; 0
+	H = D;		# Creates copy of Frame_Count
+	L = E;		# Creates copy of Frame_Count
+	L <<= 1;
+	H <<>|= 1;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = Frame_Count; 1
+		# L = Frame_Count; 1
+	DE = $C106;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = Address; 1
+		# E = Address; 1
+		# H = Frame_Count; 1
+		# L = Frame_Count; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	H = D;		# Creates copy of Address
+	L = E;		# Creates copy of Address
+	[HL] = C; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 1
+		# C = Frame_Count; 1
+		# D = Address; 0
+		# E = Address; 0
+		# H = Address; 1
+		# L = Address; 1
+	HL++;		# Increments Address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 1
+		# C = Frame_Count; 1
+		# D = Address; 0
+		# E = Address; 0
+		# H = Address; 1
+		# L = Address; 1
+	D = B;		# Creates copy of Frame_Count
+	E = C;		# Creates copy of Frame_Count
+	D >>= 1;
+	E |>><= 1;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	[HL] = E; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	HL++;		# Increments Address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	B = D;		# Creates copy of Frame_Count
+	C = E;		# Creates copy of Frame_Count
+	B >>= 1;
+	C |>><= 1;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 1
+		# C = Frame_Count; 1
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = Address; 1
+		# L = Address; 1
+	[HL] = C; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 1
+		# C = Frame_Count; 1
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = Address; 1
+		# L = Address; 1
+	HL++;		# Increments Address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 1
+		# C = Frame_Count; 1
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = Address; 1
+		# L = Address; 1
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 1
+		# C = Frame_Count; 1
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = Address; 1
+		# L = Address; 1
+	SP += 4;		# Remove local variables from stack
+	return;
+}
+
+subroutine Increment_Frame_Counter
+{
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = Address; 0
+		# L = Address; 0
+	HL = $C100;
+	[HL]++;		# Increments address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
+	return;
+}
+
+subroutine main
+{
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
 	HL = $FF40;
 	[HL] = 0; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $8000;
@@ -444,8 +702,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $8800;
@@ -460,8 +718,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = 736;
@@ -478,8 +736,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $9000;
@@ -494,16 +752,16 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	# Current tracer registers:
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $9800;
@@ -518,8 +776,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $9800;
@@ -536,8 +794,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $C000;
@@ -552,8 +810,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	call init_dma;		# Calls function
@@ -561,8 +819,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	call init_screen_interrupts;		# Calls function
@@ -570,8 +828,17 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Init_Parallax_Data;		# Calls function
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $FF68;
@@ -582,8 +849,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $FF6A;
@@ -594,8 +861,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	HL = $FF4F;
@@ -604,8 +871,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $9800;
@@ -620,8 +887,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	HL = $FF4F;
@@ -630,8 +897,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $FF86;
@@ -644,8 +911,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	HL = $FFFF;
@@ -654,8 +921,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	HL = $FF40;
@@ -664,8 +931,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 
@@ -674,8 +941,8 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	HL = $C0A0;
@@ -684,8 +951,26 @@ subroutine main
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Increment_Frame_Counter;		# Calls function
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Write_Parallax_Data;		# Calls function
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	BC = Plush_Spritechain;
@@ -708,8 +993,8 @@ subroutine main
 		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	call Wait_For_VBlank;		# Calls function
@@ -717,8 +1002,8 @@ subroutine main
 		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	call dma_transfer;		# Calls function
@@ -729,8 +1014,8 @@ subroutine main
 		# A = ; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	# Register snapshot:
@@ -740,8 +1025,8 @@ subroutine main
 		# A = ; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	# Register snapshot:
@@ -751,8 +1036,8 @@ subroutine main
 		# A = ; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
 	return;
@@ -1287,6 +1572,11 @@ data FNAF_World_Palette
 	0 0 0 $FF $7F 27 79 121 22 179 00 236 17 
 	213 26 144 17 202 0 43 126 217 90 121 22 
 	175 125
+}
+
+data __Init_Parallax_Data__Parallax_Data
+{
+	47 63 79 255
 }
 
 data __main__String

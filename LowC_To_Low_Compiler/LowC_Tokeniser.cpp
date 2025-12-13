@@ -219,7 +219,7 @@ void Get_File_Contents(std::string* String, const char* File_Directory)
 		
 		while ((Index = String->find(Macros[W].Name, Offset)) != std::string::npos)
 		{
-			if (Is_Alphanumeric(String->at(Index + Macros[W].Name.length() + 1)) == CHARACTER_NONALPHANUMERIC)
+			if (Is_Alphanumeric(String->at(Index + Macros[W].Name.length() + 1)) == CHARACTER_NONALPHANUMERIC && CHARACTER_NONALPHANUMERIC == Is_Alphanumeric(String->at(Index - 1)))
 				String->replace(Index, Macros[W].Name.length(), Macros[W].Representation);
 			else
 				Offset = Index + 1;

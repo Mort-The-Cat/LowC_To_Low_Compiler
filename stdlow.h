@@ -15,6 +15,12 @@ void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW im
 
 #define store_high(id16, expression8)
 
+#define store_low(id16, expression8)
+
+#define shift_left(expression)
+
+#define shift_right(expression)
+
 #define bit(expression, bit_number) (1 & (expression >> bit_number))
 
 #define push()
