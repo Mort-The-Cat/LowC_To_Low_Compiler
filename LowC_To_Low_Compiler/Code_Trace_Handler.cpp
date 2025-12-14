@@ -41,6 +41,8 @@ void Analyse_Statements_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 #define MAKE_VALUE_HOT_REG_PAIR 4
 #define MAKE_VALUE_HOT_REG 5
 
+#define GET_FREE_REGISTER_NOT_HL_REG 6
+
 #define PULL_IDENTIFIER_COPY 1
 #define PULL_IDENTIFIER_REF 0
 
@@ -108,6 +110,37 @@ Trace& Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, size
 		return Tracer.Registers[5];	// return HL register pair
 
 		//
+
+	case GET_FREE_REGISTER_NOT_HL_REG:
+	{
+		const size_t Indices[] = { 0, 4, 3, 2, 1 };
+
+		int Tries = 8;
+
+		while (Tries)
+		{
+			for (size_t Index = 0; Index < 5; Index++)
+			{
+				if (Tracer.Registers[Indices[Index]].Modified_Counter == 0)
+					return Tracer.Registers[Indices[Index]];
+			}
+
+			for (size_t Index = 0; Index < 5; Index++)
+			{
+				if (Tracer.Registers[Index].Modified_Counter == 1)
+				{
+					Store_Tracer_Register_Back_In_Memory(Output_Low_Code, Tracer, &Tracer.Registers[Index]);
+					Tries--;
+
+					break;
+				}
+			}
+
+			Tries--;
+		}
+
+		break;
+	}
 
 	default:
 	case MAKE_VALUE_HOT_NO_REQUIREMENTS:
@@ -612,7 +645,7 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 		{
 			// if it's a word? just get a valid register and store it there
 
-			Trace* Temp = &Get_Free_Register(Output_Low_Code, Tracer, 0); // just get a temp register to simplify things
+			Trace* Temp = &Get_Free_Register(Output_Low_Code, Tracer, GET_FREE_REGISTER_NOT_HL_REG); // just get a temp register to simplify things
 
 				// Need to do this AFTER we've gotten a free register just for safety
 				Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node.Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
@@ -867,7 +900,7 @@ std::string Tracer_Shift(std::string& Output_Low_Code, Tracer_Data& Tracer, cons
 
 		if (Node.Syntax_ID == S_RIGHT_SHIFT16)
 		{
-			Output_Low_Code += "\t" + Value.substr(0, 1) + " >>= 1;\n";
+			Output_Low_Code += "\t" + Value.substr(0, 1) + " >>>= 1;\n";
 			Output_Low_Code += "\t" + Value.substr(1, 1) + " |>><= 1;\n";
 		}
 		else
@@ -882,7 +915,7 @@ std::string Tracer_Shift(std::string& Output_Low_Code, Tracer_Data& Tracer, cons
 
 		if (Node.Syntax_ID == S_RIGHT_SHIFT8)
 		{
-			Output_Low_Code += "\t" + Value + " >>= 1;\n";
+			Output_Low_Code += "\t" + Value + " >>>= 1;\n";
 		}
 		else
 		{
@@ -1058,15 +1091,23 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 		std::string Name[2] = { Right_Trace[0].Value, Right_Trace[1].Value };
 
-		Right_Trace[0].Value = "@value@";
-		Right_Trace[1].Value = "@value@";
+		size_t Previous_Modified[2] = { Right_Trace[0].Modified_Counter, Right_Trace[1].Modified_Counter };
+
+		Right_Trace[0].Modified_Counter = 3;
+		Right_Trace[1].Modified_Counter = 3;
+
+		//Right_Trace[0].Value = "@value@";
+		//Right_Trace[1].Value = "@value@";
 
 		Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["left"][0], MAKE_VALUE_HOT_HL_REG, Copy_Requirements);
 
-		Right_Trace = Find_Value_In_Tracer_Registers(Tracer, "@value@");
+		Right_Trace = Find_Value_In_Tracer_Registers(Tracer, Name[0]);
 
 		Right_Trace[0].Value = Name[0];
 		Right_Trace[1].Value = Name[1];
+
+		Right_Trace[0].Modified_Counter = Previous_Modified[0];
+		Right_Trace[1].Modified_Counter = Previous_Modified[1];
 
 		Right_Registers = Right_Trace[0].Name + Right_Trace[1].Name;
 
@@ -1749,7 +1790,7 @@ void Do_While_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const
 	Output_Low_Code += "\tjump " + Condition + " " + Label_Name + "_memory_cleanup;\t\t# do/while memory-cleanup loop jump\n";
 
 	Output_Low_Code += Handle_Stack_Code;
-	Output_Low_Code += "\tjump" + Label_Name + ";\t\t# do/while loop jump\n";
+	Output_Low_Code += "\tjump " + Label_Name + ";\t\t# do/while loop jump\n";
 	Output_Low_Code += "\tlabel " + Label_Name + "_memory_cleanup;\n";
 	Output_Low_Code += Handle_Stack_Code + "\n\n";
 }
@@ -1862,7 +1903,13 @@ void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, c
 
 	if (Node.Syntax_ID == S_POP)
 	{
-		Output_Low_Code += "\tpop HL;\n\tpop AF;\n\tpop BC;\n\tpop DE;\n";
+		if (Tracer.Stack.size() - 8 > Tracer.Parameters_Count)
+		{
+			Output_Low_Code += "\tSP += " + std::to_string((Tracer.Stack.size() - Tracer.Parameters_Count) - 8) + ";\n";
+			Tracer.Stack.resize(Tracer.Parameters_Count + 8);
+		}
+
+		Output_Low_Code += "\tpop DE;\n\tpop BC;\n\tpop AF;\n\tpop HL;\n";
 		Tracer.Stack.resize(Tracer.Stack.size() - 8);
 
 		return;

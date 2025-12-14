@@ -49,6 +49,7 @@ void Wait_For_VBlank()
 	do
 	{
 		Scanline = *LCDY_REGISTER;
+		Scanline++;
 	} while (Scanline < VBLANK_SCANLINE);
 
 	return;
@@ -156,16 +157,44 @@ void Set_Interrupt_Function(byte* Address, byte* Function_Pointer)
 #define Frame_Counter addressof(0xC100)	// This is a 2-byte value
 #define Parallax_LYC_Data addressof(0xC103) // The LYC at which the next parallax interrupt should be triggered
 	// LYC pos
-#define Parallax_Scroll_Data addressof(0xC106) // The scroll value that should be applied to the scanlines
+#define Parallax_Scroll_Data addressof(0xC107) // The scroll value that should be applied to the scanlines
 #define Parallax_Index addressof(0xC102) // This is the index into the parallax_data table
 
 void Test_Titlescreen_Vblank()
 {
 	push();
 
+	dma_transfer();		// This places the OAM buffer into OAM
+
 	*BACKGROUND_SCROLL_Y_REGISTER = 40;
 
 	*BACKGROUND_SCROLL_X_REGISTER = *Parallax_Scroll_Data;
+
+	*LYC_REGISTER = *Parallax_LYC_Data;
+
+	pop();
+
+	enablei();
+
+	return;
+}
+
+void Test_Titlescreen_Hblank()
+{
+	push();
+
+	byte* Address;
+	byte* Index;
+
+	Index = Parallax_Index;
+	*Index++;
+	Address = (Parallax_LYC_Data + *Index);
+
+	*LYC_REGISTER = *Address;
+
+	Address = (Parallax_Scroll_Data + *Index);
+
+	*BACKGROUND_SCROLL_X_REGISTER = *Address;
 
 	pop();
 
@@ -197,7 +226,7 @@ void Write_Parallax_Data()
 	Address++;
 	store_high(Frame_Count, *Address);
 
-	Frame_Count = shift_left(Frame_Count);
+	Frame_Count = (Frame_Count + Frame_Count);
 
 	Address = Parallax_Scroll_Data;
 	*Address = (byte)Frame_Count;	// Top set of clouds
@@ -205,7 +234,7 @@ void Write_Parallax_Data()
 	Frame_Count = shift_right(Frame_Count);
 	*Address = (byte)Frame_Count;	// medium clouds
 	Address++;
-	Frame_Count = shift_right(Frame_Count);
+	Frame_Count = (byte)shift_right(Frame_Count);
 	*Address = (byte)Frame_Count;	// bottom clouds
 	Address++;
 	*Address = 0;					// land, (no scroll)
@@ -215,7 +244,21 @@ void Write_Parallax_Data()
 
 void Increment_Frame_Counter()
 {
-	*(Frame_Counter)++;
+	// *(Frame_Counter)++;
+
+	byte* Address;
+	word Frame_Count;
+
+	Address = Frame_Counter;
+	store_low(Frame_Count, *Address);
+	Address++;
+	store_high(Frame_Count, *Address);
+
+	Frame_Count++;
+
+	*Address = high(Frame_Count);
+	Address--;
+	*Address = (byte)Frame_Count;
 
 	return;
 }
@@ -262,10 +305,13 @@ void main()
 	*VRAM_BANK = 0;			// Swaps back to regular bank
 
 	Set_Interrupt_Function(VBLANK_HRAM_FUNCTION_JUMP_ADDRESS, Test_Titlescreen_Vblank);
+	Set_Interrupt_Function(HBLANK_HRAM_FUNCTION_JUMP_ADDRESS, Test_Titlescreen_Hblank);
 
-	*INTERRUPT_ENABLE_REGISTER = 1;
+	*INTERRUPT_ENABLE_REGISTER = 3;
 
 	// *OBJECT_PALETTE_0_REGISTER = 0xE4;
+
+	*LCD_STATUS_REGISTER = 0x40;	// This triggers interrupts when LYC == LCDY
 
 	*LCDC_REGISTER = 0x83;
 
@@ -276,7 +322,6 @@ void main()
 		Write_Parallax_Data();
 		place_spritechain_in_oam_buffer(Plush_Spritechain, 20, 70, 75);
 		Wait_For_VBlank();
-		dma_transfer();		// This places the OAM buffer into OAM
 	} while (1);
 
 	return;

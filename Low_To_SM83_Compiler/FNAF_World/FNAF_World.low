@@ -29,6 +29,15 @@ subroutine Wait_For_VBlank
 		# L = ???; 0
 	HL = $FF44;
 	A = [HL];		# Dereferences address
+	# Current tracer registers:
+		# A = Scanline; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	A++;		# Increments Scanline
 	A < $90;		# S_LESS_THAN8
 	jump  not_carry __do_while_statement__0_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
@@ -40,7 +49,7 @@ subroutine Wait_For_VBlank
 		# H = ; 0
 		# L = ; 0
 	# Register snapshot:
-	jump__do_while_statement__0;		# do/while loop jump
+	jump __do_while_statement__0;		# do/while loop jump
 	label __do_while_statement__0_memory_cleanup;
 	# Current tracer registers:
 		# A = Scanline; 1
@@ -254,7 +263,7 @@ subroutine Generate_Palettes
 	A = L;		# Moves value into expected register
 	H = D;		# Moves value into expected register
 	L = E;		# Moves value into expected register
-	jump__do_while_statement__1;		# do/while loop jump
+	jump __do_while_statement__1;		# do/while loop jump
 	label __do_while_statement__1_memory_cleanup;
 	# Current tracer registers:
 		# A = Count; 0
@@ -359,6 +368,15 @@ subroutine Test_Titlescreen_Vblank
 		# E = Destination; 0
 		# H = Address; 0
 		# L = Address; 0
+	call dma_transfer;		# Calls function
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Address; 0
+		# L = Address; 0
 	HL = $FF42;
 	[HL] = 40; 		# Stores value into memory location
 	# Current tracer registers:
@@ -369,7 +387,7 @@ subroutine Test_Titlescreen_Vblank
 		# E = Destination; 0
 		# H = ; 0
 		# L = ; 0
-	HL = $C106;
+	HL = $C107;
 	A = [HL];		# Dereferences address
 	HL = $FF43;
 	[HL] = A; 		# Stores value into memory location
@@ -381,10 +399,22 @@ subroutine Test_Titlescreen_Vblank
 		# E = Destination; 0
 		# H = ; 0
 		# L = ; 0
-	pop HL;
-	pop AF;
-	pop BC;
+	HL = $C103;
+	A = [HL];		# Dereferences address
+	HL = $FF45;
+	[HL] = A; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
 	pop DE;
+	pop BC;
+	pop AF;
+	pop HL;
 	# Current tracer registers:
 		# A = Count; 0
 		# B = Function_Pointer; 0
@@ -405,7 +435,7 @@ subroutine Test_Titlescreen_Vblank
 	return;
 }
 
-subroutine Init_Parallax_Data
+subroutine Test_Titlescreen_Hblank
 {
 	# Current tracer registers:
 		# A = Count; 0
@@ -415,12 +445,167 @@ subroutine Init_Parallax_Data
 		# E = Destination; 0
 		# H = ; 0
 		# L = ; 0
+	push HL;
+	push AF;
+	push BC;
+	push DE;
 	# Current tracer registers:
 		# A = Count; 0
 		# B = Function_Pointer; 0
 		# C = Function_Pointer; 0
 		# D = Destination; 0
 		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 254;		# byte* Address;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 254;		# byte* Index;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $C102;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 1
+		# C = Index; 1
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ; 0
+		# L = ; 0
+	H = B;		# Creates copy of Index
+	L = C;		# Creates copy of Index
+	[HL]++;		# Increments address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 0
+		# C = Index; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Index; 1
+		# L = Index; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	H = B;		# Creates copy of Index
+	L = C;		# Creates copy of Index
+	D = $00;		# Zeros upper byte
+	E = [HL];		# Dereferences address
+	push BC;		# Push 16-bit word to stack to free up registers
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = $C103;
+	HL += DE;		# S_PLUS16
+	pop BC;		# Fixes 'panic' push, places value back into register
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 1
+		# C = Index; 1
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Address; 1
+		# L = Address; 1
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	H = D;		# Creates copy of Address
+	L = E;		# Creates copy of Address
+	A = [HL];		# Dereferences address
+	HL = $FF45;
+	[HL] = A; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 1
+		# C = Index; 1
+		# D = Address; 1
+		# E = Address; 1
+		# H = ; 0
+		# L = ; 0
+	H = B;		# Creates copy of Index
+	L = C;		# Creates copy of Index
+	push DE;		# Push 16-bit word to stack to free up registers
+	D = $00;		# Zeros upper byte
+	E = [HL];		# Dereferences address
+	push BC;		# Push 16-bit word to stack to free up registers
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = $C107;
+	HL += DE;		# S_PLUS16
+	pop BC;		# Fixes 'panic' push, places value back into register
+	SP += 2;		# Fixes 'panic' push
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 1
+		# C = Index; 1
+		# D = Address; 0
+		# E = Address; 0
+		# H = Address; 1
+		# L = Address; 1
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	H = D;		# Creates copy of Address
+	L = E;		# Creates copy of Address
+	A = [HL];		# Dereferences address
+	HL = $FF43;
+	[HL] = A; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 1
+		# C = Index; 1
+		# D = Address; 1
+		# E = Address; 1
+		# H = ; 0
+		# L = ; 0
+	SP += 4;
+	pop DE;
+	pop BC;
+	pop AF;
+	pop HL;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 1
+		# C = Index; 1
+		# D = Address; 1
+		# E = Address; 1
+		# H = ; 0
+		# L = ; 0
+	enablei;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 1
+		# C = Index; 1
+		# D = Address; 1
+		# E = Address; 1
+		# H = ; 0
+		# L = ; 0
+	return;
+}
+
+subroutine Init_Parallax_Data
+{
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 0
+		# C = Index; 0
+		# D = Address; 0
+		# E = Address; 0
+		# H = ; 0
+		# L = ; 0
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Index; 0
+		# C = Index; 0
+		# D = Address; 0
+		# E = Address; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $C103;
@@ -435,8 +620,8 @@ subroutine Init_Parallax_Data
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Address; 0
+		# E = Address; 0
 		# H = ; 0
 		# L = ; 0
 	return;
@@ -448,8 +633,8 @@ subroutine Write_Parallax_Data
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Address; 0
+		# E = Address; 0
 		# H = ; 0
 		# L = ; 0
 	HL = $C102;
@@ -458,8 +643,8 @@ subroutine Write_Parallax_Data
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Address; 0
+		# E = Address; 0
 		# H = ; 0
 		# L = ; 0
 	SP += 254;		# byte* Address;
@@ -467,8 +652,8 @@ subroutine Write_Parallax_Data
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Address; 0
+		# E = Address; 0
 		# H = ; 0
 		# L = ; 0
 	SP += 254;		# word Frame_Count;
@@ -476,8 +661,8 @@ subroutine Write_Parallax_Data
 		# A = Count; 0
 		# B = ; 0
 		# C = ; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Address; 0
+		# E = Address; 0
 		# H = ; 0
 		# L = ; 0
 	BC = $C100;
@@ -485,8 +670,8 @@ subroutine Write_Parallax_Data
 		# A = Count; 0
 		# B = Address; 1
 		# C = Address; 1
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = Address; 0
+		# E = Address; 0
 		# H = ; 0
 		# L = ; 0
 	H = B;		# Creates copy of Address
@@ -524,8 +709,7 @@ subroutine Write_Parallax_Data
 		# L = Address; 0
 	H = D;		# Creates copy of Frame_Count
 	L = E;		# Creates copy of Frame_Count
-	L <<= 1;
-	H <<>|= 1;
+	HL += DE;		# S_PLUS16
 	# Current tracer registers:
 		# A = Count; 0
 		# B = Address; 1
@@ -534,7 +718,7 @@ subroutine Write_Parallax_Data
 		# E = Frame_Count; 0
 		# H = Frame_Count; 1
 		# L = Frame_Count; 1
-	DE = $C106;
+	DE = $C107;
 	# Current tracer registers:
 		# A = Count; 0
 		# B = Address; 0
@@ -567,7 +751,7 @@ subroutine Write_Parallax_Data
 		# L = Address; 1
 	D = B;		# Creates copy of Frame_Count
 	E = C;		# Creates copy of Frame_Count
-	D >>= 1;
+	D >>>= 1;
 	E |>><= 1;
 	# Current tracer registers:
 		# A = Count; 0
@@ -597,7 +781,7 @@ subroutine Write_Parallax_Data
 		# L = Address; 1
 	B = D;		# Creates copy of Frame_Count
 	C = E;		# Creates copy of Frame_Count
-	B >>= 1;
+	B >>>= 1;
 	C |>><= 1;
 	# Current tracer registers:
 		# A = Count; 0
@@ -648,16 +832,122 @@ subroutine Increment_Frame_Counter
 		# E = Frame_Count; 0
 		# H = Address; 0
 		# L = Address; 0
-	HL = $C100;
-	[HL]++;		# Increments address
+	SP += 254;		# byte* Address;
 	# Current tracer registers:
 		# A = Count; 0
 		# B = Frame_Count; 0
 		# C = Frame_Count; 0
 		# D = Frame_Count; 0
 		# E = Frame_Count; 0
-		# H = ; 0
-		# L = ; 0
+		# H = Address; 0
+		# L = Address; 0
+	SP += 254;		# word Frame_Count;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = Address; 0
+		# L = Address; 0
+	BC = $C100;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = Address; 0
+		# L = Address; 0
+	H = B;		# Creates copy of Address
+	L = C;		# Creates copy of Address
+	A = [HL];		# Dereferences address
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	push BC;		# Push 16-bit word to stack to free up registers
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 0;		# Memory location of Address
+	[HL] = C;		# Stores Address back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Address back into memory
+	HL = SP + 2;		# Fetches Frame_Count off the stack
+	C = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = C;		# Move lower byte from temp register
+	L = A;		# Moves value into low-byte of Frame_Count
+	pop BC;		# Fixes 'panic' push, places value back into register
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Address; 0
+		# E = Address; 0
+		# H = Frame_Count; 1
+		# L = Frame_Count; 1
+	BC++;		# Increments Address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Address; 0
+		# E = Address; 0
+		# H = Frame_Count; 1
+		# L = Frame_Count; 1
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	H = B;		# Creates copy of Address
+	L = C;		# Creates copy of Address
+	A = [HL];		# Dereferences address
+	D = A;		# Moves value into high-byte of Frame_Count
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 0
+		# L = Address; 0
+	DE++;		# Increments Frame_Count
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 0
+		# L = Address; 0
+	H = B;		# Creates copy of Address
+	L = C;		# Creates copy of Address
+	[HL] = D; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	HL--;		# Decrements Address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	[HL] = E; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	SP += 4;		# Remove local variables from stack
 	return;
 }
 
@@ -665,27 +955,27 @@ subroutine main
 {
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Frame_Count; 0
-		# C = Frame_Count; 0
+		# B = Address; 0
+		# C = Address; 0
 		# D = Frame_Count; 0
 		# E = Frame_Count; 0
-		# H = ; 0
-		# L = ; 0
+		# H = Address; 0
+		# L = Address; 0
 	call Wait_For_VBlank;		# Calls function
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Frame_Count; 0
-		# C = Frame_Count; 0
+		# B = Address; 0
+		# C = Address; 0
 		# D = Frame_Count; 0
 		# E = Frame_Count; 0
-		# H = ; 0
-		# L = ; 0
+		# H = Address; 0
+		# L = Address; 0
 	HL = $FF40;
 	[HL] = 0; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Frame_Count; 0
-		# C = Frame_Count; 0
+		# B = Address; 0
+		# C = Address; 0
 		# D = Frame_Count; 0
 		# E = Frame_Count; 0
 		# H = ; 0
@@ -915,8 +1205,32 @@ subroutine main
 		# E = Frame_Count; 0
 		# H = ; 0
 		# L = ; 0
+	BC = $FF89;
+	push BC;		# Pushes Address to the stack
+	BC = Test_Titlescreen_Hblank;
+	push BC;		# Pushes Function_Pointer to the stack
+	call Set_Interrupt_Function;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
 	HL = $FFFF;
-	[HL] = 1; 		# Stores value into memory location
+	[HL] = 3; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF41;
+	[HL] = $40; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Count; 0
 		# B = ; 0
@@ -998,15 +1312,6 @@ subroutine main
 		# H = ; 0
 		# L = ; 0
 	call Wait_For_VBlank;		# Calls function
-	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = Frame_Count; 0
-		# E = Frame_Count; 0
-		# H = ; 0
-		# L = ; 0
-	call dma_transfer;		# Calls function
 	A = 1;
 	A |= A;		# This just gets the CPU flags
 	jump  zero __do_while_statement__2_memory_cleanup;		# do/while memory-cleanup loop jump
@@ -1019,7 +1324,7 @@ subroutine main
 		# H = ; 0
 		# L = ; 0
 	# Register snapshot:
-	jump__do_while_statement__2;		# do/while loop jump
+	jump __do_while_statement__2;		# do/while loop jump
 	label __do_while_statement__2_memory_cleanup;
 	# Current tracer registers:
 		# A = ; 0
