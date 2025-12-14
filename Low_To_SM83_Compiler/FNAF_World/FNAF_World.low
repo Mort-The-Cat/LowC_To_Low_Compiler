@@ -74,7 +74,7 @@ subroutine Wait_For_VBlank
 	return;
 }
 
-subroutine Write_Tilemap_Attributes
+subroutine Generate_Palettes
 {
 	# Current tracer registers:
 		# A = Scanline; 0
@@ -84,71 +84,20 @@ subroutine Write_Tilemap_Attributes
 		# E = ???; 0
 		# H = ; 0
 		# L = ; 0
-	BC = $9800;
-	push BC;		# Pushes Destination to the stack
-	A = 4;
-	HL = SP + 255;		# Makes room on stack for 1 byte
-	[HL] = A;		# Writes Value to stack
-	SP = HL;		# Update stack pointer
-	BC = $180;
-	push BC;		# Pushes Count to the stack
-	call memset;		# Calls function
-	SP += 5;		# Removes pushed parameters from stack
-	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
-	BC = $180;
-	HL = $9800;
-	HL += BC;		# S_PLUS16
-	push HL;		# Pushes Destination to the stack
-	A = 3;
-	HL = SP + 255;		# Makes room on stack for 1 byte
-	[HL] = A;		# Writes Value to stack
-	SP = HL;		# Update stack pointer
-	BC = $C0;
-	push BC;		# Pushes Count to the stack
-	call memset;		# Calls function
-	SP += 5;		# Removes pushed parameters from stack
-	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
-	return;
-}
-
-subroutine Generate_Palettes
-{
-	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
 	SP += 254;		# byte* Data;
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
+		# A = Scanline; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
 		# H = ; 0
 		# L = ; 0
 	SP += 255;		# byte Count;
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
+		# A = Scanline; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
 		# H = ; 0
@@ -160,25 +109,25 @@ subroutine Generate_Palettes
 	L = A;		# Move lower byte from temp register
 	[HL] = $80; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
+		# A = Scanline; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
 		# H = Destination; 1
 		# L = Destination; 1
 	HL++;		# Increments Destination
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
+		# A = Scanline; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
 		# H = Destination; 1
 		# L = Destination; 1
 	BC = FNAF_World_Palette;
 	# Current tracer registers:
-		# A = @parameter@; 0
+		# A = Scanline; 0
 		# B = Data; 1
 		# C = Data; 1
 		# D = ???; 0
@@ -707,56 +656,11 @@ subroutine Write_Parallax_Data
 		# E = Frame_Count; 1
 		# H = Address; 0
 		# L = Address; 0
-	H = D;		# Creates copy of Frame_Count
-	L = E;		# Creates copy of Frame_Count
-	HL += DE;		# S_PLUS16
-	# Current tracer registers:
-		# A = Count; 0
-		# B = Address; 1
-		# C = Address; 1
-		# D = Frame_Count; 0
-		# E = Frame_Count; 0
-		# H = Frame_Count; 1
-		# L = Frame_Count; 1
-	DE = $C107;
+	HL = $C107;
 	# Current tracer registers:
 		# A = Count; 0
 		# B = Address; 0
 		# C = Address; 0
-		# D = Address; 1
-		# E = Address; 1
-		# H = Frame_Count; 1
-		# L = Frame_Count; 1
-	B = H;		# Frees up H register for use
-	C = L;		# Frees up L register for use
-	H = D;		# Creates copy of Address
-	L = E;		# Creates copy of Address
-	[HL] = C; 		# Stores value into memory location
-	# Current tracer registers:
-		# A = Count; 0
-		# B = Frame_Count; 1
-		# C = Frame_Count; 1
-		# D = Address; 0
-		# E = Address; 0
-		# H = Address; 1
-		# L = Address; 1
-	HL++;		# Increments Address
-	# Current tracer registers:
-		# A = Count; 0
-		# B = Frame_Count; 1
-		# C = Frame_Count; 1
-		# D = Address; 0
-		# E = Address; 0
-		# H = Address; 1
-		# L = Address; 1
-	D = B;		# Creates copy of Frame_Count
-	E = C;		# Creates copy of Frame_Count
-	D >>>= 1;
-	E |>><= 1;
-	# Current tracer registers:
-		# A = Count; 0
-		# B = Frame_Count; 0
-		# C = Frame_Count; 0
 		# D = Frame_Count; 1
 		# E = Frame_Count; 1
 		# H = Address; 1
@@ -764,8 +668,8 @@ subroutine Write_Parallax_Data
 	[HL] = E; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Frame_Count; 0
-		# C = Frame_Count; 0
+		# B = Address; 0
+		# C = Address; 0
 		# D = Frame_Count; 1
 		# E = Frame_Count; 1
 		# H = Address; 1
@@ -773,8 +677,8 @@ subroutine Write_Parallax_Data
 	HL++;		# Increments Address
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Frame_Count; 0
-		# C = Frame_Count; 0
+		# B = Address; 0
+		# C = Address; 0
 		# D = Frame_Count; 1
 		# E = Frame_Count; 1
 		# H = Address; 1
@@ -809,13 +713,43 @@ subroutine Write_Parallax_Data
 		# E = Frame_Count; 0
 		# H = Address; 1
 		# L = Address; 1
-	[HL] = 0; 		# Stores value into memory location
+	D = B;		# Creates copy of Frame_Count
+	E = C;		# Creates copy of Frame_Count
+	D >>>= 1;
+	E |>><= 1;
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Frame_Count; 1
-		# C = Frame_Count; 1
-		# D = Frame_Count; 0
-		# E = Frame_Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	[HL] = E; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	HL++;		# Increments Address
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
+		# H = Address; 1
+		# L = Address; 1
+	[HL] = 224; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Frame_Count; 0
+		# C = Frame_Count; 0
+		# D = Frame_Count; 1
+		# E = Frame_Count; 1
 		# H = Address; 1
 		# L = Address; 1
 	SP += 4;		# Remove local variables from stack
@@ -951,7 +885,7 @@ subroutine Increment_Frame_Counter
 	return;
 }
 
-subroutine main
+subroutine Write_Tilemap_Attributes
 {
 	# Current tracer registers:
 		# A = Count; 0
@@ -961,21 +895,72 @@ subroutine main
 		# E = Frame_Count; 0
 		# H = Address; 0
 		# L = Address; 0
-	call Wait_For_VBlank;		# Calls function
+	BC = $9800;
+	push BC;		# Pushes Destination to the stack
+	A = 4;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	BC = $180;
+	push BC;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
-		# B = Address; 0
-		# C = Address; 0
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
 		# D = Frame_Count; 0
 		# E = Frame_Count; 0
 		# H = Address; 0
 		# L = Address; 0
+	BC = $180;
+	HL = $9800;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Destination to the stack
+	A = 3;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	BC = $C0;
+	push BC;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
+	return;
+}
+
+subroutine main
+{
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Frame_Count; 0
+		# E = Frame_Count; 0
+		# H = ; 0
+		# L = ; 0
 	HL = $FF40;
 	[HL] = 0; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
-		# B = Address; 0
-		# C = Address; 0
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
 		# D = Frame_Count; 0
 		# E = Frame_Count; 0
 		# H = ; 0
@@ -989,7 +974,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1005,7 +990,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1023,7 +1008,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1039,7 +1024,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1047,7 +1032,7 @@ subroutine main
 		# H = ; 0
 		# L = ; 0
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1063,7 +1048,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1081,7 +1066,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1097,7 +1082,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1106,7 +1091,7 @@ subroutine main
 		# L = ; 0
 	call init_dma;		# Calls function
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1115,7 +1100,7 @@ subroutine main
 		# L = ; 0
 	call init_screen_interrupts;		# Calls function
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1124,7 +1109,7 @@ subroutine main
 		# L = ; 0
 	call Init_Parallax_Data;		# Calls function
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1136,7 +1121,7 @@ subroutine main
 	call Generate_Palettes;		# Calls function
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1148,7 +1133,7 @@ subroutine main
 	call Generate_Palettes;		# Calls function
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1158,7 +1143,7 @@ subroutine main
 	HL = $FF4F;
 	[HL] = 1; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1174,7 +1159,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1184,7 +1169,7 @@ subroutine main
 	HL = $FF4F;
 	[HL] = 0; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1198,7 +1183,7 @@ subroutine main
 	call Set_Interrupt_Function;		# Calls function
 	SP += 4;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1212,7 +1197,7 @@ subroutine main
 	call Set_Interrupt_Function;		# Calls function
 	SP += 4;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1222,7 +1207,7 @@ subroutine main
 	HL = $FFFF;
 	[HL] = 3; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1232,7 +1217,7 @@ subroutine main
 	HL = $FF41;
 	[HL] = $40; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1242,7 +1227,7 @@ subroutine main
 	HL = $FF40;
 	[HL] = $83; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1252,7 +1237,7 @@ subroutine main
 
 	label __do_while_statement__2;		# do/while loop label
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1262,7 +1247,7 @@ subroutine main
 	HL = $C0A0;
 	[HL] = 0; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1271,7 +1256,7 @@ subroutine main
 		# L = ; 0
 	call Increment_Frame_Counter;		# Calls function
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1280,7 +1265,7 @@ subroutine main
 		# L = ; 0
 	call Write_Parallax_Data;		# Calls function
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Frame_Count; 0
@@ -1289,7 +1274,7 @@ subroutine main
 		# L = ; 0
 	BC = Plush_Spritechain;
 	push BC;		# Pushes Spritechain to the stack
-	A = 20;
+	A = 22;
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Count to stack
 	SP = HL;		# Update stack pointer
@@ -1852,7 +1837,8 @@ data Plush_Spritechain
 	1 $10 $08 $09 1 $10 $10 $0A 1 $10 $18 $0B 
 	1 $18 $00 $0C 1 $18 $08 $0D 1 $18 $10 $0E 
 	1 $18 $18 $0F 1 $20 $00 $10 1 $20 $08 $11 
-	1 $20 $10 $12 1 $20 $18 $13 1
+	1 $20 $10 $12 1 $20 $18 $13 1 $09 $08 $14 
+	4 $09 $0E $14 4
 }
 
 data OAM_Tester
