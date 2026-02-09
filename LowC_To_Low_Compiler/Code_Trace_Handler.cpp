@@ -955,13 +955,13 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 		// this will either be HL or A depending on return type
 
-		if (Node["return_type"][0].Value == "byte")
+		if (Node["return_type"][0].Syntax_ID == S_BYTE)	// If it's a byte, it's in the A register
 		{
 			Tracer.Registers[0].Modified_Counter = 2;
 
 			return "A";
 		}
-		else
+		else											// If it's a pointer or a word, it's in the HL register pair
 		{
 			Tracer.Registers[5].Modified_Counter = 2;
 			Tracer.Registers[6].Modified_Counter = 2;
