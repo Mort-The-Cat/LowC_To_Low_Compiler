@@ -1,0 +1,93 @@
+#include "../../stdlow.h"       // This lets us compile in LowC
+#include "../../low_macros.h"   // These are important memory addresses etc
+
+#include "lowc_lib.h"           // These are important functions (with direct SM83 assembly implementations) that we'll need 
+
+#include "Box_Bot_Graphics.h"
+#include "Bot_Spritechain.h"
+#include "Alphabet_Tiles.h"
+
+byte Test_Return()
+{
+    return 0xA0;
+}
+
+byte* Test_Return_Two()
+{
+    return addressof(0xC000);
+}
+
+void Wait_For_VBlank()
+{
+	byte Scanline;
+
+	do
+	{
+		Scanline = *LCDY_REGISTER;
+		Scanline++;
+	} while (Scanline < VBLANK_SCANLINE);
+
+	return;
+}
+
+#define OAM_BUFFER_COUNT addressof(0xC0A0)
+
+void Clean_OAM_Buffer()
+{
+    byte Count;
+    byte* Pointer;
+    
+    Count = Test_Return();
+    
+    Pointer = Test_Return_Two();
+
+    Count = Count; 
+    // This just ensures that 'Count' is loaded into a register...
+
+    do
+    {
+        *Pointer = 0x00;
+        Pointer = (Pointer + 4);
+        Count = Count - 4;
+    }while(Count);
+
+    *OAM_BUFFER_COUNT = 0;
+    
+    return;
+}
+
+void main()
+{
+    Wait_For_VBlank();
+
+    *(LCDC_REGISTER) = 0x00;  // Turns off PPU
+
+    memcpy(VRAM_BLOCK_0, Box_Bot_Graphics, sizeof(Box_Bot_Graphics));
+    memcpy(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
+    memcpy( (VRAM_BLOCK_1 + sizeof(Alphabet_Graphics)), Title_Screen_UI_Blocks, sizeof(Title_Screen_UI_Blocks));
+
+    const byte Warm_Message[] = "HELLO! TEST";
+    const byte Warm_Message_2[] = "CAN YOU HEAR ME?";
+
+    memcpy( VRAM_TILEM_0, Warm_Message, sizeof(Warm_Message) );
+    memcpy( (VRAM_TILEM_0 + 0x0020), Warm_Message_2, sizeof(Warm_Message_2) );
+
+    *(BACKGROUND_PALETTE_REGISTER) = 0xE4;
+    *(OBJECT_PALETTE_0_REGISTER) = 0xE4;
+
+    init_dma();
+
+    *(LCDC_REGISTER) = 0x83;    // This turns it on- all we really need
+
+    // Wait_For_VBlank();
+
+    while(1)             // infinite loop (for testing purposes)
+    {
+        Clean_OAM_Buffer();
+        place_spritechain_in_oam_buffer(Bot_Jump_Left, 11, 50 + 16, 50 + 8);
+        Wait_For_VBlank();
+        dma_transfer();
+    }
+
+    return;
+}

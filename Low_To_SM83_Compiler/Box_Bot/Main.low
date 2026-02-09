@@ -1,0 +1,34 @@
+file Logo_Data.td;
+
+file LOW_Macros.low;
+
+data Placeholder $0150
+{
+    # No data
+}
+
+file Box_Bot/lowc_lib.low;
+
+file Box_Bot/Box_Bot.low;
+
+subroutine program_entry $0100
+{
+    jump main;
+}
+
+subroutine vblank_entry $0040
+{
+    jump $FF85; # These will use self-modifying code (in HRAM) to jump to the desired function for vblank/hblank
+}
+
+subroutine hblank_entry $0048
+{
+    jump $FF88;
+}
+
+# Set this address to $80 if this is a CGB game
+
+#data CGB_Flag $0143
+#{
+#    $80
+#}

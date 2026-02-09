@@ -195,6 +195,16 @@ const std::vector<Grammar_Checker> Expression16_Grammars =
 {
 	Grammar_Checker(
 		{
+			Checker_Function(Parse_Recursive_Check, Function_Call_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+		}
+	),
+
+	Grammar_Checker(
+		{
 			Checker_Function(Is_Token, T_AND),	// & token (this is used for the and operator AS WELL AS the reference operator)
 			Checker_Function(Is_Token, T_IDENTIFIER)	// Some kind of local identifier (can be 8-bit or 16-bit
 		},
@@ -396,6 +406,16 @@ const std::vector<Grammar_Checker> Operator8_Grammars =
 
 const std::vector<Grammar_Checker> Expression8_Grammars =
 {
+	Grammar_Checker(
+		{
+			Checker_Function(Parse_Recursive_Check, Function_Call_Grammars)
+		},
+		Node_Init
+		{
+			Node_Set(Recursively_Generated_Nodes[0]);
+		}
+	),
+
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_SHIFT_RIGHT),

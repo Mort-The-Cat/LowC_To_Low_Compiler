@@ -2,6 +2,8 @@
 #include "Code_Parser.h"
 #include "LowC_Tokeniser.h"
 
+void Call_Function_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node);
+
 size_t CON_NOT(size_t Condition)
 {
 	return (Condition + (2 - 4 * (Condition > 2)));
@@ -947,6 +949,27 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 	switch (Node.Syntax_ID)
 	{
+	case S_FUNCTION_CALL:
+	{
+		Call_Function_Statement(Output_Low_Code, Tracer, Node);
+
+		// this will either be HL or A depending on return type
+
+		if (Node["return_type"][0].Value == "byte")
+		{
+			Tracer.Registers[0].Modified_Counter = 2;
+
+			return "A";
+		}
+		else
+		{
+			Tracer.Registers[5].Modified_Counter = 2;
+			Tracer.Registers[6].Modified_Counter = 2;
+			return "HL";
+		}
+	}
+
+
 	case S_HIGH:
 	{
 		// This will get the value into a register pair

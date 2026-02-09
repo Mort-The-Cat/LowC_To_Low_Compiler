@@ -1,0 +1,1069 @@
+subroutine Set_Interrupt_Function
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 2;		# Fetches Function_Pointer off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 4;		# Fetches Address off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	[HL] = C; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Function_Pointer; 1
+		# C = Function_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Address; 1
+		# L = Address; 1
+	HL++;		# Increments Address
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Function_Pointer; 1
+		# C = Function_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Address; 1
+		# L = Address; 1
+	[HL] = B; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Function_Pointer; 1
+		# C = Function_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Address; 1
+		# L = Address; 1
+	return;
+}
+
+subroutine Test_Return
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Address; 0
+		# L = Address; 0
+	A = $A0;
+	return;
+}
+
+subroutine Test_Return_Two
+{
+	# Current tracer registers:
+		# A = ; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Address; 0
+		# L = Address; 0
+	HL = $C000;
+	return;
+}
+
+subroutine Wait_For_VBlank
+{
+	# Current tracer registers:
+		# A = ; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 255;		# byte Scanline;
+	# Current tracer registers:
+		# A = ; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+
+	label __do_while_statement__0;		# do/while loop label
+	# Current tracer registers:
+		# A = ; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF44;
+	A = [HL];		# Dereferences address
+	# Current tracer registers:
+		# A = Scanline; 1
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	A++;		# Increments Scanline
+	A < $90;		# S_LESS_THAN8
+	jump  not_carry __do_while_statement__0_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = Scanline; 1
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+	jump __do_while_statement__0;		# do/while loop jump
+	label __do_while_statement__0_memory_cleanup;
+	# Current tracer registers:
+		# A = Scanline; 1
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+
+
+	# Current tracer registers:
+		# A = Scanline; 1
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 1;		# Remove local variables from stack
+	return;
+}
+
+subroutine Clean_OAM_Buffer
+{
+	# Current tracer registers:
+		# A = Scanline; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 255;		# byte Count;
+	# Current tracer registers:
+		# A = Scanline; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	call Test_Return;		# Calls function
+	# Current tracer registers:
+		# A = Count; 1
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	SP += 254;		# byte* Pointer;
+	# Current tracer registers:
+		# A = Count; 1
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ; 0
+		# L = ; 0
+	HL = SP + 2;		# Memory location of Count
+	[HL] = A;		# Stores Count back into memory
+	call Test_Return_Two;		# Calls function
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Function_Pointer; 0
+		# C = Function_Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 2;		# Fetches Count off the stack
+	A = [HL];		# Stores Count into A register
+	# Current tracer registers:
+		# A = Count; 1
+		# B = Pointer; 1
+		# C = Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Pointer; 0
+		# L = Pointer; 0
+
+	label __do_while_statement__1;		# do/while loop label
+	# Current tracer registers:
+		# A = Count; 1
+		# B = Pointer; 1
+		# C = Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Pointer; 0
+		# L = Pointer; 0
+	H = B;		# Creates copy of Pointer
+	L = C;		# Creates copy of Pointer
+	[HL] = $00; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 1
+		# B = Pointer; 0
+		# C = Pointer; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	BC = 4;
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	H = D;		# Creates copy of Pointer
+	L = E;		# Creates copy of Pointer
+	HL += BC;		# S_PLUS16
+	# Current tracer registers:
+		# A = Count; 1
+		# B = ; 0
+		# C = ; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	E = A;		# Makes 'A' a copy of Count
+	A -= 4;		# S_MINUS8
+	D = A;		# Makes 'A' a copy of Count
+	A |= A;		# This just gets the CPU flags
+	jump  zero __do_while_statement__1_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 1
+		# E = Count; 1
+		# H = Pointer; 1
+		# L = Pointer; 1
+	# Register snapshot:
+		# A = Count; 1
+		# B = Pointer; 1
+	A = D;		# Moves value into expected register
+	B = H;		# Moves value into expected register
+	C = L;		# Moves value into expected register
+	jump __do_while_statement__1;		# do/while loop jump
+	label __do_while_statement__1_memory_cleanup;
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 1
+		# E = Count; 1
+		# H = Pointer; 1
+		# L = Pointer; 1
+	# Register snapshot:
+		# A = Count; 1
+		# B = Pointer; 1
+	A = D;		# Moves value into expected register
+	B = H;		# Moves value into expected register
+	C = L;		# Moves value into expected register
+
+
+	# Current tracer registers:
+		# A = Count; 1
+		# B = Pointer; 1
+		# C = Pointer; 1
+		# D = Count; 0
+		# E = Count; 1
+		# H = Pointer; 0
+		# L = Pointer; 0
+	HL = $C0A0;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 1
+		# B = Pointer; 1
+		# C = Pointer; 1
+		# D = Count; 0
+		# E = Count; 1
+		# H = ; 0
+		# L = ; 0
+	SP += 3;		# Remove local variables from stack
+	return;
+}
+
+subroutine main
+{
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Pointer; 0
+		# C = Pointer; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Pointer; 0
+		# C = Pointer; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF40;
+	[HL] = $00; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = Pointer; 0
+		# C = Pointer; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $8000;
+	push BC;		# Pushes Destination to the stack
+	BC = Box_Bot_Graphics;
+	push BC;		# Pushes Source to the stack
+	BC = 1416;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $8800;
+	push BC;		# Pushes Destination to the stack
+	BC = Alphabet_Graphics;
+	push BC;		# Pushes Source to the stack
+	BC = 736;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = 736;
+	HL = $8800;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Destination to the stack
+	BC = Title_Screen_UI_Blocks;
+	push BC;		# Pushes Source to the stack
+	BC = 224;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $9800;
+	push BC;		# Pushes Destination to the stack
+	BC = __main__Warm_Message;
+	push BC;		# Pushes Source to the stack
+	BC = 12;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $0020;
+	HL = $9800;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Destination to the stack
+	BC = __main__Warm_Message_2;
+	push BC;		# Pushes Source to the stack
+	BC = 17;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF47;
+	[HL] = $E4; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF48;
+	[HL] = $E4; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	call init_dma;		# Calls function
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF40;
+	[HL] = $83; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Count; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+
+	A = 1;
+	A |= A;		# This just gets the CPU flags
+	jump zero __if_statement__2;		# If statement jump
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+
+	label __do_while_statement__3;		# do/while loop label
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Clean_OAM_Buffer;		# Calls function
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = Bot_Jump_Left;
+	push BC;		# Pushes Spritechain to the stack
+	A = 11;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Count to stack
+	SP = HL;		# Update stack pointer
+	A = 50;
+	A += 16;		# S_PLUS8
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Y to stack
+	SP = HL;		# Update stack pointer
+	A = 50;
+	A += 8;		# S_PLUS8
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes X to stack
+	SP = HL;		# Update stack pointer
+	call place_spritechain_in_oam_buffer;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	call dma_transfer;		# Calls function
+	A = 1;
+	A |= A;		# This just gets the CPU flags
+	jump  zero __do_while_statement__3_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+	jump __do_while_statement__3;		# do/while loop jump
+	label __do_while_statement__3_memory_cleanup;
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+
+
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+	label __if_statement__2;		# If statement label
+
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	return;
+}
+
+data Box_Bot_Graphics
+{
+	$00 $01 $01 $02 $01 $1E $00 $1F $00 $0D $00 
+	$00 $00 $00 $00 $00 $00 $FF $F7 $0E $EF 
+	$1F $EF $1F $07 $FE $F0 $FF $38 $38 $18 
+	$18 $00 $F8 $F8 $1C $FC $3E $FC $3E $F8 
+	$1C $00 $F8 $00 $00 $00 $00 $00 $0F $07 
+	$18 $0C $13 $0B $17 $0B $17 $0C $13 $0F 
+	$10 $0F $10 $00 $FF $E7 $18 $EF $10 $FF 
+	$FE $FF $FF $EF $13 $EF $10 $EF $10 $00 
+	$F0 $E0 $18 $F0 $08 $F6 $0E $F7 $0F $F3 
+	$0B $F0 $08 $F0 $08 $1F $1C $23 $3F $3A 
+	$2D $4F $7F $9F $FF $DF $BF $C8 $F7 $7F 
+	$7F $EF $10 $E7 $98 $7B $FC $24 $DF $F3 
+	$FF $F6 $FB $44 $BF $FB $FB $F0 $08 $E0 
+	$18 $CC $3C $12 $FE $E1 $FF $01 $FF $02 
+	$FE $FC $FC $00 $FF $E7 $18 $EF $10 $EF 
+	$F0 $FF $FE $FF $3F $EF $13 $EF $10 $00 
+	$F0 $E0 $18 $F0 $08 $F0 $08 $F6 $0E $F7 
+	$0F $F3 $0B $F0 $08 $00 $FF $E7 $18 $EF 
+	$10 $EF $90 $FF $F0 $FF $FE $FF $1F $EF 
+	$13 $00 $F0 $E0 $18 $F0 $08 $F0 $08 $F0 
+	$08 $F6 $0E $F7 $0F $F3 $0B $00 $FF $E7 
+	$18 $EF $10 $EF $90 $EF $F0 $FF $F8 $FF 
+	$3E $EF $1E $00 $F0 $E0 $18 $F0 $08 $F0 
+	$08 $F0 $08 $F4 $0C $F7 $0F $F7 $0F $EF 
+	$16 $E7 $98 $7B $FC $24 $DF $F3 $FF $F6 
+	$FB $44 $BF $FB $FB $F3 $0B $E0 $18 $CC 
+	$3C $12 $FE $E1 $FF $01 $FF $02 $FE $FC 
+	$FC $1F $1C $23 $3F $2C $3B $5F $6F $9F 
+	$FF $BF $DF $C4 $FB $7F $7F $EF $16 $E7 
+	$98 $7B $FC $44 $BF $F7 $FB $F2 $FF $24 
+	$DF $FB $FB $1F $1C $27 $3B $28 $3F $6F 
+	$5F $9F $FF $9F $FF $E2 $DD $7F $7F $EF 
+	$16 $E7 $98 $7B $FC $84 $7F $FB $F7 $F2 
+	$FF $14 $EF $FB $FB $1F $1C $2B $37 $28 
+	$3F $4F $7F $BF $DF $9F $FF $D1 $EE $7F 
+	$7F $EF $16 $E7 $98 $FB $7C $0C $F7 $F3 
+	$FF $F2 $FF $0C $F7 $FB $FB $00 $FF $EF 
+	$1C $DF $3E $DF $3E $0F $FC $E0 $FF $38 
+	$38 $18 $18 $00 $0F $07 $18 $0C $13 $0B 
+	$17 $0B $17 $0C $13 $0F $10 $0F $10 $00 
+	$FF $CF $30 $DF $20 $FF $FC $FF $FF $DF 
+	$27 $DF $20 $DF $20 $00 $F0 $E0 $18 $F0 
+	$08 $F6 $0E $F7 $0F $F3 $0B $F0 $08 $F0 
+	$08 $1F $1C $23 $3F $3A $2D $4F $7F $9F 
+	$FF $DF $BF $C8 $F7 $7F $7F $DF $20 $CF 
+	$B0 $77 $F8 $08 $FF $E7 $FF $EC $F7 $48 
+	$BF $F7 $F7 $00 $FF $DF $38 $BF $7C $BF 
+	$7C $1F $F8 $C0 $FF $38 $38 $18 $18 $00 
+	$F0 $F0 $38 $F8 $7C $F8 $7C $F0 $38 $00 
+	$F0 $00 $00 $00 $00 $00 $0F $07 $18 $0C 
+	$13 $0B $17 $0B $17 $0C $13 $0F $10 $0F 
+	$10 $00 $FF $9F $60 $BF $40 $FF $F8 $FF 
+	$FE $BF $4E $BF $40 $BF $40 $00 $F0 $E0 
+	$18 $F0 $08 $F6 $0E $F7 $0F $F3 $0B $F0 
+	$08 $F0 $08 $3F $3C $43 $7F $7A $5D $9F 
+	$FF $BF $FF $FF $BF $C8 $F7 $7F $7F $BF 
+	$40 $9F $E0 $6F $F0 $10 $FF $CF $FF $D8 
+	$EF $50 $BF $EF $EF $00 $01 $01 $02 $01 
+	$1E $00 $1F $00 $0D $00 $00 $00 $00 $00 
+	$00 $00 $FF $BF $70 $7F $F8 $7F $F8 $3F 
+	$F0 $80 $FF $70 $70 $30 $30 $00 $E0 $E0 
+	$70 $F0 $F8 $F0 $F8 $E0 $70 $00 $E0 $00 
+	$00 $00 $00 $00 $0F $07 $18 $0C $13 $0B 
+	$17 $0B $17 $0C $13 $0F $10 $0F $10 $00 
+	$FF $3F $C0 $7F $80 $FF $F0 $FF $FC $7F 
+	$9C $7F $80 $7F $80 $00 $E0 $C0 $30 $E0 
+	$10 $EC $1C $EE $1E $E6 $16 $E0 $10 $E0 
+	$10 $3F $3E $41 $7F $7A $5D $9F $FF $BF 
+	$FF $FF $BF $C8 $F7 $7F $7F $7F $80 $3F 
+	$C0 $DF $E0 $20 $FF $9F $FF $D0 $BF $A0 
+	$7F $DF $DF $E0 $10 $C0 $30 $98 $78 $24 
+	$FC $C2 $FE $02 $FE $02 $FE $FC $FC $00 
+	$01 $01 $02 $00 $0F $00 $0F $00 $05 $00 
+	$00 $00 $00 $00 $00 $00 $FF $7F $E0 $FF 
+	$F1 $FF $F1 $7F $E0 $00 $FF $70 $70 $30 
+	$30 $00 $C0 $C0 $E0 $E0 $F0 $E0 $F0 $C0 
+	$E0 $00 $C0 $00 $00 $00 $00 $00 $07 $02 
+	$0D $00 $0F $07 $0F $07 $0F $00 $0F $06 
+	$09 $06 $09 $00 $FF $7F $80 $FF $00 $FF 
+	$E0 $FF $F8 $FF $38 $FF $00 $FF $00 $00 
+	$C0 $80 $60 $C0 $20 $D8 $38 $DC $3C $CC 
+	$2C $C0 $20 $C0 $20 $1E $1F $21 $3F $3D 
+	$2E $4E $7F $5E $7F $7F $5E $64 $7B $3F 
+	$3F $FF $00 $7F $80 $BF $C0 $40 $FF $3F 
+	$FF $30 $FF $58 $DF $8F $8F $C0 $20 $80 
+	$60 $30 $F0 $48 $F8 $84 $FC $04 $FC $04 
+	$FC $F8 $F8 $00 $00 $00 $01 $00 $03 $00 
+	$03 $00 $01 $00 $00 $00 $00 $00 $00 $00 
+	$FF $7F $E1 $FF $F3 $FF $F3 $7F $E1 $00 
+	$FF $38 $38 $18 $18 $00 $80 $80 $C0 $C0 
+	$E0 $C0 $E0 $80 $C0 $00 $80 $00 $00 $00 
+	$00 $00 $03 $02 $05 $00 $07 $03 $07 $03 
+	$07 $00 $07 $02 $05 $02 $05 $00 $FF $7F 
+	$80 $FF $00 $FF $C0 $FF $F0 $FF $30 $FF 
+	$00 $FF $00 $00 $C0 $80 $60 $C0 $20 $D0 
+	$30 $D8 $38 $D8 $38 $C0 $20 $C0 $20 $0E 
+	$0F $11 $1F $1F $10 $2C $3F $2C $3F $3C 
+	$2F $3F $30 $1F $1F $FF $00 $7F $80 $BF 
+	$C0 $C0 $FF $4F $CF $48 $CF $C8 $4F $87 
+	$87 $C0 $20 $80 $60 $30 $F0 $58 $E8 $84 
+	$FC $04 $FC $0C $F4 $F8 $F8 $00 $01 $00 
+	$03 $01 $03 $01 $03 $00 $03 $00 $01 $00 
+	$00 $00 $00 $00 $FF $FF $C3 $FF $E7 $FF 
+	$E7 $FF $C3 $00 $FF $3C $3C $18 $18 $00 
+	$80 $00 $C0 $80 $C0 $80 $C0 $00 $C0 $00 
+	$80 $00 $00 $00 $00 $00 $01 $00 $03 $01 
+	$02 $07 $06 $07 $07 $03 $03 $01 $02 $01 
+	$02 $00 $FF $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $00 $80 $00 
+	$C0 $80 $40 $E0 $60 $E0 $E0 $C0 $C0 $80 
+	$40 $80 $40 $0D $0E $12 $1F $1F $11 $11 
+	$1F $10 $1F $10 $1F $1F $10 $0F $0F $FF 
+	$00 $FF $00 $7E $81 $81 $FF $81 $81 $81 
+	$81 $81 $81 $00 $00 $B0 $70 $48 $F8 $F8 
+	$88 $88 $F8 $08 $F8 $08 $F8 $F8 $08 $F0 
+	$F0 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $1F $17 $EE $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$F8 $F8 $1C $01 $02 $01 $1E $00 $1F $00 
+	$0D $00 $00 $00 $00 $00 $00 $00 $0F $EF 
+	$1F $EF $1F $E7 $1E $10 $FF $F0 $F0 $38 
+	$38 $18 $18 $00 $FF $FC $3E $FC $3E $F8 
+	$1C $00 $F8 $00 $00 $00 $00 $00 $00 $00 
+	$F0 $07 $18 $0C $13 $0B $17 $0B $17 $0C 
+	$13 $0F $10 $0F $10 $1F $1C $E7 $18 $EF 
+	$10 $EF $90 $EF $F0 $FF $F8 $FF $3E $EF 
+	$1E $EF $16 $E0 $18 $F0 $08 $F0 $08 $F0 
+	$08 $F4 $0C $F7 $0F $F7 $0F $F3 $0B $23 
+	$3F $3A $2D $4E $7F $9F $FF $DF $BF $51 
+	$6F $3D $3E $03 $03 $E7 $18 $E3 $9C $40 
+	$FF $7F $BF $98 $FF $CE $FF $19 $E9 $F0 
+	$F0 $E0 $18 $C8 $38 $14 $FC $E2 $FE $01 
+	$FF $01 $FF $C1 $FF $3E $3E $7E $7E $FF 
+	$81 $DB $A5 $DB $A5 $EB $95 $F7 $89 $FB 
+	$85 $C3 $BD $FF $81 $FF $81 $00 $FF $FF 
+	$81 $00 $FF $FF $81 $FF $81 $FF $FF $70 
+	$00 $FE $00 $EF $10 $CF $30 $76 $08 $78 
+	$06 $78 $04 $30 $00 $70 $00 $FE $00 $E3 
+	$1C $C1 $3E $40 $3E $00 $3E $00 $1C $00 
+	$00 $00 $00 $00 $38 $00 $7C $02 $7C $02 
+	$7C $06 $38 $1C $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00
+}
+
+data Bot_Idle_Right
+{
+	243 243 $00 $00 243 251 $01 $00 243 3 $02 
+	$00 251 243 $03 $00 251 251 $04 $00 251 
+	3 $05 $00 3 243 $06 $00 3 251 $07 $00 3 
+	3 $08 $00
+}
+
+data Bot_Idle_Left
+{
+	243 243 $02 $20 243 251 $01 $20 243 3 $00 
+	$20 251 243 $05 $20 251 251 $04 $20 251 
+	3 $03 $20 3 243 $08 $20 3 251 $07 $20 3 
+	3 $06 $20
+}
+
+data Bot_Walk_Right_0
+{
+	243 243 $00 $00 243 251 $01 $00 243 3 $02 
+	$00 251 243 $03 $00 251 251 $09 $00 251 
+	3 $0A $00 3 243 $06 $00 3 251 $07 $00 3 
+	3 $08 $00
+}
+
+data Bot_Walk_Left_0
+{
+	243 243 $02 $20 243 251 $01 $20 243 3 $00 
+	$20 251 243 $0A $20 251 251 $09 $20 251 
+	3 $03 $20 3 243 $08 $20 3 251 $07 $20 3 
+	3 $06 $20
+}
+
+data Bot_Walk_Right_1
+{
+	243 243 $00 $00 243 251 $01 $00 243 3 $02 
+	$00 251 243 $03 $00 251 251 $0B $00 251 
+	3 $0C $00 3 243 $06 $00 3 251 $07 $00 3 
+	3 $08 $00
+}
+
+data Bot_Walk_Left_1
+{
+	243 243 $02 $20 243 251 $01 $20 243 3 $00 
+	$20 251 243 $0C $20 251 251 $0B $20 251 
+	3 $03 $20 3 243 $08 $20 3 251 $07 $20 3 
+	3 $06 $20
+}
+
+data Bot_Walk_Right_2
+{
+	243 243 $00 $00 243 251 $01 $00 243 3 $02 
+	$00 251 243 $03 $00 251 251 $0D $00 251 
+	3 $0E $00 3 243 $06 $00 3 251 $0F $00 3 
+	3 $10 $00
+}
+
+data Bot_Walk_Left_2
+{
+	243 243 $02 $20 243 251 $01 $20 243 3 $00 
+	$20 251 243 $0E $20 251 251 $0D $20 251 
+	3 $03 $20 3 243 $10 $20 3 251 $0F $20 3 
+	3 $06 $20
+}
+
+data Bot_Run_Right_0
+{
+	243 243 $00 $00 243 251 $01 $00 243 3 $02 
+	$00 251 243 $03 $00 251 251 $0D $00 251 
+	3 $0E $00 3 243 $11 $00 3 251 $12 $00 3 
+	3 $10 $00
+}
+
+data Bot_Run_Left_0
+{
+	243 243 $02 $20 243 251 $01 $20 243 3 $00 
+	$20 251 243 $0E $20 251 251 $0D $20 251 
+	3 $03 $20 3 243 $10 $20 3 251 $12 $20 3 
+	3 $11 $20
+}
+
+data Bot_Run_Right_1
+{
+	243 243 $00 $00 243 251 $01 $00 243 3 $02 
+	$00 251 243 $03 $00 251 251 $0D $00 251 
+	3 $0E $00 3 243 $13 $00 3 251 $14 $00 3 
+	3 $10 $00
+}
+
+data Bot_Run_Left_1
+{
+	243 243 $02 $20 243 251 $01 $20 243 3 $00 
+	$20 251 243 $0E $20 251 251 $0D $20 251 
+	3 $03 $20 3 243 $10 $20 3 251 $14 $20 3 
+	3 $13 $20
+}
+
+data Bot_Run_Right_2
+{
+	243 243 $00 $00 243 251 $01 $00 243 3 $02 
+	$00 251 243 $03 $00 251 251 $0D $00 251 
+	3 $0E $00 3 243 $15 $00 3 251 $16 $00 3 
+	3 $10 $00
+}
+
+data Bot_Run_Left_2
+{
+	243 243 $02 $20 243 251 $01 $20 243 3 $00 
+	$20 251 243 $0E $20 251 251 $0D $20 251 
+	3 $03 $20 3 243 $10 $20 3 251 $16 $20 3 
+	3 $15 $20
+}
+
+data Bot_Turn_Right_0
+{
+	243 243 $00 $00 243 251 $17 $00 243 3 $02 
+	$00 251 243 $18 $00 251 251 $19 $00 251 
+	3 $1A $00 3 243 $1B $00 3 251 $1C $00 3 
+	3 $08 $00
+}
+
+data Bot_Turn_Left_0
+{
+	243 243 $02 $20 243 251 $17 $20 243 3 $00 
+	$20 251 243 $1A $20 251 251 $19 $20 251 
+	3 $18 $20 3 243 $08 $20 3 251 $1C $20 3 
+	3 $1B $20
+}
+
+data Bot_Turn_Right_1
+{
+	243 243 $00 $00 243 251 $1D $00 243 3 $1E 
+	$00 251 243 $1F $00 251 251 $20 $00 251 
+	3 $21 $00 3 243 $22 $00 3 251 $23 $00 3 
+	3 $08 $00
+}
+
+data Bot_Turn_Left_1
+{
+	243 243 $1E $20 243 251 $1D $20 243 3 $00 
+	$20 251 243 $21 $20 251 251 $20 $20 251 
+	3 $1F $20 3 243 $08 $20 3 251 $23 $20 3 
+	3 $22 $20
+}
+
+data Bot_Turn_Right_2
+{
+	243 243 $24 $00 243 251 $25 $00 243 3 $26 
+	$00 251 243 $27 $00 251 251 $28 $00 251 
+	3 $29 $00 3 243 $2A $00 3 251 $2B $00 3 
+	3 $2C $00
+}
+
+data Bot_Turn_Left_2
+{
+	243 243 $26 $20 243 251 $25 $20 243 3 $24 
+	$20 251 243 $29 $20 251 251 $28 $20 251 
+	3 $27 $20 3 243 $2C $20 3 251 $2B $20 3 
+	3 $2A $20
+}
+
+data Bot_Turn_Right_3
+{
+	243 243 $2D $00 243 251 $2E $00 243 3 $2F 
+	$00 251 243 $30 $00 251 251 $31 $00 251 
+	3 $32 $00 3 243 $33 $00 3 251 $34 $00 3 
+	3 $35 $00
+}
+
+data Bot_Turn_Left_3
+{
+	243 243 $2D $00 243 251 $2E $00 243 3 $2F 
+	$00 251 243 $30 $00 251 251 $31 $00 251 
+	3 $32 $00 3 243 $33 $00 3 251 $34 $00 3 
+	3 $35 $00
+}
+
+data Bot_Turn_Right_4
+{
+	243 243 $36 $00 243 251 $37 $00 243 3 $38 
+	$00 251 243 $39 $00 251 251 $3A $00 251 
+	3 $3B $00 3 243 $3C $00 3 251 $3D $00 3 
+	3 $3E $00
+}
+
+data Bot_Turn_Left_4
+{
+	243 243 $38 $20 243 251 $37 $20 243 3 $36 
+	$20 251 243 $3B $20 251 251 $3A $20 251 
+	3 $39 $20 3 243 $3E $20 3 251 $3D $20 3 
+	3 $3C $20
+}
+
+data Bot_Turn_Middle
+{
+	243 243 $3F $00 243 251 $40 $00 243 3 $41 
+	$00 251 243 $42 $00 251 251 $43 $00 251 
+	3 $44 $00 3 243 $45 $00 3 251 $46 $00 3 
+	3 $47 $00
+}
+
+data Bot_Jump_Right
+{
+	236 251 $48 $00 236 3 $49 $00 244 243 $4A 
+	$00 244 251 $4B $00 244 3 $4C $00 252 243 
+	$4D $00 252 251 $4E $00 252 3 $4F $00 4 
+	243 $50 $00 4 251 $51 $00 4 3 $52 $00
+}
+
+data Bot_Jump_Left
+{
+	236 251 $48 $20 236 243 $49 $20 244 243 $4C 
+	$20 244 251 $4B $20 244 3 $4A $20 252 243 
+	$4F $20 252 251 $4E $20 252 3 $4D $20 4 
+	243 $52 $20 4 251 $51 $20 4 3 $50 $20
+}
+
+data Alphabet_Graphics
+{
+	$00 $00 $3C $3C $66 $66 $42 $42 $42 $42 $66 
+	$66 $3C $3C $00 $00 $18 $18 $38 $38 $18 
+	$18 $18 $18 $18 $18 $18 $18 $7E $7E $00 
+	$00 $1C $1C $36 $36 $66 $66 $0C $0C $18 
+	$18 $30 $30 $7E $7E $00 $00 $3C $3C $66 
+	$66 $06 $06 $1C $1C $06 $06 $66 $66 $3C 
+	$3C $00 $00 $00 $00 $66 $66 $66 $66 $7E 
+	$7E $06 $06 $06 $06 $06 $06 $00 $00 $00 
+	$00 $7E $7E $60 $60 $7C $7C $06 $06 $46 
+	$46 $3C $3C $00 $00 $00 $00 $3C $3C $40 
+	$40 $7C $7C $42 $42 $42 $42 $3C $3C $00 
+	$00 $00 $00 $7E $7E $02 $02 $06 $06 $0C 
+	$0C $18 $18 $30 $30 $00 $00 $3C $3C $66 
+	$66 $66 $66 $3C $3C $66 $66 $66 $66 $3C 
+	$3C $00 $00 $3C $3C $66 $66 $66 $66 $3E 
+	$3E $06 $06 $06 $06 $06 $06 $00 $00 $00 
+	$00 $3C $3C $66 $62 $66 $62 $7E $7E $66 
+	$62 $66 $62 $00 $00 $00 $00 $78 $78 $64 
+	$6C $7C $7C $6E $62 $6E $62 $7C $7C $00 
+	$00 $00 $00 $7E $7E $62 $66 $60 $60 $60 
+	$60 $62 $66 $7E $7E $00 $00 $00 $00 $7C 
+	$7C $66 $62 $66 $62 $66 $62 $66 $62 $7C 
+	$7C $00 $00 $00 $00 $7E $7E $60 $60 $7C 
+	$7C $60 $60 $60 $60 $7E $7E $00 $00 $00 
+	$00 $7E $7E $60 $60 $7C $7C $60 $60 $60 
+	$60 $60 $60 $00 $00 $00 $00 $7E $7E $60 
+	$60 $6E $66 $66 $62 $66 $62 $7E $7E $00 
+	$00 $00 $00 $62 $66 $62 $66 $7E $7E $62 
+	$66 $62 $66 $62 $66 $00 $00 $00 $00 $7E 
+	$7E $18 $18 $18 $18 $18 $18 $18 $18 $7E 
+	$7E $00 $00 $00 $00 $7E $7E $0C $0C $0C 
+	$0C $4C $4C $4C $4C $7C $7C $00 $00 $00 
+	$00 $64 $64 $68 $68 $70 $70 $68 $68 $64 
+	$64 $64 $64 $00 $00 $00 $00 $60 $60 $60 
+	$60 $60 $60 $60 $60 $62 $62 $7E $7E $00 
+	$00 $00 $00 $62 $62 $76 $76 $6A $6A $62 
+	$62 $62 $62 $62 $62 $00 $00 $00 $00 $62 
+	$62 $72 $72 $6A $6A $66 $66 $66 $66 $66 
+	$66 $00 $00 $00 $00 $3C $3C $66 $66 $42 
+	$42 $42 $42 $66 $66 $3C $3C $00 $00 $00 
+	$00 $7C $7C $62 $62 $62 $62 $7C $7C $60 
+	$60 $60 $60 $00 $00 $00 $00 $3C $3C $42 
+	$42 $42 $42 $4A $4A $44 $44 $3A $3A $01 
+	$01 $00 $00 $78 $78 $64 $64 $64 $64 $78 
+	$78 $64 $64 $66 $66 $00 $00 $00 $00 $7E 
+	$7E $60 $60 $7E $7E $06 $06 $06 $06 $7E 
+	$7E $00 $00 $00 $00 $7E $7E $18 $18 $18 
+	$18 $18 $18 $18 $18 $18 $18 $00 $00 $00 
+	$00 $66 $66 $66 $66 $66 $66 $66 $66 $66 
+	$66 $7E $7E $00 $00 $00 $00 $66 $66 $66 
+	$66 $66 $66 $24 $24 $3C $3C $18 $18 $00 
+	$00 $00 $00 $62 $62 $62 $62 $6A $6A $6A 
+	$6A $6A $6A $3E $3E $00 $00 $00 $00 $46 
+	$46 $6C $6C $38 $38 $38 $38 $6C $6C $46 
+	$46 $00 $00 $00 $00 $66 $66 $66 $66 $66 
+	$66 $7E $7E $06 $06 $06 $06 $7E $7E $00 
+	$00 $7E $7E $46 $46 $0C $0C $18 $18 $32 
+	$32 $7E $7E $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $60 $60 $60 $60 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $60 $60 $20 $20 $20 $20 $06 $06 $0E 
+	$0E $0E $0E $1C $1C $18 $18 $00 $00 $60 
+	$60 $60 $60 $3C $3C $66 $66 $46 $46 $0C 
+	$0C $08 $08 $00 $00 $18 $18 $18 $18 $00 
+	$00 $12 $12 $36 $36 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $18 $00 $18 $18 $18 
+	$18 $FF $7E $FF $7E $18 $18 $18 $18 $18 
+	$00 $00 $00 $62 $62 $06 $06 $1C $1C $38 
+	$38 $60 $60 $46 $46 $00 $00 $00 $00 $00 
+	$00 $00 $00 $7E $7E $7E $7E $00 $00 $00 
+	$00 $00 $00 $00 $7E $00 $DB $00 $DB $00 
+	$FF $7E $81 $42 $81 $66 $81 $3C $42 $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF
+}
+
+data Title_Screen_UI_Blocks
+{
+	$FF $FF $00 $FF $FF $FF $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $FF $00 $FF $FF 
+	$FF $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $FF $FF 
+	$FF $FF $FF $00 $FF $FF $00 $FF $00 $FF 
+	$00 $FF $00 $EF $1F $EF $1F $EF $1F $EF 
+	$1F $EF $1F $EF $1F $EF $1F $EF $1F $EF 
+	$1F $EF $1F $EF $1F $E0 $1F $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $FF $FF $FF $FF 
+	$FF $0F $FF $EF $1F $EF $1F $EF $1F $EF 
+	$1F $DF $3F $DF $3F $DF $3F $C0 $3F $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FD $07 $FD 
+	$07 $FD $07 $FD $07 $FD $07 $FD $07 $FD 
+	$07 $FD $07 $BF $E0 $BF $E0 $BF $E0 $BF 
+	$E0 $BF $E0 $BF $E0 $BF $E0 $BF $E0 $FF 
+	$FF $80 $FF $BF $FF $BF $E0 $BF $E0 $BF 
+	$E0 $BF $E0 $BF $E0 $FF $FF $01 $FF $FD 
+	$FF $FD $07 $FD $07 $FD $07 $FD $07 $FD 
+	$07 $BF $E0 $BF $E0 $BF $E0 $BF $E0 $BF 
+	$E0 $BF $FF $80 $FF $FF $FF $FD $07 $FD 
+	$07 $FD $07 $FD $07 $FD $07 $FD $FF $01 
+	$FF $FF $FF
+}
+
+data __main__Warm_Message
+{
+	"HELLO! TEST" 0
+}
+
+data __main__Warm_Message_2
+{
+	"CAN YOU HEAR ME?" 0
+}
+
