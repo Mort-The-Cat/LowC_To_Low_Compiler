@@ -10,7 +10,7 @@ subroutine load_16
     # SP + $03 high
     # SP + $02 low
     HL = SP + $02;
-    A = [HL++]
+    A = [HL++];
     H = [HL];
     L = A;
 
@@ -63,8 +63,8 @@ subroutine sub16
     BC++;
 
     A = [HL++];
-    L = [HL];
-    H = A;
+    H = [HL];
+    L = A;
     HL += BC;
 
     return;

@@ -1420,8 +1420,6 @@ void Call_Function_Handle_Parameter(std::string& Output_Low_Code, Tracer_Data& T
 	{
 		// byte
 
-		Tracer.Stack.push_back(Trace("", "@parameter@", 0)); // Not a pointer of any kind
-
 		std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node, MAKE_VALUE_HOT_REG); // For simplicity, store it in a register
 
 		Trace* Value_Register = Register_From_Name(Tracer, Register[0]);
@@ -1448,6 +1446,8 @@ void Call_Function_Handle_Parameter(std::string& Output_Low_Code, Tracer_Data& T
 		Output_Low_Code += "\tHL = SP + 255;\t\t# Makes room on stack for 1 byte\n";
 		Output_Low_Code += "\t[HL] = " + Value_Register->Name + ";\t\t# Writes " + Parameter_Node["id"][0].Value + " to stack\n";
 		Output_Low_Code += "\tSP = HL;\t\t# Update stack pointer\n";
+
+		Tracer.Stack.push_back(Trace("", "@parameter@", 0)); // Not a pointer of any kind
 
 		Value_Register->Modified_Counter = 2;
 
