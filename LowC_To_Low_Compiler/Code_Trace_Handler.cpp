@@ -1516,6 +1516,11 @@ void Call_Function_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 
 		Tracer.Stack.resize(Pre_Function_Stack_Size);
 	}
+
+	for (size_t Register = 0; Register < Tracer.Registers.size(); Register++)
+	{
+		Tracer.Registers[Register].Modified_Counter = 0;
+	}
 }
 
 void Node_Function_Definition(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
