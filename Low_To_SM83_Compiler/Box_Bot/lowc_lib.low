@@ -3,6 +3,178 @@
 
 macro DMA_HRAM_Function $FF80;
 
+# -$D000 equals $3000 in 2's compliment
+
+subroutine load_16
+{
+    # SP + $03 high
+    # SP + $02 low
+    HL = SP + $02;
+    A = [HL++]
+    H = [HL];
+    L = A;
+
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    return;
+}
+
+subroutine write_16
+{
+    # SP + $04 low address
+
+    # SP + $02 low value
+
+    HL = SP + $02;
+    A = [HL++];
+    C = A;
+    A = [HL++];
+    B = A;
+
+    # BC = value
+
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    [HL] = C;
+    HL++;
+    [HL] = B;
+
+    return;
+}
+
+subroutine sub16
+{
+    # SP + $05 high (left)
+    # SP + $04 low (left)
+    # SP + $03 high (right)
+    # SP + $02 low (right)
+
+    HL = SP + $02;
+    A = [HL++];
+    A ~= A;         # Flips bits
+    C = A;
+    A = [HL++];
+    A ~= A;
+    B = A;
+    BC++;
+
+    A = [HL++];
+    L = [HL];
+    H = A;
+    HL += BC;
+
+    return;
+}
+
+subroutine malloc
+{
+    HL = SP + $02;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    BC = $0007;
+    HL += BC;
+    H >>>= 1;
+    L |>><= 1;
+    H >>>= 1;
+    L |>><= 1;
+    H >>>= 1;
+    L |>><= 1;
+
+    D = L;
+
+    HL = $D000;
+
+    # DE becomes 'size' in bytes
+
+    # DE = $D000;
+    # BC = $3000;
+    A ^= A;
+    label Not_Free_Loop;
+        A += L;
+        L = A;
+
+        C = D;
+        A = [HL];
+        
+        A |= A;
+    jump not_zero Not_Free_Loop;
+    # We've found something!!!
+    label Free_Space;
+        HL++;
+        A = [HL];
+        A |= A;
+    jump not_zero Not_Free_Loop;
+        C--;
+    jump not_zero Free_Space;
+
+    # As soon as it hits zero, we know we've found enough contiguous memory
+    # To return the malloc call
+
+    A = L;
+    A -= D;
+    L = A;
+
+    [HL] = D;   # Writes the size in 8-byte chunks to the malloc map address
+
+    H = $00;
+    HL += HL; # x2
+    HL += HL; # x4
+    HL += HL; # x8
+    BC = $D080;
+    HL += BC;
+
+    return;
+
+    #
+}
+
+subroutine free
+{
+    # Takes the address
+    # Turns it into the 8-byte chunk index
+    # Goes to that malloc-map address
+    # Zero it out
+
+    # Return
+
+    HL = SP + $02;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    # HL is address to free
+
+    BC = $2F80;
+    HL += BC;
+
+    # Subtract $D080 from address
+
+    H >>>= 1;
+    L |>><= 1;
+    H >>>= 1;
+    L |>><= 1;
+    H >>>= 1;
+    L |>><= 1;
+
+    # shift right 3 times
+
+    BC = $D000;
+    HL += BC;
+
+    # Add $D000
+
+    [HL] = $00;
+    # Write $00 to the address
+
+    return;
+}
+
 subroutine init_screen_interrupts
 {
     A = $C3;

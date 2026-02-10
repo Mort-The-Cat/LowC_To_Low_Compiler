@@ -50,7 +50,7 @@ subroutine Set_Interrupt_Function
 	return;
 }
 
-subroutine Test_Return
+subroutine Render_Player
 {
 	# Current tracer registers:
 		# A = ???; 0
@@ -60,6 +60,425 @@ subroutine Test_Return
 		# E = ???; 0
 		# H = Address; 0
 		# L = Address; 0
+	BC = $00;
+	HL = SP + 6;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes Left to the stack
+	BC = $00;
+	HL = SP + 8;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Right to the stack
+	call sub16;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Camera_X; 1
+		# L = Camera_X; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 4;		# Memory location of Camera_X
+	[HL] = C;		# Stores Camera_X back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Camera_X back into memory
+	BC = $02;
+	HL = SP + 6;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes Left to the stack
+	BC = $02;
+	HL = SP + 8;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Right to the stack
+	call sub16;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Camera_Y; 1
+		# L = Camera_Y; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 2;		# Memory location of Camera_Y
+	[HL] = C;		# Stores Camera_Y back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Camera_Y back into memory
+	BC = Bot_Walk_Right_2;
+	push BC;		# Pushes Spritechain to the stack
+	A = 36;
+	A >>>= 1;
+	A >>>= 1;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Count to stack
+	SP = HL;		# Update stack pointer
+	BC = 16;
+	HL = SP + 6;		# Fetches Camera_Y off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = C;		# Writes Y to stack
+	SP = HL;		# Update stack pointer
+	DE = 8;
+	HL = SP + 9;		# Fetches Camera_X off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += DE;		# S_PLUS16
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = E;		# Writes X to stack
+	SP = HL;		# Update stack pointer
+	call place_spritechain_in_oam_buffer;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_Y; 1
+		# C = @parameter@; 0
+		# D = Camera_X; 1
+		# E = @parameter@; 0
+		# H = Camera_X; 0
+		# L = @parameter@; 0
+	return;
+}
+
+subroutine Test_Game_Loop
+{
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_Y; 0
+		# C = @parameter@; 0
+		# D = Camera_X; 0
+		# E = @parameter@; 0
+		# H = Camera_X; 0
+		# L = @parameter@; 0
+	SP += 254;		# byte* Player_Data;
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_Y; 0
+		# C = @parameter@; 0
+		# D = Camera_X; 0
+		# E = @parameter@; 0
+		# H = Camera_X; 0
+		# L = @parameter@; 0
+	SP += 254;		# word Camera_X;
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_Y; 0
+		# C = @parameter@; 0
+		# D = Camera_X; 0
+		# E = @parameter@; 0
+		# H = Camera_X; 0
+		# L = @parameter@; 0
+	SP += 254;		# word Camera_Y;
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_Y; 0
+		# C = @parameter@; 0
+		# D = Camera_X; 0
+		# E = @parameter@; 0
+		# H = Camera_X; 0
+		# L = @parameter@; 0
+	BC = 0;
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_X; 1
+		# C = Camera_X; 1
+		# D = Camera_X; 0
+		# E = @parameter@; 0
+		# H = Camera_X; 0
+		# L = @parameter@; 0
+	DE = 0;
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_X; 1
+		# C = Camera_X; 1
+		# D = Camera_Y; 1
+		# E = Camera_Y; 1
+		# H = Camera_X; 0
+		# L = @parameter@; 0
+	HL = SP + 2;		# Memory location of Camera_X
+	[HL] = C;		# Stores Camera_X back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Camera_X back into memory
+	HL = SP + 0;		# Memory location of Camera_Y
+	[HL] = E;		# Stores Camera_Y back into memory
+	HL++;
+	[HL] = D;		# Stores upper byte of Camera_Y back into memory
+	BC = $08;
+	push BC;		# Pushes size to the stack
+	call malloc;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Camera_Y; 0
+		# E = Camera_Y; 0
+		# H = Player_Data; 1
+		# L = Player_Data; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 4;		# Memory location of Player_Data
+	[HL] = C;		# Stores Player_Data back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Player_Data back into memory
+	HL = SP + 4;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Destination to the stack
+	A = 0;
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	DE = $08;
+	push DE;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Player_Data; 1
+		# C = Player_Data; 1
+		# D = ; 0
+		# E = ; 0
+		# H = Player_Data; 0
+		# L = Player_Data; 0
+
+	label __do_while_statement__0;		# do/while loop label
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Player_Data; 1
+		# C = Player_Data; 1
+		# D = ; 0
+		# E = ; 0
+		# H = Player_Data; 0
+		# L = Player_Data; 0
+	HL = SP + 4;		# Memory location of Player_Data
+	[HL] = C;		# Stores Player_Data back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Player_Data back into memory
+	call Clean_OAM_Buffer;		# Calls function
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = ; 0
+		# E = ; 0
+		# H = Player_Data; 0
+		# L = Player_Data; 0
+	HL = SP + 4;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Player_Data to the stack
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 4;		# Fetches Camera_X off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Camera_X to the stack
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	HL = SP + 4;		# Fetches Camera_Y off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Camera_Y to the stack
+	call Render_Player;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Player_Data; 1
+		# C = Player_Data; 1
+		# D = Camera_X; 1
+		# E = Camera_X; 1
+		# H = Camera_Y; 1
+		# L = Camera_Y; 1
+	push HL;		# Push 16-bit word to stack to free up registers
+	HL = SP + 6;		# Memory location of Player_Data
+	[HL] = C;		# Stores Player_Data back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Player_Data back into memory
+	pop BC;		# Fixes 'panic' push, places value back into register
+	HL = SP + 0;		# Memory location of Camera_Y
+	[HL] = C;		# Stores Camera_Y back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Camera_Y back into memory
+	HL = SP + 2;		# Memory location of Camera_X
+	[HL] = E;		# Stores Camera_X back into memory
+	HL++;
+	[HL] = D;		# Stores upper byte of Camera_X back into memory
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_Y; 0
+		# C = Camera_Y; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Camera_Y; 0
+		# L = Camera_Y; 0
+	call dma_transfer;		# Calls function
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = Camera_Y; 0
+		# C = Camera_Y; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Camera_Y; 0
+		# L = Camera_Y; 0
+	HL = SP + 4;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 6;		# Memory location of Player_Data
+	[HL] = C;		# Stores Player_Data back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Player_Data back into memory
+	BC = $00;
+	HL = SP + 6;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = $0001;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes value to the stack
+	call write_16;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	A = 1;
+	A |= A;		# This just gets the CPU flags
+	jump  zero __do_while_statement__0_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = ; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+		# B = Player_Data; 1
+	HL = SP + 4;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = H;		# Moves value into expected register
+	C = L;		# Moves value into expected register
+	jump __do_while_statement__0;		# do/while loop jump
+	label __do_while_statement__0_memory_cleanup;
+	# Current tracer registers:
+		# A = ; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+		# B = Player_Data; 1
+	HL = SP + 4;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = H;		# Moves value into expected register
+	C = L;		# Moves value into expected register
+
+
+	# Current tracer registers:
+		# A = ; 0
+		# B = Player_Data; 1
+		# C = Player_Data; 1
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Player_Data; 0
+		# L = Player_Data; 0
+	HL = SP + 4;		# Memory location of Player_Data
+	[HL] = C;		# Stores Player_Data back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Player_Data back into memory
+	HL = SP + 4;		# Fetches Player_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call free;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Player_Data; 1
+		# L = Player_Data; 1
+	SP += 6;		# Remove local variables from stack
+	return;
+}
+
+subroutine Test_Return
+{
+	# Current tracer registers:
+		# A = ; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Player_Data; 0
+		# L = Player_Data; 0
 	A = $A0;
 	return;
 }
@@ -68,12 +487,12 @@ subroutine Test_Return_Two
 {
 	# Current tracer registers:
 		# A = ; 0
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = Address; 0
-		# L = Address; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Player_Data; 0
+		# L = Player_Data; 0
 	HL = $C000;
 	return;
 }
@@ -82,75 +501,222 @@ subroutine Wait_For_VBlank
 {
 	# Current tracer registers:
 		# A = ; 0
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
 		# H = ; 0
 		# L = ; 0
 	SP += 255;		# byte Scanline;
 	# Current tracer registers:
 		# A = ; 0
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
 		# H = ; 0
 		# L = ; 0
-
-	label __do_while_statement__0;		# do/while loop label
+	SP += 254;		# byte* Pointer;
 	# Current tracer registers:
 		# A = ; 0
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
 		# H = ; 0
 		# L = ; 0
+	BC = 100;
+	push BC;		# Pushes size to the stack
+	call malloc;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	[HL] = $86; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	HL++;		# Increments Pointer
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	[HL] = $27; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	SP += 254;		# byte* Other_Pointer;
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 2;		# Memory location of Pointer
+	[HL] = C;		# Stores Pointer back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Pointer back into memory
+	BC = 300;
+	push BC;		# Pushes size to the stack
+	call malloc;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Other_Pointer; 1
+		# L = Other_Pointer; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 2;		# Fetches Pointer off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL--;		# Decrements Pointer
+	# Current tracer registers:
+		# A = ; 0
+		# B = Other_Pointer; 1
+		# C = Other_Pointer; 1
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	D = H;		# Frees up H register for use
+	E = L;		# Frees up L register for use
+	HL = SP + 0;		# Memory location of Other_Pointer
+	[HL] = C;		# Stores Other_Pointer back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Other_Pointer back into memory
+	HL = SP + 2;		# Memory location of Pointer
+	[HL] = E;		# Stores Pointer back into memory
+	HL++;
+	[HL] = D;		# Stores upper byte of Pointer back into memory
+	HL = SP + 2;		# Fetches Pointer off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call free;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ; 0
+		# B = Other_Pointer; 0
+		# C = Other_Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Pointer; 1
+		# L = Pointer; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
+	HL = SP + 2;		# Memory location of Pointer
+	[HL] = C;		# Stores Pointer back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Pointer back into memory
+	HL = SP + 0;		# Fetches Other_Pointer off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call free;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ; 0
+		# B = Pointer; 0
+		# C = Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Other_Pointer; 1
+		# L = Other_Pointer; 1
+
+	label __do_while_statement__1;		# do/while loop label
+	# Current tracer registers:
+		# A = ; 0
+		# B = Pointer; 0
+		# C = Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Other_Pointer; 1
+		# L = Other_Pointer; 1
+	B = H;		# Frees up H register for use
+	C = L;		# Frees up L register for use
 	HL = $FF44;
 	A = [HL];		# Dereferences address
 	# Current tracer registers:
 		# A = Scanline; 1
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
+		# B = Other_Pointer; 1
+		# C = Other_Pointer; 1
+		# D = Pointer; 0
+		# E = Pointer; 0
 		# H = ; 0
 		# L = ; 0
 	A++;		# Increments Scanline
 	A < $90;		# S_LESS_THAN8
-	jump  not_carry __do_while_statement__0_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  not_carry __do_while_statement__1_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = Scanline; 1
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
+		# B = Other_Pointer; 1
+		# C = Other_Pointer; 1
+		# D = Pointer; 0
+		# E = Pointer; 0
 		# H = ; 0
 		# L = ; 0
 	# Register snapshot:
-	jump __do_while_statement__0;		# do/while loop jump
-	label __do_while_statement__0_memory_cleanup;
+		# H = Other_Pointer; 1
+	H = B;		# Moves value into expected register
+	L = C;		# Moves value into expected register
+	jump __do_while_statement__1;		# do/while loop jump
+	label __do_while_statement__1_memory_cleanup;
 	# Current tracer registers:
 		# A = Scanline; 1
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
+		# B = Other_Pointer; 1
+		# C = Other_Pointer; 1
+		# D = Pointer; 0
+		# E = Pointer; 0
 		# H = ; 0
 		# L = ; 0
 	# Register snapshot:
+		# H = Other_Pointer; 1
+	H = B;		# Moves value into expected register
+	L = C;		# Moves value into expected register
 
 
 	# Current tracer registers:
 		# A = Scanline; 1
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
-	SP += 1;		# Remove local variables from stack
+		# B = Other_Pointer; 0
+		# C = Other_Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Other_Pointer; 1
+		# L = Other_Pointer; 1
+	SP += 5;		# Remove local variables from stack
 	return;
 }
 
@@ -158,48 +724,48 @@ subroutine Clean_OAM_Buffer
 {
 	# Current tracer registers:
 		# A = Scanline; 0
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# B = Other_Pointer; 0
+		# C = Other_Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Other_Pointer; 0
+		# L = Other_Pointer; 0
 	SP += 255;		# byte Count;
 	# Current tracer registers:
 		# A = Scanline; 0
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# B = Other_Pointer; 0
+		# C = Other_Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Other_Pointer; 0
+		# L = Other_Pointer; 0
+	SP += 254;		# byte* Pointer;
+	# Current tracer registers:
+		# A = Scanline; 0
+		# B = Other_Pointer; 0
+		# C = Other_Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Other_Pointer; 0
+		# L = Other_Pointer; 0
 	call Test_Return;		# Calls function
 	# Current tracer registers:
 		# A = Count; 1
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
-	SP += 254;		# byte* Pointer;
-	# Current tracer registers:
-		# A = Count; 1
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# B = Other_Pointer; 0
+		# C = Other_Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
+		# H = Other_Pointer; 0
+		# L = Other_Pointer; 0
 	HL = SP + 2;		# Memory location of Count
 	[HL] = A;		# Stores Count back into memory
 	call Test_Return_Two;		# Calls function
 	# Current tracer registers:
 		# A = Count; 0
-		# B = Function_Pointer; 0
-		# C = Function_Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
+		# B = Other_Pointer; 0
+		# C = Other_Pointer; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
 		# H = Pointer; 1
 		# L = Pointer; 1
 	B = H;		# Frees up H register for use
@@ -210,18 +776,18 @@ subroutine Clean_OAM_Buffer
 		# A = Count; 1
 		# B = Pointer; 1
 		# C = Pointer; 1
-		# D = ???; 0
-		# E = ???; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
 		# H = Pointer; 0
 		# L = Pointer; 0
 
-	label __do_while_statement__1;		# do/while loop label
+	label __do_while_statement__2;		# do/while loop label
 	# Current tracer registers:
 		# A = Count; 1
 		# B = Pointer; 1
 		# C = Pointer; 1
-		# D = ???; 0
-		# E = ???; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
 		# H = Pointer; 0
 		# L = Pointer; 0
 	H = B;		# Creates copy of Pointer
@@ -231,8 +797,8 @@ subroutine Clean_OAM_Buffer
 		# A = Count; 1
 		# B = Pointer; 0
 		# C = Pointer; 0
-		# D = ???; 0
-		# E = ???; 0
+		# D = Pointer; 0
+		# E = Pointer; 0
 		# H = Pointer; 1
 		# L = Pointer; 1
 	BC = 4;
@@ -253,7 +819,7 @@ subroutine Clean_OAM_Buffer
 	A -= 4;		# S_MINUS8
 	D = A;		# Makes 'A' a copy of Count
 	A |= A;		# This just gets the CPU flags
-	jump  zero __do_while_statement__1_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  zero __do_while_statement__2_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = Count; 0
 		# B = ; 0
@@ -268,8 +834,8 @@ subroutine Clean_OAM_Buffer
 	A = D;		# Moves value into expected register
 	B = H;		# Moves value into expected register
 	C = L;		# Moves value into expected register
-	jump __do_while_statement__1;		# do/while loop jump
-	label __do_while_statement__1_memory_cleanup;
+	jump __do_while_statement__2;		# do/while loop jump
+	label __do_while_statement__2_memory_cleanup;
 	# Current tracer registers:
 		# A = Count; 0
 		# B = ; 0
@@ -308,7 +874,7 @@ subroutine Clean_OAM_Buffer
 	return;
 }
 
-subroutine main
+subroutine Quarter
 {
 	# Current tracer registers:
 		# A = Count; 0
@@ -318,11 +884,46 @@ subroutine main
 		# E = Count; 0
 		# H = ; 0
 		# L = ; 0
-	call Wait_For_VBlank;		# Calls function
+	HL = SP + 2;		# Fetches Length off the stack
+	A = [HL];		# Stores Length into A register
+	A >>>= 1;
+	A >>>= 1;
+	return;
+}
+
+subroutine main
+{
 	# Current tracer registers:
-		# A = Count; 0
+		# A = Length; 0
 		# B = Pointer; 0
 		# C = Pointer; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $D000;
+	push BC;		# Pushes Destination to the stack
+	A = $00;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	BC = $80;
+	push BC;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
 		# D = Count; 0
 		# E = Count; 0
 		# H = ; 0
@@ -330,9 +931,9 @@ subroutine main
 	HL = $FF40;
 	[HL] = $00; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
-		# B = Pointer; 0
-		# C = Pointer; 0
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
 		# D = Count; 0
 		# E = Count; 0
 		# H = ; 0
@@ -346,7 +947,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -362,7 +963,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -380,7 +981,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -388,7 +989,7 @@ subroutine main
 		# H = ; 0
 		# L = ; 0
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -396,7 +997,7 @@ subroutine main
 		# H = ; 0
 		# L = ; 0
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -412,7 +1013,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -430,7 +1031,7 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -440,7 +1041,7 @@ subroutine main
 	HL = $FF47;
 	[HL] = $E4; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -450,7 +1051,7 @@ subroutine main
 	HL = $FF48;
 	[HL] = $E4; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -459,7 +1060,7 @@ subroutine main
 		# L = ; 0
 	call init_dma;		# Calls function
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -469,7 +1070,16 @@ subroutine main
 	HL = $FF40;
 	[HL] = $83; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = Count; 0
+		# A = @parameter@; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Count; 0
+		# E = Count; 0
+		# H = ; 0
+		# L = ; 0
+	call Test_Game_Loop;		# Calls function
+	# Current tracer registers:
+		# A = @parameter@; 0
 		# B = ; 0
 		# C = ; 0
 		# D = Count; 0
@@ -479,7 +1089,7 @@ subroutine main
 
 	A = 1;
 	A |= A;		# This just gets the CPU flags
-	jump zero __if_statement__2;		# If statement jump
+	jump zero __if_statement__3;		# If statement jump
 	# Current tracer registers:
 		# A = ; 0
 		# B = ; 0
@@ -489,7 +1099,7 @@ subroutine main
 		# H = ; 0
 		# L = ; 0
 
-	label __do_while_statement__3;		# do/while loop label
+	label __do_while_statement__4;		# do/while loop label
 	# Current tracer registers:
 		# A = ; 0
 		# B = ; 0
@@ -509,7 +1119,9 @@ subroutine main
 		# L = ; 0
 	BC = Bot_Jump_Left;
 	push BC;		# Pushes Spritechain to the stack
-	A = 11;
+	A = 44;
+	A >>>= 1;
+	A >>>= 1;
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Count to stack
 	SP = HL;		# Update stack pointer
@@ -545,7 +1157,7 @@ subroutine main
 	call dma_transfer;		# Calls function
 	A = 1;
 	A |= A;		# This just gets the CPU flags
-	jump  zero __do_while_statement__3_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  zero __do_while_statement__4_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = ; 0
 		# B = ; 0
@@ -555,8 +1167,8 @@ subroutine main
 		# H = ; 0
 		# L = ; 0
 	# Register snapshot:
-	jump __do_while_statement__3;		# do/while loop jump
-	label __do_while_statement__3_memory_cleanup;
+	jump __do_while_statement__4;		# do/while loop jump
+	label __do_while_statement__4_memory_cleanup;
 	# Current tracer registers:
 		# A = ; 0
 		# B = ; 0
@@ -577,7 +1189,7 @@ subroutine main
 		# H = ; 0
 		# L = ; 0
 	# Register snapshot:
-	label __if_statement__2;		# If statement label
+	label __if_statement__3;		# If statement label
 
 	# Current tracer registers:
 		# A = ; 0

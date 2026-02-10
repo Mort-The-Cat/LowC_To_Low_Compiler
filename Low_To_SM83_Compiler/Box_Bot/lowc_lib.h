@@ -10,6 +10,16 @@
 #define HBLANK_HRAM_FUNCTION_JUMP addressof(0xFF88)
 #define HBLANK_HRAM_FUNCTION_JUMP_ADDRESS addressof(0xFF89)
 
+#define MALLOC_MAP_ADDRESS addressof(0xD000)
+
+byte* malloc(word size); 
+	// Defined here is a __malloc_map address for this to work
+	// $D000 onwards is recommended for this because
+	// this allows for 128 bytes of map and (1024-128) of memory itself
+	// $CFFF and below is used for the stack
+
+void free(byte* address);
+
 // HRAM is free from 0xFF8B onwards
 
 void init_screen_interrupts();
@@ -37,3 +47,6 @@ void memset(byte* Destination, byte Value, word Count);
 void place_spritechain_in_oam_buffer(const byte* Spritechain, byte Count, byte Y, byte X);
 
 word sub16(word Left, word Right);
+
+word load_16(byte* address);
+void write_16(byte* address, word value);

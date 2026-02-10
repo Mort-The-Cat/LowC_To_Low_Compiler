@@ -5,7 +5,10 @@
 
 #include "Box_Bot_Graphics.h"
 #include "Bot_Spritechain.h"
+#include "Bot_Animations.h"
 #include "Alphabet_Tiles.h"
+
+#include "Game_Loop.h"
 
 byte Test_Return()
 {
@@ -20,6 +23,27 @@ byte* Test_Return_Two()
 void Wait_For_VBlank()
 {
 	byte Scanline;
+
+
+    // Ignore this code, it's just testing malloc/free
+
+    byte* Pointer;
+    Pointer = malloc(100); // allocates at least 100 bytes
+
+    *(Pointer) = 0x86;
+    Pointer++;
+    *(Pointer) = 0x27;
+
+    byte* Other_Pointer;
+
+    Other_Pointer = malloc(300); // allocates at least 300 bytes
+
+    Pointer--;              // goes back to the address we allocated (important)
+    free(Pointer);          // frees it
+
+    free(Other_Pointer);
+
+    // ignore this code ^
 
 	do
 	{
@@ -56,8 +80,15 @@ void Clean_OAM_Buffer()
     return;
 }
 
+byte Quarter(byte Length)
+{
+    return shift_right( shift_right( Length ) );
+}
+
 void main()
 {
+    memset(MALLOC_MAP_ADDRESS, 0x00, 0x80);
+
     Wait_For_VBlank();
 
     *(LCDC_REGISTER) = 0x00;  // Turns off PPU
@@ -81,10 +112,12 @@ void main()
 
     // Wait_For_VBlank();
 
+    Test_Game_Loop();
+
     while(1)             // infinite loop (for testing purposes)
     {
         Clean_OAM_Buffer();
-        place_spritechain_in_oam_buffer(Bot_Jump_Left, 11, 50 + 16, 50 + 8);
+        place_spritechain_in_oam_buffer(Bot_Jump_Left, shift_right( shift_right( (byte)sizeof(Bot_Jump_Left) ) ), (50 + 16), (50 + 8) );
         Wait_For_VBlank();
         dma_transfer();
     }

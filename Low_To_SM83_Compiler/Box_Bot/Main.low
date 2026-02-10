@@ -11,9 +11,15 @@ file Box_Bot/lowc_lib.low;
 
 file Box_Bot/Box_Bot.low;
 
-subroutine program_entry $0100
+subroutine init_program_stack
 {
-    jump main;
+    SP = $CFFF;                 # initialises stack pointer
+    jump main;                  # now we can enter the program
+}
+
+subroutine program_entry $0100 # We only have 3 bytes to use here so jump to another place in memory to init stack
+{
+    jump init_program_stack;
 }
 
 subroutine vblank_entry $0040
