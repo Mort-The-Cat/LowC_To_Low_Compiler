@@ -239,7 +239,10 @@ void Clear_Tracer_Registers(Tracer_Data& Tracer)
 {
 	for (size_t Register = 0; Register < Tracer.Registers.size(); Register++)
 		if (Tracer.Registers[Register].Modified_Counter == 2)
+		{
 			Tracer.Registers[Register].Modified_Counter = 0;
+			Tracer.Registers[Register].Value = "???";
+		}
 }
 
 Trace* Find_Value_In_Tracer_Registers(Tracer_Data& Tracer, std::string Value)
@@ -636,7 +639,9 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 		// check if it's a byte or a word
 
 		Get_Free_Register(Output_Low_Code, Tracer, MAKE_VALUE_HOT_HL_REG);	// Need to free up HL to grab values off the stack
+		Tracer.Registers[5].Value = "@@stack_pointer@@";
 		Tracer.Registers[5].Modified_Counter = 3;
+		Tracer.Registers[6].Value = "@@stack_pointer@@"; // This ensures that there's no confusion when juggling registers...
 		Tracer.Registers[6].Modified_Counter = 3;
 
 		Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node.Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
