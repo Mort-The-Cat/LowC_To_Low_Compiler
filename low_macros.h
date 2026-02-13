@@ -86,6 +86,27 @@
 #define VRAM_TILEM_1 addressof(0x9C00)
 
 #define CONTROLLER_REGISTER addressof(0xFF00)
+	// bit 5 - clear this bit if you want the Start/Select/  B /    A buttons
+	// bit 4 - clear this bit if you want the Down /  Up  /Left/Right buttons
+	// bit 3 - Start		/ Down
+	// bit 2 - Select	/ Up
+	// bit 1 - B			/ Left
+	// bit 0 - A			/ Right
+
+	// Whichever button is read depends on which bit has just been cleared.
+	// Takes a few clock cycles for the register to toggle properly.
+
+#define CONTROLLER_SSBA_FLAG 0xD0
+#define CONTROLLER_DPAD_FLAG 0xE0
+
+#define CONTROLLER_BUTTON_START_BIT 0x03
+#define CONTROLLER_BUTTON_DOWN_BIT 0x03
+#define CONTROLLER_BUTTON_SELECT_BIT 0x02
+#define CONTROLLER_BUTTON_UP_BIT 0x02
+#define CONTROLLER_BUTTON_B_BIT 0x01
+#define CONTROLLER_BUTTON_LEFT_BIT 0x01
+#define CONTROLLER_BUTTON_A_BIT 0x00
+#define CONTROLLER_BUTTON_RIGHT_BIT 0x00
 
 #define SQUARE_CHANNEL_0 addressof(0xFF10)
 #define SQUARE_CHANNEL_1 addressof(0xFF15)

@@ -5,6 +5,45 @@ macro DMA_HRAM_Function $FF80;
 
 # -$D000 equals $3000 in 2's compliment
 
+subroutine abs_8
+{
+    HL = SP + $02;
+    A = [HL];
+    A.7;
+    return zero;
+
+    A ~= A;
+    A++;
+
+    return;
+}
+
+subroutine abs_16
+{
+    HL = SP + $02;
+    A = [HL++];
+    H = [HL];
+    # L = A;
+
+    H.7; # If negative,
+    jump zero Positive_Value;
+        A ~= A;
+        L = A;
+
+        A = H;
+        A ~= A;
+        H = A;
+
+        HL++;
+
+        return;
+    label Positive_Value;
+
+    L = A;
+
+    return;
+}
+
 subroutine load_16
 {
     # SP + $03 high

@@ -1555,6 +1555,8 @@ const std::vector<Grammar_Checker> Function_Call_Grammars =
 		Node_Init
 		{
 			// Here, we want to let this be a function call, and then we recursively gather the parameter expressions based on data types
+			printf("\t parsing function call to %s\n", Tokens[0].Name.c_str());
+			
 			Node_Set_Syntax(S_FUNCTION_CALL);
 
 			Node_Add("id", S_ID16, Tokens[0].Name);

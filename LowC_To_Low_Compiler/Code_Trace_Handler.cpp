@@ -259,11 +259,14 @@ void Clear_Tracer_Registers(Tracer_Data& Tracer)
 		}
 }
 
-Trace* Find_Value_In_Tracer_Registers(Tracer_Data& Tracer, std::string Value)
+#define TRACER_FIND_ANY 3
+#define TRACER_FIND_HOT 1
+
+Trace* Find_Value_In_Tracer_Registers(Tracer_Data& Tracer, std::string Value, int Tracer_Find_Flag = TRACER_FIND_ANY)
 {
 	for (size_t Index = 0; Index < Tracer.Registers.size(); Index++)
 	{
-		if (Tracer.Registers[Index].Value == Value && Tracer.Registers[Index].Modified_Counter)
+		if (Tracer.Registers[Index].Value == Value && (Tracer.Registers[Index].Modified_Counter & Tracer_Find_Flag))
 		{
 			return &Tracer.Registers[Index];
 		}
@@ -1343,7 +1346,7 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 	{
 		std::string Register = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], MAKE_VALUE_HOT_REG, PULL_IDENTIFIER_COPY);
 
-		Trace* Current_ID = Find_Value_In_Tracer_Registers(Tracer, Node["id"][0].Value);
+		Trace* Current_ID = Find_Value_In_Tracer_Registers(Tracer, Node["id"][0].Value, TRACER_FIND_HOT);
 
 		if (Current_ID)
 		{
@@ -1360,7 +1363,7 @@ void Node_ID_Assign_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 		Clear_Tracer_Registers(Tracer);
 
-		Trace* Current_ID = Find_Value_In_Tracer_Registers(Tracer, Node["id"][0].Value);
+		Trace* Current_ID = Find_Value_In_Tracer_Registers(Tracer, Node["id"][0].Value, TRACER_FIND_HOT);
 
 		if (Current_ID)
 		{

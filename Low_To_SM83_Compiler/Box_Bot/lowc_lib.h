@@ -48,5 +48,9 @@ void place_spritechain_in_oam_buffer(const byte* Spritechain, byte Count, byte Y
 
 word sub16(word Left, word Right);
 
+byte abs_8(byte value);
+
+word abs_16(word value);
+
 word load_16(byte* address);
 void write_16(byte* address, word value);
