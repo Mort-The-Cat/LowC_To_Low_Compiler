@@ -109,6 +109,9 @@ Trace& Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, size
 		Tracer.Registers[5].Modified_Counter = 0;
 		Tracer.Registers[6].Modified_Counter = 0;
 
+		Tracer.Registers[5].Value = "???";
+		Tracer.Registers[6].Value = "???";
+
 		return Tracer.Registers[5];	// return HL register pair
 
 		//
@@ -213,6 +216,9 @@ Trace& Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, size
 
 					Tracer.Registers[Index].Modified_Counter = 0;
 					Tracer.Registers[Index + 1].Modified_Counter = 0;
+
+					Tracer.Registers[Index].Value = "???";
+					Tracer.Registers[Index + 1].Value = "???";
 
 					// we can 'pop' it later 
 
@@ -1994,8 +2000,10 @@ void Analyse_Statements_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 	for (size_t Register = 0; Register < Tracer.Registers.size(); Register++)
 	{
 		if (Tracer.Registers[Register].Modified_Counter == 3)
-			Tracer.Registers[Register].Modified_Counter = 1;	// Just set ts back to 1 vro </3
+			Tracer.Registers[Register].Modified_Counter = 0;	// Return to 0
 	}
+
+	// if a function saves a value with a priority of '3' and doesn't return it to 1 or 2 manually? it's not important
 
 	while (Writeback_Panic_Push(Output_Low_Code, Tracer));
 
