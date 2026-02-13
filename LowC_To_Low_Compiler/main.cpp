@@ -47,6 +47,8 @@ int main()
 
 	Generate_Parse_Tree(Tokens.data(), &Program_Node.Child_Nodes["global_declarations"]);
 
+	printf("\n\nGenerated parse tree!\n\n");
+
 	std::string Program_Output = "";
 
 	Tracer_Data Tracer;

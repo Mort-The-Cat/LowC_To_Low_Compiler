@@ -136,8 +136,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Code_Parser.cpp" />
-    <ClCompile Include="Code_Trace_Handler.cpp" />
     <ClCompile Include="LowC_Tokeniser.cpp" />
+    <ClCompile Include="Code_Trace_Handler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Parser_Grammar.cpp" />
   </ItemGroup>
@@ -152,6 +152,8 @@
     <Text Include="Grammar.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LowC_To_Low_Compiler.exe" />
+    <None Include="LowC_To_Low_Compiler.pdb" />
     <None Include="Test_LowC_2_Program.lowc" />
     <None Include="Test_LowC_3_Program.lowc" />
   </ItemGroup>

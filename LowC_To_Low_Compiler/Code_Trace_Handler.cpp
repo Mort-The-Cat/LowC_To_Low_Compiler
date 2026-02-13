@@ -239,6 +239,14 @@ Trace& Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, size
 	// this too
 	// although this should be a little easier because I can instantly 'push' a reg pair to the stack effortlessly
 	}
+
+	printf("Error! Couldn't free register...\n\n");
+
+	printf("%s\n", Output_Low_Code.c_str());
+
+	printf("\ndebug accordingly");
+
+	getchar();
 }
 
 void Clear_Tracer_Registers(Tracer_Data& Tracer)
@@ -296,7 +304,7 @@ long Find_Value_Address_In_Tracer_Stack(Tracer_Data& Tracer, std::string Value)
 
 bool Writeback_Panic_Push(std::string& Output_Low_Code, Tracer_Data& Tracer)	// This fixes any 'panic' pushes, grabbing the memory back from the stack and into a register
 {
-	if (!Tracer.Stack.size())
+	if (Tracer.Stack.size() < 2)
 		return false;
 
 
