@@ -15,7 +15,7 @@
 
 void Load_Graphics_Into_VRAM(byte* Write_Head, const byte* Read_Head, word Counter);	// Declares the function
 
-void Wait_For_Vblank()
+void Wait_For_VBlank()
 {
 	byte Scanline;
 
@@ -24,7 +24,7 @@ void Wait_For_Vblank()
 		Scanline = *LCDY_REGISTER;
 	} while (Scanline < VBLANK_SCANLINE);
 
-	*LCDC_REGISTER = 0;	// This turns off the screen to allow writes to VRAM
+	// *LCDC_REGISTER = 0;	// This turns off the screen to allow writes to VRAM
 
 	// memcpy(VRAM_BLOCK_2, addressof(0x0104), 0x40);
 
@@ -109,7 +109,9 @@ void main()
 
 	// Then it'll just enter a loop for testing sake
 
-	Wait_For_Vblank();
+	Wait_For_VBlank();
+
+	*LCDC_REGISTER = 0x00; // This turns off the PPU to allow the CPU access to VRAM
 
 	memcpy(VRAM_BLOCK_0, Brick_Graphics, sizeof(Brick_Graphics));
 

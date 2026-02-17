@@ -1359,15 +1359,6 @@ subroutine Wait_For_VBlank
 		# L = Other_Pointer; 0
 	HL = $FF44;
 	A = [HL];		# Dereferences address
-	# Current tracer registers:
-		# A = Scanline; 1
-		# B = Other_Pointer; 0
-		# C = Other_Pointer; 0
-		# D = Pointer; 0
-		# E = Pointer; 0
-		# H = ???; 0
-		# L = ???; 0
-	A++;		# Increments Scanline
 	A < $90;		# S_LESS_THAN8
 	jump  not_carry __do_while_statement__4_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:

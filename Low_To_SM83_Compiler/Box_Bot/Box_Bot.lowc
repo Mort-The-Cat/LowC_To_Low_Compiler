@@ -48,7 +48,7 @@ void Wait_For_VBlank()
 	do
 	{
 		Scanline = *LCDY_REGISTER;
-		Scanline++;
+		// Scanline++;
 	} while (Scanline < VBLANK_SCANLINE);
 
 	return;

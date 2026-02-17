@@ -136,8 +136,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Code_Parser.cpp" />
-    <ClCompile Include="LowC_Tokeniser.cpp" />
     <ClCompile Include="Code_Trace_Handler.cpp" />
+    <ClCompile Include="LowC_Tokeniser.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Parser_Grammar.cpp" />
   </ItemGroup>
