@@ -1,0 +1,103 @@
+#include "../stdlow.h"
+#include "../low_macros.h"
+
+void Wait_For_VBlank()
+{
+	byte Scanline;
+
+	do
+	{
+		Scanline = *LCDY_REGISTER;
+	} while (Scanline < VBLANK_SCANLINE);
+
+	return;
+}
+
+#define CH_Cursor_X 0x00
+#define CH_Cursor_Y 0x01
+#define CH_Tilemap_Low 0x02
+#define CH_Tilemap_High 0x03
+
+byte Conditional_Checker(byte* Write_Head, byte* Read_Head, word Counter)
+{
+	Write_Head = Write_Head;
+	Read_Head = Read_Head;
+	Counter = Counter;
+
+	// store_low(Counter, (byte)Counter);
+
+	while ((byte)Counter | high(Counter))
+	{
+		*Write_Head = *Read_Head;
+
+		Write_Head++;
+		Read_Head++;
+		Counter--;
+	}
+
+	return 1;
+}
+
+void init_console_handle(byte* Console_Handle)
+{
+	*(Console_Handle + 0) = 0;
+	Console_Handle++;
+	*Console_Handle = 0;
+	Console_Handle++;
+
+	*Console_Handle = VRAM_TILEM_0;
+	// Console_Handle++;
+	*Console_Handle = high(VRAM_TILEM_0);
+
+	return;
+}
+
+void printf(byte* Console_Handle, const byte* String);
+
+void printf(byte* Console_Handle, const byte* String)
+{
+	// Note that there are 32 bytes per tilemap line
+
+	byte* Write_Pointer;
+
+	store_low(Write_Pointer, *(Console_Handle + CH_Tilemap_Low) );
+	store_high(Write_Pointer, *(Console_Handle + CH_Tilemap_High) );
+
+	// Wait_For_Vblank();
+
+	String = String;
+	Write_Pointer = Write_Pointer;
+
+	do
+	{
+		*Write_Pointer = *String;
+		Write_Pointer++;
+		String++;
+	} while ( *String );
+
+	store_low(Write_Pointer, (224 & (byte)Write_Pointer) );
+	Write_Pointer = Write_Pointer + 32;
+
+	*(Console_Handle + CH_Tilemap_Low) = (byte)Write_Pointer;
+	*(Console_Handle + CH_Tilemap_High) = high(Write_Pointer);
+
+	return;
+}
+
+void main()
+{
+	Wait_For_VBlank();
+
+	*LCDC_REGISTER = 0;
+
+	Conditional_Checker(VRAM_BLOCK_0, addressof(main), 0x800);
+
+	*LCDC_REGISTER = 0x83;
+
+	while (1)
+	{
+		Wait_For_VBlank();
+	}
+
+	return;
+}

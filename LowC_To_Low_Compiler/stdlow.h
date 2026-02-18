@@ -9,7 +9,7 @@ void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW im
 
 #define addressof(location) (byte*)(location)
 
-#define high(expression8) ((word)expression8 << 8)
+#define high(expression8) ((word)expression8 >> 8)
 
 #define store_high(id16, expression8)
 

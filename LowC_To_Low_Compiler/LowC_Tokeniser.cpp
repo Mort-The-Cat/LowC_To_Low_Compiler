@@ -84,8 +84,7 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_LESS_THAN,	"<"			},
 	{	T_GREATER_THAN,	">"			},
 
-	{	T_POINTER,		"*"			},
-	{	T_AMPERSAND,	"&"			}
+	{	T_POINTER,		"*"			}
 };
 
 //

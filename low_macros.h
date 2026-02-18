@@ -25,7 +25,7 @@
 //		bits 1 and 0 determine the current PPU mode (0 if HBlank or currently disabled, 1 if VBlank)
 
 
-#define VBLANK_SCANLINE addressof(0x90)
+#define VBLANK_SCANLINE 0x90
 
 #define LCDC_REGISTER addressof(0xFF40)
 //      bit 7 controls LCD and PPU			(MAY ONLY BE CHANGED DURING VBLANK!!)

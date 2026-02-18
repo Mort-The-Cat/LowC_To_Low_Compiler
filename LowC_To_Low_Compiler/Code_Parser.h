@@ -21,6 +21,8 @@ SP + $00	=	C
 
 #include<map>
 
+#include <set>
+
 // Will use parse tree structure for statements, expressions, and functions
 
 extern std::string Local_Function_Scope_Name; // = "";
@@ -90,7 +92,9 @@ public:
 
 	void (*Init_Function)(const Token*, std::vector<Parse_Node>&, Parse_Node*, size_t& Tokens_Passed);
 
-	Grammar_Checker() {}
+	Grammar_Checker() 
+	{
+	}
 
 	Grammar_Checker(std::vector<Checker_Function> Checksp, void(*Init_Functionp)(const Token*, std::vector<Parse_Node>&, Parse_Node*, size_t&))
 	{
@@ -264,6 +268,8 @@ enum Syntax_IDs
 
 
 size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID);
+
+size_t Parse_Special_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID);
 
 size_t Is_Token(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t T);
 

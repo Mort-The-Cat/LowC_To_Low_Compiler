@@ -47,6 +47,9 @@ Define_Grammar(Condition_Grammars);
 Define_Grammar(Expression8_Grammars);
 Define_Grammar(Expression16_Grammars);
 
+Define_Grammar(Cast_Expression8);
+Define_Grammar(Cast_Expression16);
+
 Define_Grammar(If_Grammars);
 Define_Grammar(Do_While_Grammars);
 Define_Grammar(While_Grammars);
