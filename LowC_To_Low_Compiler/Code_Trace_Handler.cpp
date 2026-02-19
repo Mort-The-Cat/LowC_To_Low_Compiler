@@ -799,7 +799,10 @@ void Clear_Tracer_Registers(Tracer_Data& Tracer)
 	for (size_t Index = 0; Index < Tracer.Registers.size(); Index++)
 	{
 		if (Tracer.Registers[Index].Modified_Counter == 2)
+		{
 			Tracer.Registers[Index].Modified_Counter = 0;
+			Tracer.Registers[Index].Value = "???";
+		}
 	}
 }
 

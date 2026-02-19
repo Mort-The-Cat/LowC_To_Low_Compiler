@@ -119,14 +119,14 @@ void Move_Player(byte* Player_Data)
 
     Player_X = load_16(Player_Data);
 
-    if(!bit(Inputs, CONTROLLER_LEFT_BIT))
+    if(!bit(Inputs, CONTROLLER_BUTTON_LEFT_BIT))
     {
         Player_X--;
 
         *(Player_Data + Player_Object_State) = 1;
     }
 
-    if(!bit(Inputs, CONTROLLER_RIGHT_BIT))
+    if(!bit(Inputs, CONTROLLER_BUTTON_RIGHT_BIT))
     {
         Player_X++;
 

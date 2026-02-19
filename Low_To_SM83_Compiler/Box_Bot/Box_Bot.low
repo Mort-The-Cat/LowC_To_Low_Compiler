@@ -27,8 +27,8 @@ subroutine Set_Interrupt_Function
 		# C = Function_Pointer; 1
 		# D = ???; 0
 		# E = ???; 0
-		# H = Address; 0
-		# L = Address; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = SP + 4;		# Fetches Address off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
@@ -52,8 +52,8 @@ subroutine Set_Interrupt_Function
 		# C = Function_Pointer; 1
 		# D = Address; 1
 		# E = Address; 1
-		# H = Address; 0
-		# L = Address; 0
+		# H = ???; 0
+		# L = ???; 0
 	return;
 }
 
@@ -65,8 +65,8 @@ subroutine Draw_Player_Sprite
 		# C = Function_Pointer; 0
 		# D = Address; 0
 		# E = Address; 0
-		# H = Address; 0
-		# L = Address; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 254;		# byte* Spritechain;
 	# Current tracer registers:
 		# A = ???; 0
@@ -74,8 +74,8 @@ subroutine Draw_Player_Sprite
 		# C = Function_Pointer; 0
 		# D = Address; 0
 		# E = Address; 0
-		# H = Address; 0
-		# L = Address; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 255;		# byte Spritecount;
 	# Current tracer registers:
 		# A = ???; 0
@@ -83,16 +83,16 @@ subroutine Draw_Player_Sprite
 		# C = Function_Pointer; 0
 		# D = Address; 0
 		# E = Address; 0
-		# H = Address; 0
-		# L = Address; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Function_Pointer; 0
 		# C = Function_Pointer; 0
 		# D = Address; 0
 		# E = Address; 0
-		# H = Address; 0
-		# L = Address; 0
+		# H = ???; 0
+		# L = ???; 0
 	BC = $04;
 	HL = SP + 7;		# Fetches Player_Data off the stack
 	A = [HL];		# Store lower byte temporarily
@@ -102,8 +102,8 @@ subroutine Draw_Player_Sprite
 	HL += BC;		# S_PLUS16
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = Address; 0
 		# E = Address; 0
 		# H = Spritechain; 1
@@ -132,8 +132,8 @@ subroutine Draw_Player_Sprite
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
-		# B = @word@; 0
-		# C = @word@; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = Spritechain; 0
 		# E = Spritechain; 0
 		# H = Spritechain; 1
@@ -141,8 +141,8 @@ subroutine Draw_Player_Sprite
 	A = 9;
 	# Current tracer registers:
 		# A = Spritecount; 1
-		# B = @word@; 0
-		# C = @word@; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = Spritechain; 0
 		# E = Spritechain; 0
 		# H = Spritechain; 1
@@ -331,8 +331,8 @@ subroutine Render_Player
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = Camera_Y; 0
 		# E = Camera_Y; 0
 		# H = Position; 1
@@ -380,9 +380,9 @@ subroutine Render_Player
 		# C = Camera_Y; 1
 		# D = Camera_Y; 0
 		# E = Camera_Y; 0
-		# H = Camera_X; 0
+		# H = ???; 0
 		# L = Screen_X; 1
-	D = H;		# Moves Camera_X into upper register
+	D = H;		# Moves ??? into upper register
 	E = L;		# Moves into lower register
 	HL = SP + 8;		# Fetches Camera_X off the stack
 	A = [HL];		# Store lower byte temporarily
@@ -395,7 +395,7 @@ subroutine Render_Player
 		# A = ???; 0
 		# B = Camera_Y; 1
 		# C = Camera_Y; 1
-		# D = Camera_X; 0
+		# D = ???; 0
 		# E = Screen_X; 1
 		# H = Camera_X; 1
 		# L = Camera_X; 1
@@ -411,14 +411,19 @@ subroutine Render_Player
 	[HL] = B;		# Stores upper byte of Camera_X back into memory
 	HL = SP + 3;		# Memory location of Screen_X
 	[HL] = E;		# Stores Screen_X back into memory
-	push DE;		# Pushes value to the stack
+	HL = SP + 8;		# Fetches Camera_X off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes value to the stack
 	call abs_16;		# Calls function
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Camera_X; 0
 		# C = Camera_X; 0
-		# D = Camera_X; 0
+		# D = ???; 0
 		# E = Screen_X; 0
 		# H = Camera_X; 1
 		# L = Camera_X; 1
@@ -433,11 +438,11 @@ subroutine Render_Player
 		# A = ???; 0
 		# B = Camera_X; 1
 		# C = Camera_X; 1
-		# D = Camera_X; 0
+		# D = ???; 0
 		# E = Screen_X; 0
-		# H = Camera_Y; 0
+		# H = ???; 0
 		# L = Screen_Y; 1
-	D = H;		# Moves Camera_Y into upper register
+	D = H;		# Moves ??? into upper register
 	E = L;		# Moves into lower register
 	HL = SP + 6;		# Fetches Camera_Y off the stack
 	A = [HL];		# Store lower byte temporarily
@@ -450,7 +455,7 @@ subroutine Render_Player
 		# A = ???; 0
 		# B = Camera_X; 1
 		# C = Camera_X; 1
-		# D = Camera_Y; 0
+		# D = ???; 0
 		# E = Screen_Y; 1
 		# H = Camera_Y; 1
 		# L = Camera_Y; 1
@@ -466,14 +471,19 @@ subroutine Render_Player
 	[HL] = B;		# Stores upper byte of Camera_Y back into memory
 	HL = SP + 2;		# Memory location of Screen_Y
 	[HL] = E;		# Stores Screen_Y back into memory
-	push DE;		# Pushes value to the stack
+	HL = SP + 6;		# Fetches Camera_Y off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes value to the stack
 	call abs_16;		# Calls function
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Camera_Y; 0
 		# C = Camera_Y; 0
-		# D = Camera_Y; 0
+		# D = ???; 0
 		# E = Screen_Y; 0
 		# H = Camera_Y; 1
 		# L = Camera_Y; 1
@@ -482,7 +492,7 @@ subroutine Render_Player
 		# A = ???; 0
 		# B = Camera_Y; 0
 		# C = Camera_Y; 0
-		# D = Camera_Y; 0
+		# D = ???; 0
 		# E = Screen_Y; 0
 		# H = Camera_Y; 1
 		# L = Camera_Y; 1
@@ -498,7 +508,7 @@ subroutine Render_Player
 		# A = Condition; 1
 		# B = Camera_Y; 1
 		# C = Camera_Y; 1
-		# D = Camera_Y; 0
+		# D = ???; 0
 		# E = Screen_Y; 0
 		# H = Camera_X; 1
 		# L = Camera_X; 1
@@ -518,7 +528,7 @@ subroutine Render_Player
 	A |= A;		# This just gets the CPU flags
 	jump not_zero __if_statement__0;		# If statement jump
 	# Current tracer registers:
-		# A = Condition; 0
+		# A = ???; 0
 		# B = Camera_Y; 1
 		# C = Camera_Y; 1
 		# D = Condition; 1
@@ -618,8 +628,8 @@ subroutine Get_Controller_Inputs
 		# C = Camera_Y; 0
 		# D = Condition; 0
 		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 255;		# byte Value_Back;
 	# Current tracer registers:
 		# A = Flag; 1
@@ -627,8 +637,8 @@ subroutine Get_Controller_Inputs
 		# C = Camera_Y; 0
 		# D = Condition; 0
 		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF00;
 	B = [HL];		# Dereferences address
 	# Current tracer registers:
@@ -637,8 +647,8 @@ subroutine Get_Controller_Inputs
 		# C = Camera_Y; 0
 		# D = Condition; 0
 		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF00;
 	C = [HL];		# Dereferences address
 	# Current tracer registers:
@@ -647,8 +657,8 @@ subroutine Get_Controller_Inputs
 		# C = Value_Back; 1
 		# D = Condition; 0
 		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF00;
 	B = [HL];		# Dereferences address
 	# Current tracer registers:
@@ -657,8 +667,8 @@ subroutine Get_Controller_Inputs
 		# C = ???; 0
 		# D = Condition; 0
 		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	A = B;		# creates copy of Value_Back register
 	SP += 1;		# Remove local variables from stack
 	return;
@@ -667,13 +677,13 @@ subroutine Get_Controller_Inputs
 subroutine Set_Player_State
 {
 	# Current tracer registers:
-		# A = Value_Back; 0
-		# B = Value_Back; 0
+		# A = ???; 0
+		# B = ???; 0
 		# C = Flag; 0
 		# D = Condition; 0
 		# E = ???; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = SP + 2;		# Fetches State off the stack
 	A = [HL];		# Stores State into A register
 	BC = $04;
@@ -686,12 +696,12 @@ subroutine Set_Player_State
 	[HL] = A; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = State; 1
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# H = ???; 0
+		# L = ???; 0
 	return;
 }
 
@@ -699,30 +709,30 @@ subroutine Move_Player
 {
 	# Current tracer registers:
 		# A = State; 0
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 254;		# word Player_X;
 	# Current tracer registers:
 		# A = State; 0
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 255;		# byte Inputs;
 	# Current tracer registers:
 		# A = State; 0
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# H = ???; 0
+		# L = ???; 0
 	A = $E0;
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Flag to stack
@@ -731,12 +741,12 @@ subroutine Move_Player
 	SP += 1;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = Inputs; 1
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = SP + 0;		# Memory location of Inputs
 	[HL] = A;		# Stores Inputs back into memory
 	HL = SP + 5;		# Fetches Player_Data off the stack
@@ -749,8 +759,8 @@ subroutine Move_Player
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
 		# H = Player_X; 1
@@ -760,7 +770,7 @@ subroutine Move_Player
 	C = L;		# Moves into lower register
 	HL = SP + 0;		# Fetches Inputs off the stack
 	A = [HL];		# Stores Inputs into A register
-	A.CONTROLLER_LEFT_BIT;		# Gets conditional
+	A.$01;		# Gets conditional
 	jump not_zero __if_statement__1;		# If statement jump
 	# Current tracer registers:
 		# A = Inputs; 1
@@ -793,10 +803,10 @@ subroutine Move_Player
 		# A = Inputs; 1
 		# B = Player_X; 1
 		# C = Player_X; 1
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Register snapshot:
 		# A = Inputs; 1
 		# B = Player_X; 1
@@ -806,30 +816,30 @@ subroutine Move_Player
 		# A = Inputs; 1
 		# B = Player_X; 1
 		# C = Player_X; 1
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 
-	A.CONTROLLER_RIGHT_BIT;		# Gets conditional
+	A.$00;		# Gets conditional
 	jump not_zero __if_statement__2;		# If statement jump
 	# Current tracer registers:
 		# A = Inputs; 1
 		# B = Player_X; 1
 		# C = Player_X; 1
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	BC++;		# Increments Player_X
 	# Current tracer registers:
 		# A = Inputs; 1
 		# B = Player_X; 1
 		# C = Player_X; 1
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	DE = $04;
 	push BC;		# Makes room by pushing Player_X to stack.
 	HL = SP + 7;		# Fetches Player_Data off the stack
@@ -844,10 +854,10 @@ subroutine Move_Player
 		# A = Inputs; 1
 		# B = Player_X; 1
 		# C = Player_X; 1
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Register snapshot:
 		# A = Inputs; 1
 		# B = Player_X; 1
@@ -857,10 +867,10 @@ subroutine Move_Player
 		# A = Inputs; 1
 		# B = Player_X; 1
 		# C = Player_X; 1
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = SP + 0;		# Memory location of Inputs
 	[HL] = A;		# Stores Inputs back into memory
 	HL = SP + 1;		# Memory location of Player_X
@@ -887,8 +897,8 @@ subroutine Move_Player
 		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Player_X; 0
 		# L = Player_X; 0
 	SP += 3;		# Remove local variables from stack
@@ -901,8 +911,8 @@ subroutine Test_Game_Loop
 		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Player_X; 0
 		# L = Player_X; 0
 	SP += 254;		# byte* Player_Data;
@@ -910,8 +920,8 @@ subroutine Test_Game_Loop
 		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Player_X; 0
 		# L = Player_X; 0
 	SP += 254;		# word Camera_X;
@@ -919,8 +929,8 @@ subroutine Test_Game_Loop
 		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Player_X; 0
 		# L = Player_X; 0
 	SP += 254;		# word Camera_Y;
@@ -928,8 +938,8 @@ subroutine Test_Game_Loop
 		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Player_X; 0
 		# L = Player_X; 0
 	BC = 0;
@@ -937,8 +947,8 @@ subroutine Test_Game_Loop
 		# A = ???; 0
 		# B = Camera_X; 1
 		# C = Camera_X; 1
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Player_X; 0
 		# L = Player_X; 0
 	DE = 0;
@@ -964,8 +974,8 @@ subroutine Test_Game_Loop
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ; 0
-		# C = ; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = Camera_Y; 0
 		# E = Camera_Y; 0
 		# H = Player_Data; 1
@@ -993,11 +1003,11 @@ subroutine Test_Game_Loop
 	call memset;		# Calls function
 	SP += 5;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = @parameter@; 0
+		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $02;
@@ -1014,31 +1024,31 @@ subroutine Test_Game_Loop
 	SP += 4;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 
 	label __do_while_statement__3;		# do/while loop label
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	call Clean_OAM_Buffer;		# Calls function
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = SP + 4;		# Fetches Player_Data off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
@@ -1101,7 +1111,7 @@ subroutine Test_Game_Loop
 	A |= A;		# This just gets the CPU flags
 	jump  zero __do_while_statement__3_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
 		# D = Camera_X; 0
@@ -1112,7 +1122,7 @@ subroutine Test_Game_Loop
 	jump __do_while_statement__3;		# do/while loop jump
 	label __do_while_statement__3_memory_cleanup;
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
 		# D = Camera_X; 0
@@ -1123,7 +1133,7 @@ subroutine Test_Game_Loop
 
 
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
 		# D = Camera_X; 0
@@ -1167,7 +1177,7 @@ subroutine Test_Return
 subroutine Test_Return_Two
 {
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
 		# D = Camera_X; 0
@@ -1181,39 +1191,39 @@ subroutine Test_Return_Two
 subroutine Wait_For_VBlank
 {
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 255;		# byte Scanline;
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 254;		# byte* Pointer;
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Player_Data; 0
 		# C = Player_Data; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	BC = 100;
 	push BC;		# Pushes size to the stack
 	call malloc;		# Calls function
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
 		# H = Pointer; 1
@@ -1222,42 +1232,42 @@ subroutine Wait_For_VBlank
 	C = L;		# Makes 'L' a copy of L
 	[HL] = $86; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Pointer; 1
 		# C = Pointer; 1
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = Pointer; 0
-		# L = Pointer; 0
+		# H = ???; 0
+		# L = ???; 0
 	BC++;		# Increments Pointer
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Pointer; 1
 		# C = Pointer; 1
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = Pointer; 0
-		# L = Pointer; 0
+		# H = ???; 0
+		# L = ???; 0
 	H = B;		# Creates copy of Pointer
 	L = C;		# Creates copy of Pointer
 	[HL] = $27; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Pointer; 1
 		# C = Pointer; 1
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = Pointer; 0
-		# L = Pointer; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 254;		# byte* Other_Pointer;
 	# Current tracer registers:
-		# A = ; 0
+		# A = ???; 0
 		# B = Pointer; 1
 		# C = Pointer; 1
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = Pointer; 0
-		# L = Pointer; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = SP + 2;		# Memory location of Pointer
 	[HL] = C;		# Stores Pointer back into memory
 	HL++;
@@ -1267,9 +1277,9 @@ subroutine Wait_For_VBlank
 	call malloc;		# Calls function
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
 		# H = Other_Pointer; 1
@@ -1352,8 +1362,8 @@ subroutine Wait_For_VBlank
 		# C = Other_Pointer; 0
 		# D = Pointer; 0
 		# E = Pointer; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Register snapshot:
 	jump __do_while_statement__4;		# do/while loop jump
 	label __do_while_statement__4_memory_cleanup;
@@ -1363,8 +1373,8 @@ subroutine Wait_For_VBlank
 		# C = Other_Pointer; 0
 		# D = Pointer; 0
 		# E = Pointer; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Register snapshot:
 
 
@@ -1374,8 +1384,8 @@ subroutine Wait_For_VBlank
 		# C = Other_Pointer; 0
 		# D = Pointer; 0
 		# E = Pointer; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 5;		# Remove local variables from stack
 	return;
 }
@@ -1388,8 +1398,8 @@ subroutine Clean_OAM_Buffer
 		# C = Other_Pointer; 0
 		# D = Pointer; 0
 		# E = Pointer; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 255;		# byte Count;
 	# Current tracer registers:
 		# A = Scanline; 0
@@ -1397,8 +1407,8 @@ subroutine Clean_OAM_Buffer
 		# C = Other_Pointer; 0
 		# D = Pointer; 0
 		# E = Pointer; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 254;		# byte* Pointer;
 	# Current tracer registers:
 		# A = Scanline; 0
@@ -1406,8 +1416,8 @@ subroutine Clean_OAM_Buffer
 		# C = Other_Pointer; 0
 		# D = Pointer; 0
 		# E = Pointer; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	call Test_Return;		# Calls function
 	# Current tracer registers:
 		# A = Count; 1
@@ -1415,8 +1425,8 @@ subroutine Clean_OAM_Buffer
 		# C = Other_Pointer; 0
 		# D = Pointer; 0
 		# E = Pointer; 0
-		# H = ; 0
-		# L = ; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = SP + 2;		# Memory location of Count
 	[HL] = A;		# Stores Count back into memory
 	call Test_Return_Two;		# Calls function
@@ -1459,8 +1469,8 @@ subroutine Clean_OAM_Buffer
 		# C = Pointer; 1
 		# D = Pointer; 0
 		# E = Pointer; 0
-		# H = Pointer; 0
-		# L = Pointer; 0
+		# H = ???; 0
+		# L = ???; 0
 	DE = 4;
 	H = B;		# Creates copy of Pointer
 	L = C;		# Creates copy of Pointer
@@ -1469,8 +1479,8 @@ subroutine Clean_OAM_Buffer
 		# A = Count; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Pointer; 1
 		# L = Pointer; 1
 	B = A;		# Makes 'A' a copy of Count
@@ -1479,11 +1489,11 @@ subroutine Clean_OAM_Buffer
 	A |= A;		# This just gets the CPU flags
 	jump  zero __do_while_statement__5_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
-		# A = Count; 0
+		# A = ???; 0
 		# B = Count; 1
 		# C = ???; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Pointer; 1
 		# L = Pointer; 1
 	# Register snapshot:
@@ -1495,11 +1505,11 @@ subroutine Clean_OAM_Buffer
 	jump __do_while_statement__5;		# do/while loop jump
 	label __do_while_statement__5_memory_cleanup;
 	# Current tracer registers:
-		# A = Count; 0
+		# A = ???; 0
 		# B = Count; 1
 		# C = ???; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Pointer; 1
 		# L = Pointer; 1
 	# Register snapshot:
@@ -1514,8 +1524,8 @@ subroutine Clean_OAM_Buffer
 		# A = Count; 1
 		# B = Pointer; 1
 		# C = Pointer; 1
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Pointer; 0
 		# L = Pointer; 0
 	HL = $C0A0;
@@ -1524,10 +1534,10 @@ subroutine Clean_OAM_Buffer
 		# A = Count; 1
 		# B = Pointer; 1
 		# C = Pointer; 1
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 3;		# Remove local variables from stack
 	return;
 }
@@ -1538,10 +1548,10 @@ subroutine Quarter
 		# A = Count; 0
 		# B = Pointer; 0
 		# C = Pointer; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = SP + 2;		# Fetches Length off the stack
 	A = [HL];		# Stores Length into A register
 	A >>>= 1;
@@ -1552,11 +1562,11 @@ subroutine Quarter
 subroutine main
 {
 	# Current tracer registers:
-		# A = Length; 0
+		# A = ???; 0
 		# B = Pointer; 0
 		# C = Pointer; 0
-		# D = ; 0
-		# E = ; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	BC = $D000;
@@ -1570,32 +1580,32 @@ subroutine main
 	call memset;		# Calls function
 	SP += 5;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	call Wait_For_VBlank;		# Calls function
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	HL = $FF40;
 	[HL] = $00; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	BC = $8000;
 	push BC;		# Pushes Destination to the stack
 	BC = Box_Bot_Graphics;
@@ -1605,13 +1615,13 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	BC = $8800;
 	push BC;		# Pushes Destination to the stack
 	BC = Alphabet_Graphics;
@@ -1621,29 +1631,29 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	BC = $9800;
 	push BC;		# Pushes Destination to the stack
 	BC = __main__Warm_Message;
@@ -1653,92 +1663,92 @@ subroutine main
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF47;
 	[HL] = $E4; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF48;
 	[HL] = $E4; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	call init_dma;		# Calls function
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF40;
 	[HL] = $83; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	call Test_Game_Loop;		# Calls function
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 
 	A = 1;
 	A |= A;		# This just gets the CPU flags
 	jump zero __if_statement__6;		# If statement jump
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 
 	label __do_while_statement__7;		# do/while loop label
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	call Clean_OAM_Buffer;		# Calls function
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	BC = Bot_Jump_Left;
 	push BC;		# Pushes Spritechain to the stack
 	A = 44;
@@ -1758,67 +1768,67 @@ subroutine main
 	call place_spritechain_in_oam_buffer;		# Calls function
 	SP += 5;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	call Wait_For_VBlank;		# Calls function
 	# Current tracer registers:
-		# A = @parameter@; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	call dma_transfer;		# Calls function
 	A = 1;
 	A |= A;		# This just gets the CPU flags
 	jump  zero __do_while_statement__7_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Register snapshot:
 	jump __do_while_statement__7;		# do/while loop jump
 	label __do_while_statement__7_memory_cleanup;
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Register snapshot:
 
 
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Register snapshot:
 	label __if_statement__6;		# If statement label
 
 	# Current tracer registers:
-		# A = ; 0
-		# B = ; 0
-		# C = ; 0
-		# D = ; 0
-		# E = ; 0
-		# H = ; 0
-		# L = ; 0
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	return;
 }
 
