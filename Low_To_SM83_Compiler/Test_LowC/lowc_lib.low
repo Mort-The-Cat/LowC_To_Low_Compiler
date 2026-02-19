@@ -33,6 +33,7 @@ subroutine init_dma
     BC = $05;               # Length
     push BC;
     call memcpy;
+    SP += $06;
 
     return;
 }

@@ -17,11 +17,11 @@ const char* Recently_Printed_Name = "nullptr";
 
 size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID)
 {
-	if (strcmp(Tokens[0].Name.c_str(), Recently_Printed_Name))
-	{
-		printf("\t >> %s %s\n", Tokens[0].Name.c_str(), Tokens[1].Name.c_str());
-		Recently_Printed_Name = Tokens[0].Name.c_str();
-	}
+	//if (strcmp(Tokens[0].Name.c_str(), Recently_Printed_Name))
+	//{
+	//	printf("\t >> %s %s\n", Tokens[0].Name.c_str(), Tokens[1].Name.c_str());
+	//	Recently_Printed_Name = Tokens[0].Name.c_str();
+	//}
 
 	for (size_t Index = 0; Index < Grammars.size(); Index++)
 	{

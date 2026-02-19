@@ -118,15 +118,6 @@ subroutine Conditional_Checker
 		# E = Read_Head; 1
 		# H = Counter; 1
 		# L = Counter; 1
-	L = L;		# Moves value into low-byte of Counter
-	# Current tracer registers:
-		# A = ???; 0
-		# B = Write_Head; 1
-		# C = Write_Head; 1
-		# D = Read_Head; 1
-		# E = Read_Head; 1
-		# H = Counter; 1
-		# L = Counter; 1
 
 	A = H;		# Copies high byte of Counter into register
 	push BC;		# Makes room by pushing Write_Head to stack.
@@ -290,5 +281,472 @@ subroutine Conditional_Checker
 		# L = Counter; 1
 	A = 1;
 	return;
+}
+
+subroutine init_console_handle
+{
+	# Current tracer registers:
+		# A = ; 0
+		# B = Write_Head; 0
+		# C = Write_Head; 0
+		# D = Read_Head; 0
+		# E = Read_Head; 0
+		# H = Counter; 0
+		# L = Counter; 0
+	BC = 0;
+	HL = SP + 2;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Read_Head; 0
+		# E = Read_Head; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	HL = SP + 2;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL++;		# Increments Console_Handle
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Read_Head; 0
+		# E = Read_Head; 0
+		# H = Console_Handle; 1
+		# L = Console_Handle; 1
+	B = H;		# Makes 'H' a copy of Console_Handle
+	C = L;		# Makes 'L' a copy of L
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Console_Handle; 1
+		# C = Console_Handle; 1
+		# D = Read_Head; 0
+		# E = Read_Head; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	BC++;		# Increments Console_Handle
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Console_Handle; 1
+		# C = Console_Handle; 1
+		# D = Read_Head; 0
+		# E = Read_Head; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	H = B;		# Creates copy of Console_Handle
+	L = C;		# Creates copy of Console_Handle
+	[HL] = $9800; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Console_Handle; 1
+		# C = Console_Handle; 1
+		# D = Read_Head; 0
+		# E = Read_Head; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	DE = $9800;
+	H = B;		# Creates copy of Console_Handle
+	L = C;		# Creates copy of Console_Handle
+	[HL] = D; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Console_Handle; 1
+		# C = Console_Handle; 1
+		# D = ; 0
+		# E = ; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	return;
+}
+
+subroutine printf
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Console_Handle; 0
+		# C = Console_Handle; 0
+		# D = ; 0
+		# E = ; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	SP += 254;		# byte* Write_Pointer;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Console_Handle; 0
+		# C = Console_Handle; 0
+		# D = ; 0
+		# E = ; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	BC = $02;
+	HL = SP + 6;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	A = [HL];		# Dereferences address
+	HL = SP + 0;		# Fetches Write_Pointer off the stack
+	B = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = B;		# Move lower byte from temp register
+	L = A;		# Moves value into low-byte of Write_Pointer
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ; 0
+		# D = ; 0
+		# E = ; 0
+		# H = Write_Pointer; 1
+		# L = Write_Pointer; 1
+	BC = $03;
+	D = H;		# Moves Write_Pointer into upper register
+	E = L;		# Moves into lower register
+	HL = SP + 6;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	A = [HL];		# Dereferences address
+	D = A;		# Moves value into high-byte of Write_Pointer
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	HL = SP + 4;		# Fetches String off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = String; 1
+		# L = String; 1
+	B = D;		# Makes 'H' a copy of Write_Pointer
+	C = E;		# Makes 'L' a copy of E
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = String; 1
+		# L = String; 1
+
+	label __do_while_statement__3;		# do/while loop label
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = String; 1
+		# L = String; 1
+	A = [HL];		# Dereferences address
+	B = H;		# Moves String into upper register
+	C = L;		# Moves into lower register
+	H = D;		# Creates copy of Write_Pointer
+	L = E;		# Creates copy of Write_Pointer
+	[HL] = A; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = String; 1
+		# C = String; 1
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = Write_Pointer; 0
+		# L = Write_Pointer; 0
+	DE++;		# Increments Write_Pointer
+	# Current tracer registers:
+		# A = ???; 0
+		# B = String; 1
+		# C = String; 1
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = Write_Pointer; 0
+		# L = Write_Pointer; 0
+	BC++;		# Increments String
+	H = B;		# Moves String
+	L = C;		# Moves String
+	A = [HL];		# Dereferences address
+	A |= A;		# This just gets the CPU flags
+	jump  zero __do_while_statement__3_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = String; 1
+		# L = String; 1
+	# Register snapshot:
+		# D = Write_Pointer; 1
+		# H = String; 1
+	jump __do_while_statement__3;		# do/while loop jump
+	label __do_while_statement__3_memory_cleanup;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = String; 1
+		# L = String; 1
+	# Register snapshot:
+		# D = Write_Pointer; 1
+		# H = String; 1
+
+
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = String; 1
+		# L = String; 1
+	A = 224;
+	A &= E;		# S_AND8
+	E = A;		# Moves value into low-byte of Write_Pointer
+	# Current tracer registers:
+		# A = ; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = String; 1
+		# L = String; 1
+	BC = 32;
+	push DE;		# Makes room by pushing Write_Pointer to stack.
+	D = H;		# Moves String into upper register
+	E = L;		# Moves into lower register
+	H = D;		# Creates copy of String
+	L = E;		# Creates copy of String
+	HL += BC;		# S_PLUS16
+	SP += $02;		# Fixes 'panic' push
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = String; 1
+		# E = String; 1
+		# H = Write_Pointer; 1
+		# L = Write_Pointer; 1
+	BC = $02;
+	push DE;		# Makes room by pushing String to stack.
+	D = H;		# Moves @statement_value@ into upper register
+	E = L;		# Moves into lower register
+	HL = SP + 8;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	[HL] = E; 		# Stores value into memory location
+	pop BC;		# Gets String back off the stack.
+	# Current tracer registers:
+		# A = ???; 0
+		# B = String; 1
+		# C = String; 1
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	HL = $03;
+	push BC;		# Makes room by pushing String to stack.
+	B = H;		# Moves  into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 8;		# Fetches Console_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	[HL] = D; 		# Stores value into memory location
+	pop BC;		# Gets String back off the stack.
+	# Current tracer registers:
+		# A = ???; 0
+		# B = String; 1
+		# C = String; 1
+		# D = Write_Pointer; 1
+		# E = Write_Pointer; 1
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	SP += 2;		# Remove local variables from stack
+	return;
+}
+
+subroutine main
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = String; 0
+		# C = String; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = ???; 0
+		# B = String; 0
+		# C = String; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = Console_Handle; 0
+		# L = Console_Handle; 0
+	HL = $FF40;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = String; 0
+		# C = String; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $8000;
+	push BC;		# Pushes Write_Head to the stack
+	BC = main;
+	push BC;		# Pushes Read_Head to the stack
+	BC = $800;
+	push BC;		# Pushes Counter to the stack
+	call Conditional_Checker;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	BC = $8800;
+	push BC;		# Pushes Write_Head to the stack
+	BC = __main__Test;
+	push BC;		# Pushes Read_Head to the stack
+	BC = 17;
+	push BC;		# Pushes Counter to the stack
+	call Conditional_Checker;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	HL = $FF40;
+	[HL] = $83; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+
+	A = 1;
+	A |= A;		# This just gets the CPU flags
+	jump zero __if_statement__4;		# If statement jump
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+
+	label __do_while_statement__5;		# do/while loop label
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	call Wait_For_VBlank;		# Calls function
+	A = 1;
+	A |= A;		# This just gets the CPU flags
+	jump  zero __do_while_statement__5_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+	jump __do_while_statement__5;		# do/while loop jump
+	label __do_while_statement__5_memory_cleanup;
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+
+
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	# Register snapshot:
+	label __if_statement__4;		# If statement label
+
+	# Current tracer registers:
+		# A = ; 0
+		# B = ; 0
+		# C = ; 0
+		# D = Write_Pointer; 0
+		# E = Write_Pointer; 0
+		# H = ; 0
+		# L = ; 0
+	return;
+}
+
+data __main__Test
+{
+	"HELLO! I AM TEXT" 0
 }
 

@@ -92,6 +92,10 @@ void main()
 
 	Conditional_Checker(VRAM_BLOCK_0, addressof(main), 0x800);
 
+	const byte Test[] = "HELLO! I AM TEXT";
+
+	Conditional_Checker(VRAM_BLOCK_1, Test, sizeof(Test));
+
 	*LCDC_REGISTER = 0x83;
 
 	while (1)

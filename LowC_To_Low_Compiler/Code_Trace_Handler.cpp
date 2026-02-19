@@ -321,7 +321,17 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 		}
 		else
 		{
+			std::string Value = Reg[0].Value;
+
+			size_t Previously_Modified = Reg[0].Modified_Counter;
+
+			Reg[0].Modified_Counter = 2;
+
 			Trace* New_Hot_Register = Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_REG_PAIR);
+
+			Reg = Find_Value_In_Tracer_Register(Tracer, Value, 3);
+
+			Reg[0].Modified_Counter = Previously_Modified;
 
 			Output_Low_Code += "\t" + New_Hot_Register[0].Name + " = $00;\t\t# Zeroes high byte\n";
 			Output_Low_Code += "\t" + New_Hot_Register[1].Name + " = " + Register + ";\t\t# Copies lower byte\n";
@@ -364,7 +374,16 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 		{
 			// this is assuming that Reg[0].Name + Reg[1].Name is some other register pair
 
+			size_t Previously_Modified = Reg[0].Modified_Counter;
+
+			Reg[0].Modified_Counter = 2;
+			Reg[1].Modified_Counter = 2;
+
+			std::string Value = Reg[0].Value;
+
 			Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_HL_REG);
+
+			Reg = Find_Value_In_Tracer_Register(Tracer, Value, 3);
 
 			if (Copy_Requirements || Reg[0].Modified_Counter == 2)
 			{
@@ -377,6 +396,9 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 				Tracer.Registers[6].Modified_Counter = 2;
 				Tracer.Registers[5].Value = Reg[0].Value;
 				Tracer.Registers[6].Value = Reg[1].Value;
+
+				Reg[0].Modified_Counter = Previously_Modified;
+				Reg[1].Modified_Counter = Previously_Modified;
 			}
 			else
 			{
@@ -395,6 +417,8 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 				Reg[0].Value = "???";
 				Reg[1].Value = "???";
 			}
+
+
 
 			return "HL";
 		}
@@ -906,7 +930,7 @@ std::string Tracer_Shift(std::string& Output_Low_Code, Tracer_Data& Tracer, cons
 
 //
 
-std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node, size_t Requirements = REQUIRE_NONE, size_t Copy_Requirements = 0)
+std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, std::string Value, size_t Syntax_ID, size_t Requirements = REQUIRE_NONE, size_t Copy_Requirements = 0)
 {
 	// Gets identifier from registers,
 	// if not, gets them from stack
@@ -915,12 +939,12 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 	Trace* Found;
 
-	if (Found = Find_Value_In_Tracer_Register(Tracer, Node.Value))
+	if (Found = Find_Value_In_Tracer_Register(Tracer, Value))
 	{
 		// found it already!
 
 		// try and fit it to requirements if it doesn't already
-		if (Node.Syntax_ID == S_ID16)
+		if (Syntax_ID == S_ID16)
 			return Fit_Register_Requirements(Output_Low_Code, Tracer, Found[0].Name + Found[1].Name, Requirements, Copy_Requirements);
 		else
 			return Fit_Register_Requirements(Output_Low_Code, Tracer, Found[0].Name, Requirements, Copy_Requirements);
@@ -928,7 +952,7 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 	// not in current registers? check the stack...
 
-	long Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node.Value);
+	long Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Value);
 
 	if (Stack_Index != -1)	// Found on stack!
 	{
@@ -942,7 +966,7 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 		Tracer.Registers[6].Value = "@@stack_pointer@@"; // This ensures that there's no confusion when juggling registers...
 		Tracer.Registers[6].Modified_Counter = 3;
 
-		Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node.Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
+		Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
 
 		Found = &Tracer.Stack[Tracer.Stack.size() - 1 - Stack_Index];
 
@@ -953,18 +977,18 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 			Trace* Temp = Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_NONE); // just get a temp register to simplify things
 
 			// Need to do this AFTER we've gotten a free register just for safety
-			Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node.Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
+			Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
 
 			Found = &Tracer.Stack[Tracer.Stack.size() - 1 - Stack_Index];
 
-			Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
+			Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Value + " off the stack\n";
 			// Need to do this AFTER we've gotten a free register just for safety
 
 			Output_Low_Code += "\t" + Temp->Name + " = [HL];\t\t# Store lower byte temporarily\n";
 			Output_Low_Code += "\tHL++;\n\tH = [HL];\t\t# Store upper byte\n\tL = " + Temp->Name + ";\t\t# Move lower byte from temp register\n";
 
-			Tracer.Registers[5].Value = Node.Value;
-			Tracer.Registers[6].Value = Node.Value;
+			Tracer.Registers[5].Value = Value;
+			Tracer.Registers[6].Value = Value;
 
 			Tracer.Registers[5].Modified_Counter = 1 + Copy_Requirements;
 			Tracer.Registers[6].Modified_Counter = 1 + Copy_Requirements;
@@ -978,17 +1002,17 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 				Trace* Temp = Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_A_REG);
 
 				// Need to do this AFTER we get the free register
-				Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Node.Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
+				Stack_Index = Find_Value_In_Tracer_Stack(Tracer, Value);	// (It's quite likely that a 'panic' push was required to get this free register, so the SP needs to be updated)
 
 				Found = &Tracer.Stack[Tracer.Stack.size() - 1 - Stack_Index];
 
-				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
+				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Value + " off the stack\n";
 				// Need to do this AFTER we get the free register
 
 				Output_Low_Code += "\tA = [HL];\t\t# Store value into 'A' register\n";
 
 				Temp->Modified_Counter = 1 + Copy_Requirements;
-				Temp->Value = Node.Value;
+				Temp->Value = Value;
 
 				Tracer.Registers[5].Modified_Counter = 0;	// We're not using these anymore
 				Tracer.Registers[6].Modified_Counter = 0;
@@ -997,22 +1021,22 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 			}
 			else if (Requirements == REQUIRE_HL_REG || Requirements == REQUIRE_REG_PAIR)	// we specifically need HL?
 			{
-				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
+				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Value + " off the stack\n";
 
-				Output_Low_Code += "\tL = [HL];\t\t# Stores " + Node.Value + " into lower byte of HL\n";
+				Output_Low_Code += "\tL = [HL];\t\t# Stores " + Value + " into lower byte of HL\n";
 				Output_Low_Code += "\tH = $00;\t\t# Zeroes out upper byte\n";
 
 				Tracer.Registers[5].Modified_Counter = 2;
 				Tracer.Registers[6].Modified_Counter = 1 + Copy_Requirements;
 
 				Tracer.Registers[5].Value = ""; //Node.Value;
-				Tracer.Registers[6].Value = Node.Value;
+				Tracer.Registers[6].Value = Value;
 
 				return "HL";
 			}
 			else // no issue
 			{
-				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Node.Value + " off the stack\n";
+				Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Fetches " + Value + " off the stack\n";
 
 				Tracer.Registers[5].Modified_Counter = 0;
 				Tracer.Registers[6].Modified_Counter = 0;
@@ -1021,7 +1045,7 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 				Trace* Register = Get_Free_Register(Output_Low_Code, Tracer, 0);	// any kind of free register other than HL (but HL is still available)
 
-				Output_Low_Code += "\t" + Register->Name + " = [HL];\t\t# Stores " + Node.Value + " into " + Register->Name + " register\n";
+				Output_Low_Code += "\t" + Register->Name + " = [HL];\t\t# Stores " + Value + " into " + Register->Name + " register\n";
 
 				//Tracer.Registers[5].Modified_Counter = 0;
 				//Tracer.Registers[6].Modified_Counter = 1 + Copy_Requirements;
@@ -1030,7 +1054,7 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 				//Tracer.Registers[6].Value = Node.Value;
 
 				Register->Modified_Counter = 1 + Copy_Requirements;
-				Register->Value = Node.Value;
+				Register->Value = Value;
 
 				return Register->Name;
 			}
@@ -1039,7 +1063,7 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 	// Then check stack addresses
 
-	Stack_Index = Find_Value_Address_In_Tracer_Stack(Tracer, Node.Value);
+	Stack_Index = Find_Value_Address_In_Tracer_Stack(Tracer, Value);
 
 	if (Stack_Index != -1)
 	{
@@ -1047,22 +1071,22 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 
 		Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_HL_REG);	// Free up HL registers
 
-		Stack_Index = Find_Value_Address_In_Tracer_Stack(Tracer, Node.Value); // (it's entirely possible that a 'panic' push was done, so double-check the stack pointer)
+		Stack_Index = Find_Value_Address_In_Tracer_Stack(Tracer, Value); // (it's entirely possible that a 'panic' push was done, so double-check the stack pointer)
 
-		Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Gets " + Node.Value + " address\n";
+		Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Index) + ";\t\t# Gets " + Value + " address\n";
 
 		Tracer.Registers[5].Modified_Counter = 2;
 		Tracer.Registers[6].Modified_Counter = 2;
 
-		Tracer.Registers[5].Value = Node.Value;
-		Tracer.Registers[6].Value = Node.Value;
+		Tracer.Registers[5].Value = Value;
+		Tracer.Registers[6].Value = Value;
 
 		return Fit_Register_Requirements(Output_Low_Code, Tracer, "HL", Requirements, 0); // no requirements since this is never an identifier
 	}
 
 	// If not in registers or stack? Check global constant etc
 
-	std::string Name = Node.Value;
+	std::string Name = Value;
 
 	if (!Find_Value_In_Global_Stack(Tracer, Name))	// If not a global constant? check local constants
 		Name = Local_Function_Scope_Name + Name;	// found the local constant!
@@ -1288,7 +1312,7 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 	case S_ID8:
 	case S_ID16:
 	{
-		return Get_Back_Register(Output_Low_Code, Tracer, Node, Register_Requirements, Copy_Requirements);
+		return Get_Back_Register(Output_Low_Code, Tracer, Node.Value, Node.Syntax_ID, Register_Requirements, Copy_Requirements);
 	}
 
 	//
@@ -1756,7 +1780,7 @@ void Restore_Register_Snapshot(std::string& Output_Low_Code, Tracer_Data& Tracer
 
 		Trace* Desired_Reg = Register_From_Name(Tracer, ID_Snapshot[Index].Name[0]);
 
-		std::string Identifier = Get_Back_Register(Output_Low_Code, Tracer, Node, 0, 0); // This makes the value 'hot'
+		std::string Identifier = Get_Back_Register(Output_Low_Code, Tracer, Node.Value, Node.Syntax_ID, 0, 0); // This makes the value 'hot'
 
 		Trace* ID_Reg = Register_From_Name(Tracer, Identifier[0]);
 

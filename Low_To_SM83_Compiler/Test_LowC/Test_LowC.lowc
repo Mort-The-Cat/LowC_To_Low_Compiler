@@ -86,7 +86,7 @@ void printf(byte* Console_Handle, const byte* String)
 	}while(*String);
 
 	store_low(Write_Pointer, ( 224 & (byte)Write_Pointer) );
-	Write_Pointer = (Write_Pointer + (byte)32);
+	Write_Pointer = Write_Pointer + 32;
 
 	*(Console_Handle + CH_Tilemap_Low) = (byte)Write_Pointer;
 	*(Console_Handle + CH_Tilemap_High) = high(Write_Pointer);
@@ -133,22 +133,24 @@ void main()
 
 	do
 	{
-		if (!*(LCDY_REGISTER))
+		//if (!*(LCDY_REGISTER))
+		//{
+
+		Frame_Counter++;
+
+		if ((byte)Frame_Counter > 20)	// at 60FPS, this'll roughly be three times per second
 		{
-			Frame_Counter++;
+			*(BACKGROUND_SCROLL_X_REGISTER)++;
 
-			if ((byte)Frame_Counter > 20)	// at 60FPS, this'll roughly be three times per second
-			{
-				*(BACKGROUND_SCROLL_X_REGISTER)++;
-
-				Frame_Counter = 0;
-			}
-
-			do
-			{
-				init_dma();				// just do random busy-work (waiting)
-			} while (!*(LCDY_REGISTER));
+			Frame_Counter = 0;
 		}
+
+		do
+		{
+			init_dma();
+		}while(*LCDY_REGISTER);
+
+		//}
 	} while (1);
 
 	return;
