@@ -1572,7 +1572,7 @@ const std::vector<Grammar_Checker> Shift_Expression8 =
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_SHIFT_RIGHT),
-			Checker_Function(Parse_Special_Recursive_Check, Additive_Expression8)
+			Checker_Function(Parse_Special_Recursive_Check, Expression8_Grammars)
 		},
 		Node_Init
 		{
@@ -1584,7 +1584,7 @@ const std::vector<Grammar_Checker> Shift_Expression8 =
 	Grammar_Checker(
 		{
 			Checker_Function(Is_Token, T_SHIFT_LEFT),
-			Checker_Function(Parse_Special_Recursive_Check, Additive_Expression8)
+			Checker_Function(Parse_Special_Recursive_Check, Expression8_Grammars)
 		},
 		Node_Init
 		{

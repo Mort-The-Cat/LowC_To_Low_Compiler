@@ -16,7 +16,7 @@ void Draw_Player_Sprite(byte* Player_Data, byte Screen_X, byte Screen_Y)
 
     Spritechain = Player_Data + Player_Object_State;
 
-    Spritechain = load_16( (Sprite_Chains + shift_left(*Spritechain)) );
+    Spritechain = load_16( Sprite_Chains + shift_left(*Spritechain) );
 
     Spritecount = 9; 
     
@@ -83,7 +83,7 @@ void Render_Player(byte* Player_Data, word Camera_X, word Camera_Y)
     if(! Condition )
     {
         //place_spritechain_in_oam_buffer(Bot_Walk_Right_2, shift_right( shift_right( (byte)sizeof(Bot_Walk_Right_2) ) ), (Screen_Y + 88), (Screen_X + 88) );
-        Draw_Player_Sprite(Player_Data, (Screen_X + 88), (Screen_Y + 88) );
+        Draw_Player_Sprite(Player_Data, Screen_X + 88, Screen_Y + 88 );
     }
 
     return;
@@ -123,7 +123,7 @@ void Move_Player(byte* Player_Data)
     {
         Player_X--;
 
-        *(Player_Data + Player_Object_State) = 0;
+        *(Player_Data + Player_Object_State) = 1;
     }
 
     if(!bit(Inputs, CONTROLLER_RIGHT_BIT))
@@ -152,7 +152,7 @@ void Test_Game_Loop()
 
     memset(Player_Data, 0, Player_Object_Bytecount);
 
-    write_16( (Player_Data + Player_Object_Y), 0x30);
+    write_16( Player_Data + Player_Object_Y, 0x30);
 
     do
     {

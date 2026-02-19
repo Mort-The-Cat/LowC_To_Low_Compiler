@@ -71,7 +71,7 @@ void Clean_OAM_Buffer()
     do
     {
         *Pointer = 0x00;
-        Pointer = (Pointer + 4);
+        Pointer = Pointer + 4;
         Count = Count - 4;
     }while(Count);
 
@@ -95,13 +95,13 @@ void main()
 
     memcpy(VRAM_BLOCK_0, Box_Bot_Graphics, sizeof(Box_Bot_Graphics));
     memcpy(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
-    memcpy( (VRAM_BLOCK_1 + sizeof(Alphabet_Graphics)), Title_Screen_UI_Blocks, sizeof(Title_Screen_UI_Blocks));
+    // memcpy( (VRAM_BLOCK_1 + sizeof(Alphabet_Graphics)), Title_Screen_UI_Blocks, sizeof(Title_Screen_UI_Blocks));
 
     const byte Warm_Message[] = "HELLO! TEST";
     const byte Warm_Message_2[] = "CAN YOU HEAR ME?";
 
     memcpy( VRAM_TILEM_0, Warm_Message, sizeof(Warm_Message) );
-    memcpy( (VRAM_TILEM_0 + 0x0020), Warm_Message_2, sizeof(Warm_Message_2) );
+   // memcpy( (VRAM_TILEM_0 + 0x0020), Warm_Message_2, sizeof(Warm_Message_2) );
 
     *(BACKGROUND_PALETTE_REGISTER) = 0xE4;
     *(OBJECT_PALETTE_0_REGISTER) = 0xE4;
@@ -117,7 +117,7 @@ void main()
     while(1)             // infinite loop (for testing purposes)
     {
         Clean_OAM_Buffer();
-        place_spritechain_in_oam_buffer(Bot_Jump_Left, shift_right( shift_right( (byte)sizeof(Bot_Jump_Left) ) ), (50 + 16), (50 + 8) );
+        place_spritechain_in_oam_buffer(Bot_Jump_Left, shift_right( shift_right( (byte)sizeof(Bot_Jump_Left) ) ), 66, 68 );
         Wait_For_VBlank();
         dma_transfer();
     }

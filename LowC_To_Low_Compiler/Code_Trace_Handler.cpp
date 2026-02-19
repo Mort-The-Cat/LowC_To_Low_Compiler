@@ -208,7 +208,6 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 	case REQUIRE_NONE:
 		return Register;
 
-
 	case REQUIRE_A_REG:
 		if (Register[0] == 'A')
 		{
@@ -526,6 +525,8 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 	{
 
 		printf(" >> SERIOUS ERROR! Unable to find variable %s on stack tracer!\n", Variable->Value.c_str());
+
+		Output_Low_Code += "FATAL ERROR\n";
 	}
 
 	Trace* Stack_Memory = &Tracer.Stack[Tracer.Stack.size() - Stack_Position - 1];
@@ -534,6 +535,69 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 
 	if (Stack_Memory->Pointer_Flag)	// Some kind of 16-bit value?
 	{
+		Variable[0].Modified_Counter = 2;
+		Variable[1].Modified_Counter = 2;
+
+		Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_HL_REG); // Frees up HL register
+
+		Tracer.Registers[5].Modified_Counter = 3;
+		Tracer.Registers[6].Modified_Counter = 3;
+
+		Trace* New_Value_Address = Find_Value_In_Tracer_Register(Tracer, Value);	// We MIGHT need to overwrite this?
+
+		Stack_Position = Find_Value_In_Tracer_Stack(Tracer, Value);
+
+		Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Position) + ";\t\t# Memory location of " + Value + "\n";
+
+		Output_Low_Code += "\t[HL] = " + New_Value_Address[1].Name + ";\t\t# Stores " + Value + " back into memory\n";
+		Output_Low_Code += "\tHL++;\n";
+		Output_Low_Code += "\t[HL] = " + New_Value_Address[0].Name + ";\t\t# Stores upper byte of " + Value + " back into memory\n";
+
+		New_Value_Address[0].Modified_Counter = 0;
+		New_Value_Address[1].Modified_Counter = 0;
+
+		Tracer.Registers[5].Modified_Counter = 0;
+		Tracer.Registers[6].Modified_Counter = 0;
+	}
+	else
+	{
+		Variable->Modified_Counter = 2;
+
+		Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_HL_REG);
+
+		Trace* New_Value_Address = Find_Value_In_Tracer_Register(Tracer, Value);	// Me MIGHT need to overwrite this when freeing HL
+
+		Stack_Position = Find_Value_In_Tracer_Stack(Tracer, Value);
+
+		Output_Low_Code += "\tHL = SP + " + std::to_string(Stack_Position) + ";\t\t# Memory location of " + Value + "\n";
+		Output_Low_Code += "\t[HL] = " + New_Value_Address->Name + ";\t\t# Stores " + Value + " back into memory\n";
+
+		New_Value_Address[0].Modified_Counter = 0;
+	}
+}
+
+/*
+
+
+void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_Data& Tracer, Trace* Variable)
+{
+
+	long Stack_Position = Find_Value_In_Tracer_Stack(Tracer, Variable->Value);
+
+	if (Stack_Position == -1)
+	{
+
+		printf(" >> SERIOUS ERROR! Unable to find variable %s on stack tracer!\n", Variable->Value.c_str());
+	}
+
+	Trace* Stack_Memory = &Tracer.Stack[Tracer.Stack.size() - Stack_Position - 1];
+
+	std::string Value = Variable->Value;
+
+	if (Stack_Memory->Pointer_Flag)	// Some kind of 16-bit value?
+	{
+
+
 		Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_HL_REG); // Frees up HL register
 
 		Tracer.Registers[5].Modified_Counter = 3;
@@ -579,7 +643,7 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 					Output_Low_Code += "\tpush BC;\t\t# Frees up register pair\n";
 
 					Stack_Position = Find_Value_In_Tracer_Stack(Tracer, Variable->Value);
-					
+
 					Panic_Stack_Address = Check_Panic_Stack(Tracer, Value);
 
 					Tracer.Stack[Tracer.Stack.size() - Panic_Stack_Address - 1].Name = "@resolved@";
@@ -616,10 +680,15 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 
 		New_Value_Address[0].Modified_Counter = 0;
 		New_Value_Address[1].Modified_Counter = 0;
+
+		Tracer.Registers[5].Modified_Counter = 0;
+		Tracer.Registers[6].Modified_Counter = 0;
 	}
 	else
 	{
-		Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_HL_REG);
+		Variable->Modified_Counter
+
+			Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_HL_REG);
 
 		Trace* New_Value_Address = Find_Value_In_Tracer_Register(Tracer, Value);	// Me MIGHT need to overwrite this when freeing HL
 
@@ -631,6 +700,8 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 		New_Value_Address[0].Modified_Counter = 0;
 	}
 }
+
+*/
 
 Trace* Register_From_Name(Tracer_Data& Tracer, char Letter)
 {
@@ -993,7 +1064,7 @@ std::string Get_Back_Register(std::string& Output_Low_Code, Tracer_Data& Tracer,
 			Tracer.Registers[5].Modified_Counter = 1 + Copy_Requirements;
 			Tracer.Registers[6].Modified_Counter = 1 + Copy_Requirements;
 
-			return "HL";
+			return Fit_Register_Requirements(Output_Low_Code, Tracer, "HL", Requirements, Copy_Requirements);
 		}
 		else
 		{
