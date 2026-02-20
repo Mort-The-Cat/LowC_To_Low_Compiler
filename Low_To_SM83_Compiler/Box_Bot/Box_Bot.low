@@ -1638,6 +1638,24 @@ subroutine main
 		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
+	BC = 736;
+	HL = $8800;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Destination to the stack
+	BC = Title_Screen_UI_Blocks;
+	push BC;		# Pushes Source to the stack
+	BC = 224;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -1659,6 +1677,24 @@ subroutine main
 	BC = __main__Warm_Message;
 	push BC;		# Pushes Source to the stack
 	BC = 12;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = $20;
+	HL = $9800;
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes Destination to the stack
+	BC = __main__Warm_Message_2;
+	push BC;		# Pushes Source to the stack
+	BC = 17;
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack

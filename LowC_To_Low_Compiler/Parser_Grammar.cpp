@@ -1685,7 +1685,7 @@ const std::vector<Grammar_Checker> Expression8_Grammars =
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 		}
-	),
+	)/*,
 
 	Grammar_Checker(
 		{
@@ -1697,7 +1697,7 @@ const std::vector<Grammar_Checker> Expression8_Grammars =
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 		}
-	)
+	)*/
 };
 
 //
@@ -1936,7 +1936,7 @@ const std::vector<Grammar_Checker> Expression16_Grammars =
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 		}
-	),
+	)/*,
 
 	Grammar_Checker(
 		{
@@ -1948,7 +1948,7 @@ const std::vector<Grammar_Checker> Expression16_Grammars =
 		{
 			Node_Set(Recursively_Generated_Nodes[0]);
 		}
-	)
+	)*/
 };
 
 //

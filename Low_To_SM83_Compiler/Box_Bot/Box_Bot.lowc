@@ -95,13 +95,13 @@ void main()
 
     memcpy(VRAM_BLOCK_0, Box_Bot_Graphics, sizeof(Box_Bot_Graphics));
     memcpy(VRAM_BLOCK_1, Alphabet_Graphics, sizeof(Alphabet_Graphics));
-    // memcpy( (VRAM_BLOCK_1 + sizeof(Alphabet_Graphics)), Title_Screen_UI_Blocks, sizeof(Title_Screen_UI_Blocks));
+    memcpy( VRAM_BLOCK_1 + sizeof(Alphabet_Graphics), Title_Screen_UI_Blocks, sizeof(Title_Screen_UI_Blocks));
 
     const byte Warm_Message[] = "HELLO! TEST";
     const byte Warm_Message_2[] = "CAN YOU HEAR ME?";
 
     memcpy( VRAM_TILEM_0, Warm_Message, sizeof(Warm_Message) );
-   // memcpy( (VRAM_TILEM_0 + 0x0020), Warm_Message_2, sizeof(Warm_Message_2) );
+    memcpy( VRAM_TILEM_0 + 0x20, Warm_Message_2, sizeof(Warm_Message_2) );
 
     *(BACKGROUND_PALETTE_REGISTER) = 0xE4;
     *(OBJECT_PALETTE_0_REGISTER) = 0xE4;
