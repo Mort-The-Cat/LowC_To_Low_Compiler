@@ -1,0 +1,102 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Low Programming Language",
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#constant"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#storage"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#entity"
+        },
+        {
+            "include": "#variable"
+        }
+    ],
+    "repository":{
+        "keywords":{
+            "patterns": [
+                {
+                    "name": "keyword.control.low",
+                    "match": "\\b(return|returni|enablei|disablei|label|jump|call|push|pop)\\b"
+                },
+                {
+                    "name": "keyword.other.low",
+                    "match": "\\b(data|subroutine|macro|file)\\b"
+                },
+                {
+                    "name": "keyword.operator.low",
+                    "match": "(BCD|\\+=|\\-=|\\|=|&=|>>=|>>>=|>><=|<<>=|\\|>><=|<<>\\|=|=|swap|\\+|\\+\\+|\\-\\-|~=|<)"
+                }
+            ]
+        },
+        "comments":{
+            "patterns":[
+                {
+                    "name": "comment",
+                    "match": "#.*?$"
+                }
+            ]
+        },
+        "entity":{
+            "patterns":[
+                {
+                    "name": "storage.type.low",
+                    "match": "\\b(word|byte)\\b"
+                }
+            ]
+        },
+        "constant":{
+            "patterns":[
+                {
+                    "name": "constant.language.low",
+                    "match": "\\b(zero|not_zero|carry|not_carry)\\b"
+                },
+                {
+                    "name": "constant.numeric",
+                    "match": "\\$[\\dA-F]+\\b"
+                },
+                {
+                  "name": "constant.numeric",
+                  "match": "\\b\\d+\\b"
+                },
+                {
+                  "name": "constant.numeric",
+                  "match":  "\\%[0-1]+\\b"
+                }
+            ]
+        },
+        "strings":{
+            "name": "string.quoted.double",
+            "begin": "\"",
+            "end": "\"",
+            "patterns":[
+                {
+                    "name": "constant.character.escape",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "variable":
+        {
+            "patterns":[
+                {
+                    "name": "variable.register.low",
+                    "match": "\\b(A|B|C|D|E|F|H|L|AF|BC|DE|HL|SP)\\b"
+                }
+            ]
+        }
+    },
+    "scopeName": "source.low"
+}

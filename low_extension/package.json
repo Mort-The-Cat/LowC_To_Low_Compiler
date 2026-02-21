@@ -1,0 +1,59 @@
+{
+    "name":"low-extension",
+    "displayName":"Low Programming Language Extension",
+    "description":"Syntax highlighting for the SM83 CPU 'Low' programming language",
+    "version":"0.3.5",
+    "engines":{
+        "vscode":"^1.22.0"
+    },
+    "categories":[
+        "Programming Languages"
+    ],
+    "activationEvents": [
+        "onLanguage:Low",
+        "onLanguage:td"
+    ],
+    "main": "./scripts/extension",
+    "contributes":{
+        "languages":[
+            {
+                "id": "low",
+                "aliases": [
+                    "Low",
+                    "low"
+                ],
+                "extensions": [
+                    ".low"
+                ]
+            },
+            {
+                "id": "td",
+                "aliases": [
+                    "tile_data",
+                    "td"
+                ],
+                "extensions":[
+                    ".td"
+                ]
+            }
+        ],
+        "grammars":[
+            {
+                "language": "low",
+                "scopeName": "source.low",
+                "path": "./syntaxes/Low.tmLanguage.json"
+            },
+            {
+                "language": "td",
+                "scopeName": "source.low",
+                "path": "./syntaxes/Low.tmLanguage.json"
+            }
+        ],
+        "keybindings": [
+			{
+				"command": "editor.action.inspectTMScopes",
+				"key": "f2"
+			}
+		]
+    }
+}

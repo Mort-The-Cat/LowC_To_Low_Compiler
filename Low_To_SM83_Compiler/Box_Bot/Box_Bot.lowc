@@ -103,6 +103,7 @@ void main()
     memcpy( VRAM_TILEM_0, Warm_Message, sizeof(Warm_Message) );
     memcpy( VRAM_TILEM_0 + 0x20, Warm_Message_2, sizeof(Warm_Message_2) );
 
+    
     *(BACKGROUND_PALETTE_REGISTER) = 0xE4;
     *(OBJECT_PALETTE_0_REGISTER) = 0xE4;
 

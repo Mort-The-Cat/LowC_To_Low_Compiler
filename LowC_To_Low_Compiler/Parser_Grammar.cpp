@@ -1860,11 +1860,11 @@ const std::vector<Grammar_Checker> Additive_Expression16 =
 		}
 	),
 
-	Grammar_Checker(
+		Grammar_Checker(
 		{
 			Checker_Function(Parse_Special_Recursive_Check, Cast_Expression16),
 			Checker_Function(Is_Token, T_PLUS),
-			Checker_Function(Parse_Special_Recursive_Check, Expression16_Grammars)
+			Checker_Function(Parse_Special_Recursive_Check, Expression8_Grammars)
 		},
 		Node_Init
 		{
@@ -1874,11 +1874,11 @@ const std::vector<Grammar_Checker> Additive_Expression16 =
 		}
 	),
 
-		Grammar_Checker(
+	Grammar_Checker(
 		{
 			Checker_Function(Parse_Special_Recursive_Check, Cast_Expression16),
 			Checker_Function(Is_Token, T_PLUS),
-			Checker_Function(Parse_Special_Recursive_Check, Expression8_Grammars)
+			Checker_Function(Parse_Special_Recursive_Check, Expression16_Grammars)
 		},
 		Node_Init
 		{

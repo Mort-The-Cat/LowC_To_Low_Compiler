@@ -119,6 +119,11 @@ size_t Parse_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node,
 
 size_t Parse_Special_Recursive_Check(const Token* Tokens, std::vector<Parse_Node>* Node, const std::vector<Grammar_Checker>& Grammars, size_t Syntax_ID)
 {
+	if (Tokens[0].Token == T_CLOSE_BR)	// No expression begins with an end-bracket
+		return 0;
+
+	// This should hopefully speed up the compiler and skip lots of unnecessary recursive checking
+
 	for (long Grammar = Grammars.size() - 1; Grammar > -1; Grammar--)
 	{
 
