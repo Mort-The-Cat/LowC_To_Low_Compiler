@@ -3,38 +3,38 @@ void Wait_For_VBlank();
 
 void Render_Player(byte* Player_Data, word Camera_X, word Camera_Y);
 
-void Draw_Player_Sprite(byte* Player_Data, byte Screen_X, byte Screen_Y)
-{
-    byte* Spritechain;
-    byte Spritecount;
-
-    const byte Sprite_Chains[] = 
-    {
-        Bot_Walk_Right_2, high(Bot_Walk_Right_2),
-        Bot_Walk_Left_2, high(Bot_Walk_Left_2)
-    };
-
-    Spritechain = Player_Data + Player_Object_State;
-
-    Spritechain = load_16( Sprite_Chains + shift_left(*Spritechain) );
-
-    Spritecount = 9; 
-    
-    //*(Sprite_Counts + *(Player_Data + Player_Object_State));
-
-    //Spritechain = Bot_Walk_Right_2;
-    //Spritecount = shift_right( shift_right( (byte)sizeof(Bot_Walk_Right_2) ) );
-
-    //if( *((Player_Data + Player_Object_State)) )
-    //{
-    //    Spritechain = Bot_Walk_Left_2;
-    //    Spritecount = shift_right( shift_right( (byte)sizeof(Bot_Walk_Left_2) ) );
-    //}
-
-    place_spritechain_in_oam_buffer(Spritechain, Spritecount, Screen_Y, Screen_X );
-
-    return;
-}
+//void Draw_Player_Sprite(byte* Player_Data, byte Screen_X, byte Screen_Y)
+//{
+//    byte* Spritechain;
+//    byte Spritecount;
+//
+//    const byte Sprite_Chains[] = 
+//    {
+//        Bot_Walk_Right_2, high(Bot_Walk_Right_2),
+//        Bot_Walk_Left_2, high(Bot_Walk_Left_2)
+//    };
+//
+//    Spritechain = Player_Data + Player_Object_State;
+//
+//    Spritechain = load_16( Sprite_Chains + shift_left(*Spritechain) );
+//
+//    Spritecount = 9; 
+//    
+//    //*(Sprite_Counts + *(Player_Data + Player_Object_State));
+//
+//    //Spritechain = Bot_Walk_Right_2;
+//    //Spritecount = shift_right( shift_right( (byte)sizeof(Bot_Walk_Right_2) ) );
+//
+//    //if( *((Player_Data + Player_Object_State)) )
+//    //{
+//    //    Spritechain = Bot_Walk_Left_2;
+//    //    Spritecount = shift_right( shift_right( (byte)sizeof(Bot_Walk_Left_2) ) );
+//    //}
+//
+//    place_spritechain_in_oam_buffer(Spritechain, Spritecount, Screen_Y, Screen_X );
+//
+//    return;
+//}
 
 void Render_Player(byte* Player_Data, word Camera_X, word Camera_Y)
 {
@@ -123,14 +123,14 @@ void Move_Player(byte* Player_Data)
     {
         Player_X--;
 
-        *(Player_Data + Player_Object_State) = 1;
+        // *(Player_Data + Player_Object_State) = 1;
     }
 
     if(!bit(Inputs, CONTROLLER_BUTTON_RIGHT_BIT))
     {
         Player_X++;
 
-        *(Player_Data + Player_Object_State) = 0;
+        // *(Player_Data + Player_Object_State) = 0;
     }
 
     write_16(Player_Data, Player_X);
@@ -154,6 +154,12 @@ void Test_Game_Loop()
 
     write_16( Player_Data + Player_Object_Y, 0x30);
 
+    *(Player_Data + Player_Object_State) = 5;
+
+    byte Game_Timer;
+
+    Game_Timer = 0;
+
     do
     {
         Clean_OAM_Buffer();
@@ -162,6 +168,15 @@ void Test_Game_Loop()
         dma_transfer();
 
         Move_Player(Player_Data);
+
+        Game_Timer++;
+
+        if(Game_Timer > 2)          // Halves the animation speed
+        {
+            State_Function(Player_Data);
+
+            Game_Timer = 0;
+        }
 
         //write_16( (Player_Data), (0x0001 + load_16( (Player_Data) )) ); // rewrites player x position
     }while(1);

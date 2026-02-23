@@ -44,6 +44,47 @@ int Get_Number_Of_Free_Registers(Tracer_Data& Tracer)
 	return Count;
 }
 
+void Force_Free_Up_Register_Pairs(std::string& Output_Low_Code, Tracer_Data& Tracer)
+{
+	// This will temporarily push WHATEVER is on the HL register pair to the stack
+
+	// It'll then just force store whatever singular values that it can back into memory
+
+	// After that, it'll pull HL back off the stack
+
+	// This will free up some registers safely so that the tracer can hopefully grab a suitable register
+
+	// Note that this will have no effect in the event that something has gone horribly wrong and all register values are given a flag of '2' 
+	// (meaning they aren't a value which corresponds to a certain memory location)
+
+	Trace Former_HL[2];
+
+	Former_HL[0] = Tracer.Registers[5];
+	Former_HL[1] = Tracer.Registers[6];
+
+	Tracer.Registers[5].Modified_Counter = 0;
+	Tracer.Registers[6].Modified_Counter = 0;
+
+	Output_Low_Code += "\tpush HL;\t\t# This frees up the HL register to access the stack with\n";
+
+	Tracer.Stack.push_back(Trace("@panic@", "@force_free_up_register_pairs@", 2));
+	Tracer.Stack.push_back(Trace("@panic@", "@force_free_up_register_pairs@", 1));
+
+	for (size_t Reg = 0; Reg < 5; Reg++)
+	{
+		if (Tracer.Registers[Reg].Modified_Counter == 1)
+			Store_Tracer_Register_Back_In_Memory(Output_Low_Code, Tracer, &Tracer.Registers[Reg]);
+	}
+
+	Tracer.Registers[5] = Former_HL[0];
+	Tracer.Registers[6] = Former_HL[1];
+
+	Output_Low_Code += "\tpop HL;\t\t# This gets back the HL register value before forced store\n";
+
+	Tracer.Stack.pop_back();
+	Tracer.Stack.pop_back();
+}
+
 Trace* Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, int Flag = REQUIRE_REG)
 {
 	Trace* Register;
@@ -89,6 +130,8 @@ Trace* Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, int 
 
 				if (Register->Name == "A") // great! just use this one
 					return Register;
+
+				Output_Low_Code += "\t" + Register->Name + " = A;\t\t# Moves " + Tracer.Registers[0].Value + " into other register\n";
 
 				// otherwise, move some values around...
 
@@ -141,6 +184,8 @@ Trace* Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, int 
 					return &Tracer.Registers[Register];
 				}
 			}
+
+			Force_Free_Up_Register_Pairs(Output_Low_Code, Tracer);
 		}
 
 	//
@@ -175,6 +220,8 @@ Trace* Get_Free_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, int 
 		}
 
 	}
+
+	Output_Low_Code += "FATAL ERROR! Couldn't free register\n";
 }
 
 void Call_Function_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node);
@@ -310,7 +357,7 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 				New_Hot_Register[1].Modified_Counter = 1;
 
 				Output_Low_Code += "\t" + New_Hot_Register[0].Name + " = " + Reg[0].Name + ";\t\t# Makes 'H' a copy of " + Reg[0].Value + "\n";
-				Output_Low_Code += "\t" + New_Hot_Register[1].Name + " = " + Reg[1].Name + ";\t\t# Makes 'L' a copy of " + Reg[1].Name + "\n";
+				Output_Low_Code += "\t" + New_Hot_Register[1].Name + " = " + Reg[1].Name + ";\t\t# Makes 'L' a copy of " + Reg[1].Value + "\n";
 
 				Reg[0].Modified_Counter = 2; // flags it as a copy (important!)
 				Reg[1].Modified_Counter = 2;
@@ -361,7 +408,7 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 				New_Hot_Register[1].Modified_Counter = 1;
 
 				Output_Low_Code += "\t" + New_Hot_Register[0].Name + " = " + Reg[0].Name + ";\t\t# Makes 'H' a copy of " + Reg[0].Value + "\n";
-				Output_Low_Code += "\t" + New_Hot_Register[1].Name + " = " + Reg[1].Name + ";\t\t# Makes 'L' a copy of " + Reg[1].Name + "\n";
+				Output_Low_Code += "\t" + New_Hot_Register[1].Name + " = " + Reg[1].Name + ";\t\t# Makes 'L' a copy of " + Reg[1].Value + "\n";
 				
 				Reg[0].Modified_Counter = 2; // flags it as a copy (important!)
 				Reg[1].Modified_Counter = 2;
@@ -525,6 +572,10 @@ void Store_Tracer_Register_Back_In_Memory(std::string& Output_Low_Code, Tracer_D
 	{
 
 		printf(" >> SERIOUS ERROR! Unable to find variable %s on stack tracer!\n", Variable->Value.c_str());
+
+		// printf("%s", Output_Low_Code.c_str());
+
+
 
 		Output_Low_Code += "FATAL ERROR\n";
 	}
@@ -1825,6 +1876,16 @@ void Node_Return_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, co
 
 //
 
+bool Check_In_ID_Snapshot(Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot, size_t Index)
+{
+	for (size_t Snapshot_Index = 0; Snapshot_Index < ID_Snapshot.size(); Snapshot_Index++)
+	{
+		if (ID_Snapshot[Snapshot_Index].Value == Tracer.Registers[Index].Value)
+			return true;
+	}
+
+	return false;
+}
 
 void Restore_Register_Snapshot(std::string& Output_Low_Code, Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot)
 {
@@ -1842,6 +1903,14 @@ void Restore_Register_Snapshot(std::string& Output_Low_Code, Tracer_Data& Tracer
 	for (size_t ID = 0; ID < ID_Snapshot.size(); ID++)
 	{
 		Output_Low_Code += "\t\t# " + ID_Snapshot[ID].Name + " = " + ID_Snapshot[ID].Value + "; " + std::to_string(ID_Snapshot[ID].Modified_Counter) + "\n";
+	}
+
+	// Any value which *isn't* in the ID_Snapshot needs to be stored back into memory (because, if it's been modified, we need to rewrite it)
+
+	for (size_t Reg = 0; Reg < Tracer.Registers.size(); Reg++)
+	{
+		if (!Check_In_ID_Snapshot(Tracer, ID_Snapshot, Reg) && Tracer.Registers[Reg].Modified_Counter == 1)
+			Store_Tracer_Register_Back_In_Memory(Output_Low_Code, Tracer, &Tracer.Registers[Reg]); // This stores the values (which aren't in the snapshot) back into memory
 	}
 
 	//

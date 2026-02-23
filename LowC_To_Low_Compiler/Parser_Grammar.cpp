@@ -1860,7 +1860,7 @@ const std::vector<Grammar_Checker> Additive_Expression16 =
 		}
 	),
 
-		Grammar_Checker(
+	/*	Grammar_Checker(
 		{
 			Checker_Function(Parse_Special_Recursive_Check, Cast_Expression16),
 			Checker_Function(Is_Token, T_PLUS),
@@ -1872,7 +1872,7 @@ const std::vector<Grammar_Checker> Additive_Expression16 =
 			Node_Copy("right", Recursively_Generated_Nodes[1]);
 			Node_Set_Syntax(S_PLUS16_8);
 		}
-	),
+	),*/
 
 	Grammar_Checker(
 		{
