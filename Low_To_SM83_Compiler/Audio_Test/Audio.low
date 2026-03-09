@@ -1,0 +1,123 @@
+file Audio_Test/Memory_Copy.low;
+
+file Logo_Data.td;
+
+file LOW_Macros.low;
+
+data Placeholder $0200
+{
+    # No data
+}
+
+file Audio_Test/Test_FNAF_World_File.low;
+file Audio_Test/Test_FNAF_World_Song.low;
+file Audio_Test/Song_Interpreter.low;
+
+data Song_Handle_Data
+{
+    #high(Test_Song) Test_Song
+    high(Title_Screen_Song_Melody) Title_Screen_Song_Melody
+    $00 $00 $00
+
+    $00
+    $00
+    $00
+}
+
+data Song_Handle_2_Data
+{
+    #high(Test_Song_2) Test_Song_2
+    high(Title_Screen_Song_Drums) Title_Screen_Song_Drums
+    $00 $00 $00
+
+    $00
+    $00
+    $00
+}
+
+subroutine Main_Loop
+{
+    HL = $FF20;
+    A ^= A;
+    [HL++] = A;
+    A = $80;
+    [HL++] = A;
+    A = 100;
+    [HL++] = A;
+    A = $C0;
+    [HL++] = A;
+
+    
+    HL = Song_Handle_Data;
+    BC = $D000; # Nice free area in WRAM
+    DE = $08;
+    call Memcpy;    # This copies the sound handle data into memory
+
+    HL = Song_Handle_2_Data;
+    BC = $D008;
+    DE = $08;
+    call Memcpy;
+
+    label Audio_Loop;
+        #A = %00001011;
+        #[$FF00 + $FF10] = A;
+
+        label Wait_For_VBlank_End;
+            A = [$FF00 + LCDY_REGISTER];
+            A < VBLANK_LY;
+        jump not_carry Wait_For_VBlank_End; # While we're still in VBlank
+
+        label Wait_For_VBlank;
+            A = [$FF00 + LCDY_REGISTER];
+            A < VBLANK_LY;
+        jump not_zero Wait_For_VBlank;
+
+        B = $00;    # Priority bit ($00 = sound audio)
+        C = SQUARE_CHANNEL_0;    # Channel 1
+        push BC;
+        HL = $D000; # This is the pointer to the sound handle we created earlier
+        call Channel_Sound_Handle_Function;
+        SP += $02;  # We remove the local scope ourselves
+
+        B = $00;    # Priority bit ($00 = sound audio)
+        C = NOISE_CHANNEL;    # Channel 2
+        push BC;
+        HL = $D008;
+        call Channel_Sound_Handle_Function;
+        SP += $02;
+    jump Audio_Loop;
+}
+
+subroutine Main $0150
+{
+    HL = $CFFF;
+    SP = HL;    # Sets stack pointer nicely
+
+    A ^= A;
+    [$FF00 + INTERRUPT_ENABLE_REGISTER] = A; # This disables all interrupts
+
+    label Wait_For_VBlank;
+    A = [$FF00 + LCDY_REGISTER];
+    A < VBLANK_LY;
+    jump not_zero Wait_For_VBlank;
+
+    [$FF00 + LCDC_REGISTER] = A;    # Turns off the LCD
+
+    A = $80;
+    [$FF00 + $FF26] = A;    # Turns on the APU
+
+    A = $FF;
+    [$FF00 + $FF25] = A;
+
+    A = $80;
+    [$FF00 + LCDC_REGISTER] = A;
+
+    jump Main_Loop;
+}
+
+
+
+subroutine Program_Entry $0100
+{
+    jump Main;
+}

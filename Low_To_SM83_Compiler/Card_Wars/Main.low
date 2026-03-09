@@ -7,11 +7,13 @@ data Placeholder $0150
     # No data
 }
 
-file Box_Bot/lowc_lib.low;
+file Card_Wars/lowc_lib.low;
 
-file Box_Bot/Song_Handle.low;
+file Card_Wars/Song_Handle.low;
 
-file Box_Bot/Box_Bot.low;
+file Card_Wars/Table_Scrolling.low;
+
+file Card_Wars/Card_Wars.low;
 
 subroutine init_program_stack
 {

@@ -2255,6 +2255,12 @@ void Analyse_Global_Declaration_LowC(std::string& Output_Low_Code, Tracer_Data& 
 		return;
 	}
 
+	if (Node.Syntax_ID == S_FUNCTION_DEC)
+	{
+		Tracer.Global_Const_Declarations.push_back(&Node);
+		return;
+	}
+
 	if (Node.Syntax_ID == S_ROM_DECLARATION_STATEMENT)
 	{
 		Node_ROM_V_Declaration(Output_Low_Code, Tracer, Node);

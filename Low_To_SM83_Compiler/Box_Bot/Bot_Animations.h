@@ -183,6 +183,11 @@ void State_Function(byte* Player_Data)
 
         if(*(State_Pointer) > 19)
         {
+            if(*(State_Pointer) > 22)
+            {
+                *(State_Pointer) = 22;
+            }
+
             *(State_Pointer)--;
             return;
         }
@@ -205,6 +210,11 @@ void State_Function(byte* Player_Data)
 
     if(*(State_Pointer) < 7)
     {
+        if(*(State_Pointer) < 4)
+        {
+            *(State_Pointer) = 4;
+        }
+
         *(State_Pointer)++;
         return;
     }

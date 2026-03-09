@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<style>
+    td {
+        border: 2px solid #dddddd;
+        padding: 8px;
+    }
+
+    button{
+        background-color: #cccccc;
+        border: 2px solid #aaaaaa;
+    }
+
+    .extras{
+        max-width: 50px;
+    }
+</style>
+
+<div>
+    <button onclick="Play_Phrase_Notes(Phrase_ID);">Play Phrase</button>
+    Tempo:<input id="Tempo_Box" type="text" onchange="Change_Tempo();"></input>
+
+    <button onclick="Play_Song();">Play Song</button>
+
+    <button class="beat_button" onclick = "Add_New_Beat();">
+        New Beat
+    </button>
+
+    <button class="beat_button" onclick = "Delete_Beat();">
+        Delete Beat
+    </button>
+
+    <button class="beat_button" onclick="Add_New_Phrase();">
+        New Phrase
+    </button>
+
+    <button class="beat_button" onclick="Delete_Phrase();">
+        Delete Phrase
+    </button>
+
+    <!--        -->
+
+    <img onclick="Import_Song();" src="Download.jpg" width="20" height="20"></img>
+    <img onclick="Export_Song();" src="Export.jpg" width="20" height="20"></img>
+</div>
+
+<div>
+    <body onload = "Setup_Page();">
+        <table id="Phrase_Table">
+            <tr>
+                <td id="Phrase_Row_Number">
+                    Phrase: $00
+                </td>
+
+                <td>
+                    Notes
+                </td>
+
+                <td>
+                    Extras - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+                    <button id="Channel_Type_Element" onclick = "Update_Phrase_Channel_Type(this);">Square</button>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    $00
+                </td>
+
+                <td>
+                    -
+                </td>
+
+                <td>
+                    ---
+                </td>
+            </tr>
+        </table>
+
+        <div>
+            <style>
+                table
+                {
+                    float : left;
+                }
+
+                .beat_button
+                {
+                    clear : left;
+                    
+                }
+            </style>
+        </div>
+    </body>
+</div>
+
+
+<div>
+    <table id="Song_Table">
+        <tr>
+            <td>
+                Channel 1
+            </td>
+
+            <td>
+                Channel 2
+            </td>
+
+            <td>
+                Wave
+            </td>
+
+            <td>
+                Noise
+            </td>
+        </tr>
+    </table>
+</div>
+
+<br>
+
+<textarea id="IO_Window" type="text" placeholder="Song Files Go Here"></textarea>
+
+</html>
+
+<script src="Gameboy_Notes.js"></script>
+
+<script>
+    // const { Note, Notes } = require("./Gameboy_Notes.js");
+
+    const Channel_Type = Object.freeze
+    (
+        {
+            Square : 0,
+            Wave : 1,
+            Noise : 2
+        }
+    );
+
+    const Channel_Type_Names = ["Square", "Wave", "Noise"];
+
+    // How should a phrase be structured?
+    // List of beat infos
+    // Including 
+    //  - what notes (if any) to play as well as 
+    //  - as well as what length (if any) etc etc
+
+    // The program will hold onto a list of phrases
+
+    // The song will be made up of phrase datas
+
+    function Import_Song()
+    {
+        // This will take data from the IO_Window and use it to generate phrase data
+
+        // The song data can be assembled manually easily
+
+        let In = document.getElementById("IO_Window");
+
+        Lines = In.value.split("\n"); // This gets each individual line from the IO_Window
+
+        let Phrase_ID = 0;
+        let Beat_Index = 0;
+
+        for(let Index = 0; Index < Lines.length; Index++)
+        {
+            if(Lines[Index].includes("const byte Phrase_", 0)) // Start new phrase!
+            {
+                Beat_Index = 0; // New phrase, new beats
+
+                // index 12 is the code
+
+                console.log(Lines[Index].substring(18, 18 + 3));
+
+                Phrase_ID = parseInt(Lines[Index].substring(18, 18 + 3), 10);
+
+                console.log(Phrase_ID);
+
+                Phrases[Phrase_ID].List_Of_Beats.length = 0;
+
+                if(Lines[Index].includes("// Noise channel phrase"))
+                {
+                    Phrases[Phrase_ID].Phrase_Channel = Channel_Type.Noise;
+                }
+                if(Lines[Index].includes("// Wave channel phrase"))
+                {
+                    Phrases[Phrase_ID].Phrase_Channel = Channel_Type.Wave;
+                }
+            }
+
+            if(Lines[Index][0] == ' ') // Probably a note trigger byte
+            {
+                // Line[2] = trigger
+                // Line[3] = enable length?
+                // Line[4] = new volume?
+                // Line[5] = new duty/length
+                // Line[6] = new sweep
+                // Line[7,8,9] = msb frequency
+
+                let Frequency = parseInt(Lines[Index].substring(7, 7 + 3), 2) << 8;
+
+                let Enable_Length = Lines[Index][3] == '1';
+
+                Phrases[Phrase_ID].List_Of_Beats.push(new Beat());
+
+                Phrases[Phrase_ID].List_Of_Beats[Beat_Index].New_Volume_Envelope = Lines[Index][4] == '1';
+                Phrases[Phrase_ID].List_Of_Beats[Beat_Index].New_Duty_Length = Lines[Index][5] == '1';
+                Phrases[Phrase_ID].List_Of_Beats[Beat_Index].New_Sweep = Lines[Index][6] == '1';
+
+                if(Lines[Index][2] != '0' && (Lines[Index][2] != 'x' || Lines[Index][2] == '1')) // Not a blank note OR an end of phrase byte
+                {
+                    Index++;
+
+                    // Lines[0,1] = \t
+                    // Lines[2] = b
+                    // Lines[3] = bit 7
+                    // Lines[4] = bit 6
+                    // Lines[5] = bit 5
+                    // Lines[6] = bit 4
+                    // Lines[7] = bit 3
+                    // Lines[8] = bit 2
+
+                    if(Phrases[Phrase_ID].List_Of_Beats[Beat_Index].New_Sweep)
+                    {
+                        Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Sweep_Period = parseInt(Lines[Index].substring(4, 4 + 3), 2);// << 4;
+                        Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Sweep_Shift = parseInt(Lines[Index].substring(8, 8 + 3), 2);
+                        if(Lines[Index][7] == '1')
+                        {
+                            Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Sweep_Shift *= -1;
+                        }
+
+                        Index++;
+                    }
+
+                    if(Phrases[Phrase_ID].List_Of_Beats[Beat_Index].New_Duty_Length)
+                    {
+                        Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Duty = parseInt(Lines[Index].substring(3, 3 + 2), 2);
+                        if(Enable_Length)
+                        {
+                            Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Length = parseInt(Lines[Index].substring(5, 5 + 6), 2);
+                        }
+                        else
+                        {
+                            Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Length = -1;
+                        }
+
+                        Index++;
+                    }
+
+                    if(Phrases[Phrase_ID].List_Of_Beats[Beat_Index].New_Volume_Envelope)
+                    {
+                        Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Volume = parseInt(Lines[Index].substring(3, 3 + 4), 2);
+                        Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Volume_Envelope = parseInt(Lines[Index].substring(8, 8 + 3), 2);
+                        if(Lines[Index][7] == '0')
+                        {
+                            Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Volume_Envelope *= -1;
+                        }
+
+                        Index++;
+                    }
+
+                    Frequency += parseInt(Lines[Index].substring(3, 3 + 8), 2);
+
+                    let Note_ID = 0;
+                    if(Phrases[Phrase_ID].Phrase_Channel != Channel_Type.Noise)
+                    {
+                        while(Notes[Note_ID].Value != Frequency)
+                        {
+                            Note_ID++;
+                            if(Note_ID == Notes.length)
+                            {
+                                console.log(Lines[Index]);
+                                console.log(Frequency);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Frequency &= 255;
+                        while(Noise_Notes[Note_ID].Value != Frequency)
+                        {
+                            Note_ID++;
+                        }
+                    }
+
+                    Phrases[Phrase_ID].List_Of_Beats[Beat_Index].Note_ID = Note_ID;
+                }
+                else
+                {
+                    if(Lines[Index][1] == 'b')
+                    {
+                        Phrases[Phrase_ID].List_Of_Beats.pop();
+                    }
+                }
+
+                Beat_Index++;
+            }
+        }
+    }
+
+    function Export_Song()
+    {
+        // This will just export the EDITTED phrases for now
+
+        // Simply check if phrase length is >1
+
+        let Out = document.getElementById("IO_Window");
+
+        Out.value = "";
+
+        for(let Phrase_ID = 0; Phrase_ID < Phrases.length; Phrase_ID++)
+        {
+            if(Phrases[Phrase_ID].List_Of_Beats.length == 1)
+            {
+                continue;
+            }
+
+            let Duty = 0;
+            let Volume = 0;
+            let Sweep_Shift = 0;
+            let Sweep_Period = 0;
+            let Length = 0;
+            let Volume_Envelope = 0;
+
+            Out.value += "const byte Phrase_" + Phrase_ID + "[] =" + (Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Noise ? " // Noise channel phrase" : (Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Wave ? " // Wave channel phrase" : "")) + "\n{\n";
+
+            for(let Beat_Index = 0; Beat_Index < Phrases[Phrase_ID].List_Of_Beats.length; Beat_Index++)
+            {
+                Current_Beat = Phrases[Phrase_ID].List_Of_Beats[Beat_Index];
+                if(Current_Beat.Note_ID == 0)
+                {
+                    Out.value += " 0x00, // Blank note\n";
+                    continue;
+                }
+
+                if(Current_Beat.New_Duty_Length)
+                {
+                    Duty = Current_Beat.Duty;
+                    Length = Current_Beat.Length;
+                }
+
+                let Byte = 2;
+                Byte += (Length != -1);
+                Byte <<= 1;
+                Byte += Current_Beat.New_Volume_Envelope;
+                Byte <<= 1;
+                Byte += Current_Beat.New_Duty_Length;
+                Byte <<= 1;
+                Byte += Current_Beat.New_Sweep;
+                Byte <<= 3;
+                Byte += Notes[Current_Beat.Note_ID].Value >> 8;
+
+                Out.value += " b" + Byte.toString(2).padStart(8, '0') + ",\n";
+
+                if(Current_Beat.New_Sweep)
+                {
+                    Sweep_Shift = Current_Beat.Sweep_Shift;
+                    Sweep_Period = Current_Beat.Sweep_Period;
+
+                    Byte = Sweep_Period;
+                    Byte <<= 1;
+                    Byte += Sweep_Shift < 0;
+                    Byte <<= 3;
+                    Byte += Math.abs(Sweep_Shift);
+
+                    Out.value += "  b" + Byte.toString(2).padStart(8, '0') + ", // Sweep\n";
+                }
+
+                if(Current_Beat.New_Duty_Length)
+                {
+                    Byte = Duty;
+                    Byte <<= 6;
+                    Byte += (Length != -1 ? Length : 0);
+
+                    Out.value += "  b" + Byte.toString(2).padStart(8, '0') + ", // Duty/Length\n";
+                }
+
+                if(Current_Beat.New_Volume_Envelope)
+                {
+                    Volume = Current_Beat.Volume;
+                    Volume_Envelope = Current_Beat.Volume_Envelope;
+
+                    Byte = Volume;
+                    Byte <<= 1;
+                    Byte += (Volume_Envelope > 0);
+                    Byte <<= 3;
+                    Byte += Math.abs(Volume_Envelope);
+
+                    Out.value += "  b" + Byte.toString(2).padStart(8, '0') + ", // Volume/envelope\n";
+                }
+
+                Byte = Notes[Current_Beat.Note_ID].Value & 0xFF;
+
+                if(Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Noise)
+                {
+                    Byte = Noise_Notes[Current_Beat.Note_ID].Value;
+                    Byte |= (Duty == 1 ? 8 : 0); // This sets the LSFR bit count (1 = 7-bit, 0 = 15-bit)
+                }
+
+                Out.value += "  b" + Byte.toString(2).padStart(8, '0') + ", // Frequency\n\n";
+
+                // Played a note!!! Yippee!!
+            }
+
+
+
+            Out.value += " b00000001 // End of phrase byte\n};\n";
+        }
+    }
+
+    function Change_Tempo()
+    {
+        UI_Element = document.getElementById("Tempo_Box");
+
+        Tempo = UI_Element.value;
+    }
+
+    class Beat
+    {
+        constructor()
+        {
+            this.Note_ID = 0x000; // This is the code for a blank note
+
+            this.New_Duty_Length = false;
+            this.New_Volume_Envelope = false;
+            this.New_Sweep = false;
+            this.Enable_Length = false;
+
+            this.Duty = 2;         // between 0-3
+            this.Length = -1;      // between 0-63 (-1 = length disabled)
+            this.Volume = 7;      // 4 bits for volume: 0-15 (for square wave)
+            this.Volume_Envelope = 0; // between -7 and 7
+            this.Sweep_Shift = 0;     // frequency * 2^-|shift| is the change in sweep
+                                        // -7 to 7
+            this.Sweep_Period = 0; //3;    // 0-7
+
+            // These are all the separate customisable parameters
+        }
+    }
+
+    Audio_Session = 0;
+
+    class Phrase
+    {
+        constructor()
+        {
+            this.List_Of_Beats = [ new Beat() ];
+
+            this.Phrase_Channel = Channel_Type.Square;
+        }
+    }
+
+    var Phrases = [];
+    for(let N = 0; N < 256; N++)
+    {
+        Phrases.push(new Phrase());
+    }
+
+    var Phrase_ID = 0;
+
+    var Tempo = 16;
+
+    var Channel_1_Song = [ 0 ];
+    var Channel_2_Song = [ 0 ];
+    var Wave_Song = [ 0 ];
+    var Noise_Song = [ 0 ];
+
+    function Next_Phrase()
+    {
+        if(Phrase_ID < 255)
+            Phrase_ID++;
+
+        Update_Interface();
+    }
+
+    function Previous_Phrase()
+    {
+        if(Phrase_ID > 0)
+            Phrase_ID--;
+
+        Update_Interface();
+    }
+
+    var Audio_Context;
+
+    const Site_Volume = 0.1;
+
+    function Setup_Page()
+    {
+        Audio_Context = new (window.AudioContext || window.WebkitAudioContext)();
+
+        Update_Interface();
+
+        Generate_Noise_Buffer();
+    }
+
+    function Play_Song()
+    {
+        Audio_Session++;
+
+        Play_Channel(Channel_1_Song);
+        Play_Channel(Channel_2_Song);
+        Play_Channel(Wave_Song);
+        Play_Channel(Noise_Song);
+    }
+
+    function Schedule_Play_Channel_Note(Channel, Phrase_Index, Beat, Sweep_Shift, Sweep_Period, Volume, Volume_Envelope, Length, Duty, Local_Audio_Session)
+    {
+        if(Audio_Session != Local_Audio_Session)
+            return;
+
+        if(Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].New_Sweep)
+        {
+            Sweep_Shift = Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Sweep_Shift;
+            Sweep_Period = Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Sweep_Period;
+        }
+
+        if(Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].New_Duty_Length)
+        {
+            Duty = Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Duty;
+            Length = Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Length;
+        }
+
+        if(Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].New_Volume_Envelope)
+        {
+            Volume = Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Volume;
+            Volume_Envelope = Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Volume_Envelope;
+        }
+
+        if(Phrases[Channel[Phrase_Index]].Phrase_Channel == Channel_Type.Noise)
+        {
+            Play_Noise_Note(Volume,
+                Noise_Notes[Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Note_ID].Value,
+                Duty,
+                Length - 100 * (Length == -1),
+                Volume_Envelope
+            );
+        }
+        else if(Phrases[Channel[Phrase_Index]].Phrase_Channel != Channel_Type.Wave)
+        {
+            Play_Square_Note(
+                Volume,
+                Notes[Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Note_ID].Value,
+                Duty,
+                Length - 500 * (Length == -1),
+                Volume_Envelope,
+                Sweep_Shift,
+                Sweep_Period
+            );
+        }
+        else
+        {
+            Play_Wave_Note(
+                Volume,
+                Notes[Phrases[Channel[Phrase_Index]].List_Of_Beats[Beat].Note_ID].Value,
+                Length - 500 * (Length == -1)
+            );
+        }
+
+        Beat++;
+
+        if(Beat >= Phrases[Channel[Phrase_Index]].List_Of_Beats.length)
+        {
+            Phrase_Index++;
+            if(Phrase_Index >= Channel.length)
+            {
+                return;
+            }
+
+            Beat = 0;
+        }
+
+        setTimeout(() => 
+        {
+
+            Schedule_Play_Channel_Note(Channel, Phrase_Index, Beat, 
+                Sweep_Shift, 
+                Sweep_Period, 
+                Volume,
+                Volume_Envelope,
+                Length, 
+                Duty,
+                Local_Audio_Session
+            );
+
+        }, 1000 * Tempo / 60); // 1000ms in a second, tempo frames per beat, 60 frames per second
+    }
+
+    function Play_Channel(Channel)
+    {
+        let Sweep_Shift = 0;
+        let Sweep_Period = 0;
+        let Volume = 0;
+        let Volume_Envelope = 0;
+        let Length = 0;
+        let Duty = 0;
+
+        Schedule_Play_Channel_Note(Channel, 0, 0, 
+            Sweep_Shift, 
+            Sweep_Period, 
+            Volume,
+            Volume_Envelope,
+            Length,
+            Duty,
+            Audio_Session
+        );
+    }
+
+    function Schedule_Play_Phrase_Note(Phrase_ID, Beat, Sweep_Shift, Sweep_Period, Volume, Volume_Envelope, Length, Duty)
+    {
+        if(Phrases[Phrase_ID].List_Of_Beats[Beat].New_Sweep)
+        {
+            Sweep_Shift = Phrases[Phrase_ID].List_Of_Beats[Beat].Sweep_Shift;
+            Sweep_Period = Phrases[Phrase_ID].List_Of_Beats[Beat].Sweep_Period;
+        }
+
+        if(Phrases[Phrase_ID].List_Of_Beats[Beat].New_Duty_Length)
+        {
+            Duty = Phrases[Phrase_ID].List_Of_Beats[Beat].Duty;
+            Length = Phrases[Phrase_ID].List_Of_Beats[Beat].Length;
+        }
+
+        if(Phrases[Phrase_ID].List_Of_Beats[Beat].New_Volume_Envelope)
+        {
+            Volume = Phrases[Phrase_ID].List_Of_Beats[Beat].Volume;
+            Volume_Envelope = Phrases[Phrase_ID].List_Of_Beats[Beat].Volume_Envelope;
+        }
+
+        if(Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Noise)
+        {
+            Play_Noise_Note(Volume, Noise_Notes[Phrases[Phrase_ID].List_Of_Beats[Beat].Note_ID].Value, Duty, Length - 500 * (Length == -1), Volume_Envelope);
+        }
+        else if(Phrases[Phrase_ID].Phrase_Channel != Channel_Type.Wave)
+        {
+            Play_Square_Note(
+                Volume,
+                Notes[Phrases[Phrase_ID].List_Of_Beats[Beat].Note_ID].Value,
+                Duty,
+                Length - 500 * (Length == -1),
+                Volume_Envelope,
+                Sweep_Shift,
+                Sweep_Period
+            );
+        }
+        else
+        {
+            Play_Wave_Note(
+                Volume,
+                Notes[Phrases[Phrase_ID].List_Of_Beats[Beat].Note_ID].Value,
+                Length - 500 * (Length == -1)
+            );
+        }
+
+        Beat++;
+
+        if(Beat < Phrases[Phrase_ID].List_Of_Beats.length)
+        {
+            setTimeout(() => 
+            {
+
+                Schedule_Play_Phrase_Note(Phrase_ID, Beat, 
+                    Sweep_Shift, 
+                    Sweep_Period, 
+                    Volume,
+                    Volume_Envelope,
+                    Length, 
+                    Duty
+                );
+
+            }, 1000 * Tempo / 60); // 1000ms in a second, tempo frames per beat, 60 frames per second
+        }
+    }
+
+    function Play_Phrase_Notes(Phrase_ID)
+    {
+        let Sweep_Shift = 0;
+        let Sweep_Period = 0;
+        let Volume = 0;
+        let Volume_Envelope = 0;
+        let Length = 0;
+        let Duty = 0;
+
+        Schedule_Play_Phrase_Note(Phrase_ID, 0, 
+            Sweep_Shift, 
+            Sweep_Period, 
+            Volume,
+            Volume_Envelope,
+            Length,
+            Duty
+        );
+    }
+
+    var Noise_Buffer = [];
+    var Byte_Noise_Buffer = [];
+
+    var Square_Buffers = [[], [], [], []];
+    const Square_Buffers_Sample_Count = 256;
+
+    function Generate_Noise_Buffer()
+    {
+        Noise_Buffer = Audio_Context.createBuffer(1, 65000, Audio_Context.sampleRate);
+        Output = Noise_Buffer.getChannelData(0);
+        for(let W = 0; W < 65000; W++)
+        {
+            Output[W] = Math.round(Math.random()) * 2 - 1; // Is either -1 or 1
+        }
+
+        Byte_Noise_Buffer = Audio_Context.createBuffer(1, 128, Audio_Context.sampleRate);
+        Output = Byte_Noise_Buffer.getChannelData(0);
+        for(let W = 0; W < 128; W++)
+        {
+            Output[W] = Math.round(Math.random()) * 2 - 1;
+        }
+
+        //
+
+        for(let Duty = 0; Duty < 4; Duty++)
+        {
+            //let Amplitude = 1;
+
+            let Origin = 0;
+
+            Square_Buffers[Duty] = Audio_Context.createBuffer(1, Square_Buffers_Sample_Count, Audio_Context.sampleRate);
+            Output = Square_Buffers[Duty].getChannelData(0);
+            for(let W = 0; W < Square_Buffers_Sample_Count; W++)
+            {
+                Origin = [1.0/8, 2.0/8, 4.0/8, 2.0/8][Duty] * Square_Buffers_Sample_Count;
+
+                if([1.0/8, 2.0/8, 4.0/8, 2.0/8][Duty] * Square_Buffers_Sample_Count < W)
+                {
+                    Output[W] = Math.pow(0.5, 0.5 * (W - Origin) / Square_Buffers_Sample_Count);
+                }
+                else
+                {
+                    Output[W] = -Math.pow(0.5, 0.5 * (W - Origin) / Square_Buffers_Sample_Count);
+                }
+            }
+        }
+    }
+
+    function Get_Noise_Frequency(Frequency_In)
+    {
+        let Divider = Frequency_In & 7;
+        let Step = Frequency_In >> 4;
+
+        return 262144.0 / (Math.max(0.5, Divider) * Math.pow(2, Step));
+    }
+
+    function Play_Wave_Note(Volume, Frequency, Length)
+    {
+        if(Frequency == 0)
+            return;
+
+        let Oscillator = Audio_Context.createOscillator();
+        let Gain_Node = Audio_Context.createGain();
+
+        // Duty handler
+
+        /*let Constant = Audio_Context.createConstantSource();
+        Constant.offset.value = [0.125, 0.25, 0.50, 0.75][Duty];*/
+
+        Oscillator.type = 'triangle';
+
+        let Produced_Frequency = 131072 / (2048 - Frequency);
+
+        Oscillator.frequency.setValueAtTime(Produced_Frequency, Audio_Context.currentTime);
+
+        Gain_Node.gain.setValueAtTime(Site_Volume * (Math.floor((Volume / 2) % 4) / 3) * 2, Audio_Context.currentTime);
+
+        Oscillator.connect(Gain_Node);
+        Gain_Node.connect(Audio_Context.destination);
+        Oscillator.start();
+        //Constant.start();
+
+        setTimeout((Oscillator, Gain_Node) => 
+        {
+            Oscillator.stop();
+            //Constant.stop();
+            Oscillator.disconnect();
+            Oscillator = null;
+            Gain_Node = null;
+        }, 1000 * (64 - Length) / 256, Oscillator, Gain_Node);
+    }
+
+    function Play_Noise_Note(Volume, Frequency, Duty, Length, Volume_Envelope)
+    {
+        if(Frequency == 0)
+            return;
+
+        let Source = Audio_Context.createBufferSource();
+        let Gain_Node = Audio_Context.createGain();
+
+        if(Duty == 1)
+        {
+            Source.buffer = Byte_Noise_Buffer;
+        }
+        else
+        {
+            Source.buffer = Noise_Buffer;
+        }
+
+        //Volume *= Site_Volume;
+
+        Gain_Node.gain.setValueAtTime(Site_Volume * Volume / 15, Audio_Context.currentTime);
+
+        if(Volume_Envelope < 0)
+        {
+            let Time_Until_Zero = 1 - (Volume * Volume_Envelope);
+            Time_Until_Zero /= 64;
+            Gain_Node.gain.linearRampToValueAtTime(0, Audio_Context.currentTime + Time_Until_Zero);
+        }
+        else if(Volume_Envelope > 0)
+        {
+            let Time_Until_Max = (15 - Volume) * Volume_Envelope;
+            Time_Until_Max /= 64;
+            Gain_Node.gain.linearRampToValueAtTime(Site_Volume, Audio_Context.currentTime + Time_Until_Max);
+        }
+
+        Source.loop = true;
+        Source.start(0);
+
+        Source.playbackRate.value = Get_Noise_Frequency(Frequency) / Audio_Context.sampleRate;
+
+        console.log(Get_Noise_Frequency(Frequency));
+
+        Source.connect(Gain_Node);
+        Gain_Node.connect(Audio_Context.destination);
+
+        setTimeout(() => 
+        {
+            Source.stop();
+            Source.loop = false;
+            Source = null;
+            Gain_Node = null;
+        }, 1000 * (64 - Length) / 256, Source, Gain_Node);
+    }
+
+    //const Square_Buffers = 
+    //    [
+    //        [ -1, -1, -1, -1, -1, -1, -1,  1],
+    //        [ -1, -1, -1, -1, -1, -1,  1,  1],
+    //        [ -1, -1, -1, -1,  1,  1,  1,  1],
+    //        [ -1, -1, -1, -1, -1, -1,  1,  1]
+    //    ];
+
+    function Play_Square_Note(Volume, Frequency, Duty, Length, Volume_Envelope, Sweep_Shift, Sweep_Period)
+    {
+        if(Frequency == 0)
+            return;
+
+        let Source = Audio_Context.createBufferSource();
+        let Gain_Node = Audio_Context.createGain();
+
+        Source.buffer = Square_Buffers[Duty];
+
+        //Volume *= Site_Volume;
+
+        Gain_Node.gain.setValueAtTime(Site_Volume * Volume / 15, Audio_Context.currentTime);
+        
+        if(Volume_Envelope < 0)
+        {
+            let Time_Until_Zero = 1 - (Volume * Volume_Envelope);
+            Time_Until_Zero /= 64;
+            Gain_Node.gain.linearRampToValueAtTime(0, Audio_Context.currentTime + Time_Until_Zero);
+        }
+        else if(Volume_Envelope > 0)
+        {
+            let Time_Until_Max = (15 - Volume) * Volume_Envelope;
+            Time_Until_Max /= 64;
+            Gain_Node.gain.linearRampToValueAtTime(Site_Volume, Audio_Context.currentTime + Time_Until_Max);
+        }
+
+        Source.loop = true;
+        Source.start(0);
+
+        let Produced_Frequency = Square_Buffers_Sample_Count * 131072 / (2048 - Frequency) / Audio_Context.sampleRate;
+
+        // Oscillator.frequency.setValueAtTime(Produced_Frequency, Audio_Context.currentTime);
+
+        Source.playbackRate.setValueAtTime(Produced_Frequency, Audio_Context.currentTime);
+
+        if(Sweep_Period != 0)
+        {
+            //if(Sweep_Shift < 0)
+            {
+                let Magnitude = Sweep_Shift > 0 ? 1 : -1;
+                for(let Iteration = 1; Iteration < 512; Iteration++)
+                {
+                    let Final_Produced_Frequency = 131072 / (2048 - (
+                        Frequency * Math.pow(1.0 + Magnitude *  Math.pow(0.5, Math.abs(Sweep_Shift)), Iteration/Sweep_Period)
+                    )) * Square_Buffers_Sample_Count / Audio_Context.sampleRate;
+
+                    Source.playbackRate.setValueAtTime(Final_Produced_Frequency, Audio_Context.currentTime + (1 + Iteration) / 512);
+                }
+            }
+        }
+
+        //Source.playbackRate.value = Square_Buffers_Sample_Count * Produced_Frequency / Audio_Context.sampleRate;
+
+        console.log(Get_Noise_Frequency(Frequency));
+
+        Source.connect(Gain_Node);
+        Gain_Node.connect(Audio_Context.destination);
+
+        setTimeout(() => 
+        {
+            Source.stop();
+            Source.loop = false;
+            Source = null;
+            Gain_Node = null;
+        }, 1000 * (64 - Length) / 256, Source, Gain_Node);
+    }
+
+    function Play_Square_Note_Old(Volume, Frequency, Duty, Length, Volume_Envelope, Sweep_Shift, Sweep_Period) // This is just for the demoplayback
+    {
+        if(Frequency == 0)
+            return;
+
+        let Oscillator = Audio_Context.createOscillator();
+        Oscillator.width = [0.125, 0.25, 0.5, 0.75][Duty];
+        let Gain_Node = Audio_Context.createGain();
+
+        // Duty handler
+
+        /*let Constant = Audio_Context.createConstantSource();
+        Constant.offset.value = [0.125, 0.25, 0.50, 0.75][Duty];*/
+
+        Oscillator.type = 'square';
+
+        // Duty handler
+
+        let Produced_Frequency = 131072 / (2048 - Frequency);
+
+        Oscillator.frequency.setValueAtTime(Produced_Frequency, Audio_Context.currentTime);
+
+        
+        if(Sweep_Period != 0)
+        {
+            //if(Sweep_Shift < 0)
+            {
+                let Magnitude = Sweep_Shift > 0 ? 1 : -1;
+                for(let Iteration = 1; Iteration < 512; Iteration++)
+                {
+                    let Final_Produced_Frequency = 131072 / (2048 - (
+                        Frequency * Math.pow(1.0 + Magnitude *  Math.pow(0.5, Math.abs(Sweep_Shift)), Iteration/Sweep_Period)
+                    ));
+
+                    Oscillator.frequency.setValueAtTime(Final_Produced_Frequency, Audio_Context.currentTime + (1 + Iteration) / 128);
+                }
+            }
+        }
+
+        Gain_Node.gain.setValueAtTime(Volume / 15, Audio_Context.currentTime);
+        
+        if(Volume_Envelope < 0)
+        {
+            let Time_Until_Zero = 1 - (Volume * Volume_Envelope);
+            Time_Until_Zero /= 64;
+            Gain_Node.gain.linearRampToValueAtTime(0, Audio_Context.currentTime + Time_Until_Zero);
+        }
+        else if(Volume_Envelope > 0)
+        {
+            let Time_Until_Max = (15 - Volume) * Volume_Envelope;
+            Time_Until_Max /= 64;
+            Gain_Node.gain.linearRampToValueAtTime(1, Audio_Context.currentTime + Time_Until_Max);
+        }
+
+        Oscillator.connect(Gain_Node);
+        Gain_Node.connect(Audio_Context.destination);
+        Oscillator.start();
+        //Constant.start();
+
+        setTimeout((Oscillator, Gain_Node) => 
+        {
+            Oscillator.stop();
+            //Constant.stop();
+            Oscillator.disconnect();
+            Oscillator = null;
+            Gain_Node = null;
+        }, 1000 * (64 - Length) / 256, Oscillator, Gain_Node);
+    }
+
+    function Play_Noise_Note_From_Index(Index)
+    {
+        Play_Noise_Note(
+            Phrases[Phrase_ID].List_Of_Beats[Index].Volume,
+            Noise_Notes[Phrases[Phrase_ID].List_Of_Beats[Index].Note_ID].Value,
+            Phrases[Phrase_ID].List_Of_Beats[Index].Duty,
+            Phrases[Phrase_ID].List_Of_Beats[Index].Length
+        )
+    }
+
+    function Play_Wave_Note_From_Index(Index)
+    {
+        Play_Wave_Note(
+            Phrases[Phrase_ID].List_Of_Beats[Index].Volume,
+            Notes[Phrases[Phrase_ID].List_Of_Beats[Index].Note_ID].Value,
+            Phrases[Phrase_ID].List_Of_Beats[Index].Length
+        );
+    }
+
+    function Play_Square_Note_From_Index(Index)
+    {
+        Play_Square_Note(
+            Phrases[Phrase_ID].List_Of_Beats[Index].Volume, 
+            Notes[Phrases[Phrase_ID].List_Of_Beats[Index].Note_ID].Value, 
+            Phrases[Phrase_ID].List_Of_Beats[Index].Duty, 
+            Phrases[Phrase_ID].List_Of_Beats[Index].Length,// - 128 * (!Phrases[Phrase_ID].List_Of_Beats[Index].Enable_Length || (List_Of_Beats[Index].Length == -1)), 
+            Phrases[Phrase_ID].List_Of_Beats[Index].Volume_Envelope,
+            Phrases[Phrase_ID].List_Of_Beats[Index].Sweep_Shift,
+            Phrases[Phrase_ID].List_Of_Beats[Index].Sweep_Period
+        );
+    }
+
+    function Update_Phrase_Channel_Type(Element)
+    {
+        Phrases[Phrase_ID].Phrase_Channel = (Phrases[Phrase_ID].Phrase_Channel + 1) % 3;
+
+        Element.innerHTML = Channel_Type_Names[Phrases[Phrase_ID].Phrase_Channel];
+
+        Update_Interface();
+    }
+
+    function Add_New_Phrase()
+    {
+        Channel_1_Song.push(127);
+        Channel_2_Song.push(127);
+        Wave_Song.push(127);
+        Noise_Song.push(127);
+
+        Update_Interface();
+    }
+
+    function Delete_Phrase()
+    {
+        if(Channel_1_Song.length > 1)
+        {
+            Channel_1_Song.pop();
+            Channel_2_Song.pop();
+            Wave_Song.pop();
+            Noise_Song.pop();
+        }
+
+        Update_Interface();
+    }
+
+    function Delete_Beat()
+    {
+        if(Phrases[Phrase_ID].List_Of_Beats.length > 1) // Every phrase must have at least 1 beat
+        {
+            Phrases[Phrase_ID].List_Of_Beats.pop();
+        }
+
+        Update_Interface();
+    }
+
+    function Add_New_Beat()
+    {
+        Phrases[Phrase_ID].List_Of_Beats.push( new Beat() );
+
+        Update_Interface();
+    }
+
+    function Hex_Code(Int)
+    {
+        return "$" + (Int < 16 ? "0" : "") + Int.toString(16).toUpperCase();
+    }
+
+    function Update_Note_Element_Data(Event, Index)
+    {
+        //let Note_Index = Notes.findIndex(Note => Note.Name == Event.target.value);
+
+        let Key_Pressed = Event.target.value[Event.target.value.length - 1];
+
+        let New_Note = Phrases[Phrase_ID].List_Of_Beats[Index].Note_ID;
+
+        switch(Key_Pressed)
+        {
+            case 'd':
+                New_Note++;
+            break;
+
+            case 'a':
+                New_Note--;
+            break;
+
+            case 'w':
+                New_Note += 12;
+            break;
+
+            case 's':
+                New_Note -= 12;
+            break;
+
+            default:
+
+            break;
+        }
+
+        Length = Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Noise ? Noise_Notes.length : Notes.length;
+
+        New_Note = New_Note < 0 ? 0 : New_Note;
+        New_Note = New_Note >= Length ? 0 : New_Note;
+
+        Phrases[Phrase_ID].List_Of_Beats[Index].Note_ID = New_Note;
+
+        Event.target.value = (Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Noise ? Noise_Notes[New_Note].Name : Notes[New_Note].Name);
+
+        switch(Phrases[Phrase_ID].Phrase_Channel)
+        {
+            case Channel_Type.Square:
+                Play_Square_Note_From_Index(Index);
+            break;
+
+            case Channel_Type.Noise:
+                Play_Noise_Note_From_Index(Index);
+            break;
+
+            case Channel_Type.Wave:
+                Play_Wave_Note_From_Index(Index);
+            break;
+        }
+
+        // Update_Interface();
+    }
+
+    function Update_Extras_Checkbox(Event, Index)
+    {
+        // S = sweep
+        // L = duty/length
+        // V = volume/envelope
+
+        switch(Event.target.id[0])
+        {
+            case 'S':
+                // Sweep!
+                console.log(Event.target.checked);
+
+                Phrases[Phrase_ID].List_Of_Beats[Index].New_Sweep = Event.target.checked;
+            break;
+
+            case 'L':
+                // Duty/length!
+
+                Phrases[Phrase_ID].List_Of_Beats[Index].New_Duty_Length = Event.target.checked;
+            break;
+
+            case 'V':
+                // Volume/envelope!
+
+                Phrases[Phrase_ID].List_Of_Beats[Index].New_Volume_Envelope = Event.target.checked;
+            break;
+
+            default:
+                console.log("Bad extras id!\n");
+            break;
+        }
+    }
+
+    function Clamp(Min, Max, Value)
+    {
+        Value = Value < Min ? Min : Value;
+        return Value > Max ? Max : Value;
+    }
+
+    function Update_Extras_Data(Event, Index)
+    {
+        // Find the increment up/down
+
+        let Increment = 0;
+
+        switch(Event.target.value.toLowerCase()[Event.target.value.length - 1])
+        {
+            case 'a':
+                Increment = -1;
+            break;
+
+            case 'd':
+                Increment = 1;
+            break;
+
+            case 'w': 
+                Increment = 5;
+            break;
+
+            case 's': 
+                Increment = -5;
+            break;
+
+            default:
+                // No input...
+                console.log("No input?");
+            break;
+        }
+
+        // P = sweep period
+        // M = sweep magnitude
+
+        // D = duty
+        // L = length
+
+        // V = volume
+        // E = envelope
+
+        switch(Event.target.id)
+        {
+            case 'P':  // 0-7
+                Phrases[Phrase_ID].List_Of_Beats[Index].Sweep_Period = 
+                    Clamp(0, 7, Phrases[Phrase_ID].List_Of_Beats[Index].Sweep_Period + Increment);
+
+                Event.target.value = Phrases[Phrase_ID].List_Of_Beats[Index].Sweep_Period;
+            break;
+
+            case 'M': // -7 to 7
+                Phrases[Phrase_ID].List_Of_Beats[Index].Sweep_Shift = 
+                    Clamp(-7, 7, Phrases[Phrase_ID].List_Of_Beats[Index].Sweep_Shift + Increment);
+
+                Event.target.value = Phrases[Phrase_ID].List_Of_Beats[Index].Sweep_Shift;
+            break;
+
+            case 'D': // 0 - 3
+                Phrases[Phrase_ID].List_Of_Beats[Index].Duty = 
+                    Clamp(0, 3, Phrases[Phrase_ID].List_Of_Beats[Index].Duty + Increment);
+
+                Event.target.value = Phrases[Phrase_ID].List_Of_Beats[Index].Duty;
+            break;
+
+            case 'L': // -1 - 63
+                Phrases[Phrase_ID].List_Of_Beats[Index].Length = 
+                    Clamp(-1, 63, Phrases[Phrase_ID].List_Of_Beats[Index].Length + Increment);
+
+                Event.target.value = Phrases[Phrase_ID].List_Of_Beats[Index].Length;
+            break;
+
+            case 'V': // 0 - 15
+                Phrases[Phrase_ID].List_Of_Beats[Index].Volume = 
+                    Clamp(0, 15, Phrases[Phrase_ID].List_Of_Beats[Index].Volume + Increment);
+
+                Event.target.value = Phrases[Phrase_ID].List_Of_Beats[Index].Volume;
+            break;
+
+            case 'E': // -7 to 7
+                Phrases[Phrase_ID].List_Of_Beats[Index].Volume_Envelope = 
+                    Clamp(-7, 7, Phrases[Phrase_ID].List_Of_Beats[Index].Volume_Envelope + Increment);
+
+                Event.target.value = Phrases[Phrase_ID].List_Of_Beats[Index].Volume_Envelope;
+            break;
+        }
+
+        //Update_Interface();
+    }
+
+    function Edit_Channel(Event, Channel, N)
+    {
+        Channel[N] = Event.target.value;
+    }
+
+    function Update_Interface() // This is called just to update all of the HTML elements
+    {
+        document.getElementById("Channel_Type_Element").innerHTML = 
+            Channel_Type_Names[Phrases[Phrase_ID].Phrase_Channel];
+
+        let Table = document.getElementById("Phrase_Table");
+
+        document.getElementById("Phrase_Row_Number").innerHTML = 
+            "Phrase: " + Hex_Code(Phrase_ID) +
+            "\n<button onclick=\"Previous_Phrase();\">&lt;</button>\n" + 
+            "<button onclick=\"Next_Phrase();\">&gt;</button>";
+
+        // We want to reset the table and add all of the beats again one-by-one
+
+        while(Table.rows.length > 1) // Resets table
+        {
+            Table.deleteRow(-1);
+        }
+
+        for(let N = 0; N < Phrases[Phrase_ID].List_Of_Beats.length; N++)
+        {
+            let New_Row = Table.insertRow();
+
+            let Beat_Counter = New_Row.insertCell(0);
+            let Note = New_Row.insertCell(1);
+            let Extras = New_Row.insertCell(2);
+
+            // Beat_Counter.innerHTML = Hex_Code(N);
+            if(Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Square)
+            {
+                Beat_Counter.innerHTML = Hex_Code(N) + "\n<button onclick=\"Play_Square_Note_From_Index(" + N + ");\">⏵</button>";
+            }
+            else if(Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Noise)
+            {
+                Beat_Counter.innerHTML = Hex_Code(N) + "\n<button onclick=\"Play_Noise_Note_From_Index(" + N + ");\">⏵</button>";
+            }
+            else
+            {
+                Beat_Counter.innerHTML = Hex_Code(N) + "\n<button onclick=\"Play_Wave_Note_From_Index(" + N + ");\">⏵</button>";
+            }
+            let Note_Name = "";
+
+            if(Phrases[Phrase_ID].Phrase_Channel == Channel_Type.Noise)
+            {
+                Note_Name = Noise_Notes[Phrases[Phrase_ID].List_Of_Beats[N].Note_ID].Name;
+            }
+            else
+            {
+                Note_Name = Notes[Phrases[Phrase_ID].List_Of_Beats[N].Note_ID].Name;
+            }
+
+            Note.innerHTML = "<input class=\"extras\" type=\"text\" onBlur=\"Update_Interface();\" maxLength=\"5\" placeholder=\"" + Note_Name + "\"></input>" +
+                        "\nS:<input type=\"checkbox\" id=\"S\"" + (Phrases[Phrase_ID].List_Of_Beats[N].New_Sweep ? "checked=\"true\"" : "") + "\"></input>" + 
+                        "\nL:<input type=\"checkbox\" id=\"L\"" + (Phrases[Phrase_ID].List_Of_Beats[N].New_Duty_Length ? "checked=\"true\"" : "") +  "\"></input>" +
+                        "\nV:<input type=\"checkbox\" id=\"V\"" + (Phrases[Phrase_ID].List_Of_Beats[N].New_Volume_Envelope ? "checked=\"true\"" : "") + "\"></input>";
+
+            Note.addEventListener("input", (Event) => 
+            {
+                if(Event.target.type == 'text')
+                {
+                    Update_Note_Element_Data(Event, N);
+                }
+                else
+                {
+                    Update_Extras_Checkbox(Event, N);
+                }
+            });
+
+            // Note.addEventListener("")
+
+            Extras.innerHTML = 
+                "Swp P:<input id=\"P\" class=\"extras\" type=\"text\" maxLength=\"5\" placeholder=\"" + Phrases[Phrase_ID].List_Of_Beats[N].Sweep_Period + "\"></input>" + 
+                "Swp M:<input id=\"M\" class=\"extras\" type=\"text\" maxLength=\"5\" placeholder=\"" + Phrases[Phrase_ID].List_Of_Beats[N].Sweep_Shift + "\"></input>" + 
+                "D:<input id=\"D\" class=\"extras\" type=\"text\" maxLength=\"5\" placeholder=\"" + Phrases[Phrase_ID].List_Of_Beats[N].Duty + "\"></input>" + 
+                "L:<input id=\"L\" class=\"extras\" type=\"text\" maxLength=\"5\" placeholder=\"" + Phrases[Phrase_ID].List_Of_Beats[N].Length + "\"></input>" +
+                "V:<input id=\"V\" class=\"extras\" type=\"text\" maxLength=\"5\" placeholder=\"" + Phrases[Phrase_ID].List_Of_Beats[N].Volume + "\"></input>" +
+                "E:<input id=\"E\" class=\"extras\" type=\"text\" maxLength=\"5\" placeholder=\"" + Phrases[Phrase_ID].List_Of_Beats[N].Volume_Envelope + "\"></input>";
+
+            //
+
+            Extras.addEventListener("input", (Event) =>
+            {
+                Update_Extras_Data(Event, N);
+            });
+
+            //Note.innerHTML = 
+
+            // Extras.innerHTML = "<input type=\"checkBox\" defaultValue=\"" + Phrases[Phrase_ID].List_Of_Beats[N].New_Sweep + "\"></input>";
+        
+            //Extras.addEventListener("input", (Event) =>)
+        }
+
+        Table = document.getElementById("Song_Table");
+
+        while(Table.rows.length > 1) // Resets table
+        {
+            Table.deleteRow(-1);
+        }
+
+        for(let N = 0; N < Channel_1_Song.length; N++)
+        {
+            let New_Row = Table.insertRow();
+
+            let Channel_1 = New_Row.insertCell(0);
+            let Channel_2 = New_Row.insertCell(1);
+            let Wave = New_Row.insertCell(2);
+            let Noise = New_Row.insertCell(3);
+
+            Channel_1.innerHTML = 
+                "<input class=\"extras\" id=\"Channel_1\" type=\"text\" placeholder=\"" + 
+                Channel_1_Song[N] + 
+                "\" ></input>";
+            Channel_1.addEventListener("input", (Event) =>
+            {
+                Edit_Channel(Event, Channel_1_Song, N);
+            });
+
+            Channel_2.innerHTML =
+                "<input class=\"extras\" id=\"Channel_2\" type=\"text\" placeholder=\"" + 
+                Channel_2_Song[N] + 
+                "\" ></input>";
+
+            Channel_2.addEventListener("input", (Event) =>
+            {
+                Edit_Channel(Event, Channel_2_Song, N);
+            });
+
+            Wave.innerHTML =
+                "<input class=\"extras\" id=\"Wave\" type=\"text\" placeholder=\"" + 
+                Wave_Song[N] + 
+                "\" ></input>";
+
+            Wave.addEventListener("input", (Event) =>
+            {
+                Edit_Channel(Event, Wave_Song, N);
+            });
+
+            Noise.innerHTML =
+                "<input class=\"extras\" id=\"Noise\" type=\"text\" placeholder=\"" + 
+                Noise_Song[N] + 
+                "\" ></input>";
+
+            Noise.addEventListener("input", (Event) =>
+            {
+                Edit_Channel(Event, Noise_Song, N);
+            });
+        }
+    }
+</script>

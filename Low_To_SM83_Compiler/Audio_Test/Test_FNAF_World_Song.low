@@ -1,0 +1,64 @@
+
+data Test_Song
+{
+    $06
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    $00 $00
+}
+
+data Test_Song_2
+{
+    $06
+    high(Phrase_1) Phrase_1
+    high(Phrase_2) Phrase_2
+    high(Phrase_3) Phrase_3
+    high(Phrase_4) Phrase_4
+    high(Phrase_5) Phrase_5
+    high(Phrase_6) Phrase_6
+    high(Phrase_7) Phrase_7
+    high(Phrase_7) Phrase_7
+    $00 $00
+}
+
+data Title_Screen_Song_Melody
+{
+    $07
+    high(Phrase_8) Phrase_8
+    high(Phrase_8) Phrase_8
+    high(Phrase_9) Phrase_9
+    high(Phrase_8) Phrase_8
+    high(Phrase_8) Phrase_8
+    high(Phrase_10) Phrase_10
+    high(Phrase_8) Phrase_8
+    high(Phrase_8) Phrase_8
+    high(Phrase_9) Phrase_9
+    high(Phrase_8) Phrase_8
+    high(Phrase_8) Phrase_8
+    high(Phrase_11) Phrase_11
+    $00 $00
+}
+
+data Title_Screen_Song_Drums
+{
+    $07
+    high(Phrase_12) Phrase_12
+    high(Phrase_12) Phrase_12
+    high(Phrase_13) Phrase_13
+    high(Phrase_12) Phrase_12
+    high(Phrase_12) Phrase_12
+    high(Phrase_13) Phrase_13
+    high(Phrase_12) Phrase_12
+    high(Phrase_12) Phrase_12
+    high(Phrase_13) Phrase_13
+    high(Phrase_12) Phrase_12
+    high(Phrase_12) Phrase_12
+    high(Phrase_13) Phrase_13
+    $00 $00
+}

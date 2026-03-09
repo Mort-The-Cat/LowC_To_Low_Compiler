@@ -138,6 +138,96 @@ void Move_Player(byte* Player_Data)
     return;
 }
 
+
+const byte Stars_Song_0[] = 
+{
+    0x07,
+    Phrase_0, high(Phrase_0),
+    Phrase_1, high(Phrase_1),
+    Phrase_2, high(Phrase_2),
+    0x00, 0x00
+};
+
+const byte Stars_Song_3[] =
+{
+    0x07,
+    Phrase_3, high(Phrase_3),
+    Phrase_4, high(Phrase_4),
+    Phrase_4, high(Phrase_4),
+    0x00, 0x00
+};
+
+void Deallocate_Songs(byte* Songs)
+{
+    free(load_16(Songs));
+    free(load_16(Songs + 2));
+    free(load_16(Songs + 4));
+    free(load_16(Songs + 6));
+
+    free(Songs);
+
+    return;
+}
+
+byte* Get_Songs(byte* Channel_0, byte* Channel_1, byte* Wave, byte* Noise)
+{
+    byte* Songs;
+
+    Songs = malloc(8); // This is enough memory for pointers to 4 song handles
+
+    memset(Songs, 0, 8);
+
+    write_16(Songs, Get_Song_Handle(Channel_0));
+    Songs = Songs + 2;
+    write_16(Songs, Get_Song_Handle(Channel_1));
+    Songs = Songs + 2;
+    write_16(Songs, Get_Song_Handle(Wave));
+    Songs = Songs + 2;
+    write_16(Songs, Get_Song_Handle(Noise));
+    
+    return sub16(Songs, 6);
+}
+
+void Play_Songs(byte* Songs)
+{
+    byte* Song_Handle;
+    Song_Handle = load_16(Songs);
+    if((byte)Song_Handle | high(Song_Handle))
+    {
+        Play_Song_Handle(Song_Handle, 0x10, 0);
+    }
+
+    Songs++;
+    Songs++;
+
+    Song_Handle = load_16(Songs);
+    if((byte)Song_Handle | high(Song_Handle))
+    {
+        Play_Song_Handle(Song_Handle, 0x15, 0);
+    }
+
+    Songs++;
+    Songs++;
+
+    Song_Handle = load_16(Songs);
+    if((byte)Song_Handle | high(Song_Handle))
+    {
+        Play_Song_Handle(Song_Handle, 0x1A, 0);
+    }
+
+    Songs++;
+    Songs++;
+
+    Song_Handle = load_16(Songs);
+    if((byte)Song_Handle | high(Song_Handle))
+    {
+        Play_Song_Handle(Song_Handle, 0x1F, 0);
+    }
+
+    return;
+}
+
+
 void Test_Game_Loop()
 {
     byte* Player_Data;
@@ -160,6 +250,20 @@ void Test_Game_Loop()
 
     Game_Timer = 0;
 
+    //
+
+    //byte* Song_Handle;
+
+    //Song_Handle = Get_Song_Handle(Stars_Song_0);
+
+    //byte* Other_Song_Handle;
+
+    //Other_Song_Handle = Get_Song_Handle(Stars_Song_3);
+
+    byte* Songs;
+
+    Songs = Get_Songs(Stars_Song_0, NULL, NULL, Stars_Song_3);
+
     do
     {
         Clean_OAM_Buffer();
@@ -168,6 +272,11 @@ void Test_Game_Loop()
         dma_transfer();
 
         Move_Player(Player_Data);
+
+        Play_Songs(Songs);
+
+        //Play_Song_Handle(Song_Handle, 0x10, 0);
+        //Play_Song_Handle(Other_Song_Handle, 0x1F, 0);
 
         Game_Timer++;
 
@@ -182,6 +291,12 @@ void Test_Game_Loop()
     }while(1);
 
     free(Player_Data);
+
+    Deallocate_Songs(Songs);
+
+    //free(Song_Handle);
+
+    //free(Other_Song_Handle);
 
     return;
 }

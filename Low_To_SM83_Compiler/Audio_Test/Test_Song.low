@@ -1,0 +1,98 @@
+data Test_Phrase
+{
+    #TEVLSFFF
+    %10111000
+        #-PPPsMMM
+        %00001011 # Sweep disabled
+        %10000000 # 25% duty, length unused
+#        VVVVsPPP
+        %11110110 # Volume/envelope
+        %00010000 # Frequency
+
+    # That's the first note! Only took 4 bytes
+
+    %00000000 # Blank note
+
+    %00000000 # Blank note
+    
+    #TEVLSFFF
+    %10000000   # We don't need to enter new volume values or whatever, just freq
+        %01000000
+
+    %00000000 # Blank note
+
+    %00000000 # Blank note
+
+    %10000001 # Higher note
+        %00000000
+
+    %00000000 # Blank note
+
+    %10000000
+        %00010000
+
+    # This is all!
+
+    # End phrase with special $01 terminator
+
+    %00000001   # No trigger but has LSB set
+                # Signals end of phrase
+}
+
+data Test_Phrase_2
+{
+    #TEVLsFFF
+    %10111111
+        #-PPPsSSS
+        %00111011
+        %11000000 # 75% duty, length unused
+        #VVVVsPPP
+        %11100010 # volume envelope
+        %10000000
+
+    %10000111
+        %10000000
+
+    %10000111
+        %10000000
+
+    $00 $00 $00 $00 $00
+
+    $01
+}
+
+data Test_Song
+{
+    $10 # Frames per beat (16 frames)
+    high(Test_Phrase) Test_Phrase
+    high(Test_Phrase_2) Test_Phrase_2
+    high(Test_Phrase) Test_Phrase
+    high(Test_Phrase) Test_Phrase
+    high(Test_Phrase) Test_Phrase
+    high(Test_Phrase_2) Test_Phrase_2
+    $00 $00 # End of song
+}
+
+data Other_Test_Song
+{
+    $10 # Frames per beat (16 frames)
+    high(Phrase_0) Phrase_0
+    high(Phrase_1) Phrase_1
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    high(Phrase_0) Phrase_0
+    high(Phrase_1) Phrase_1
+    $00 $00
+}
+
+data Backing_Track
+{
+    $10
+    high(Phrase_2) Phrase_2
+    high(Phrase_3) Phrase_3
+    high(Phrase_2) Phrase_2
+    high(Phrase_2) Phrase_2
+    high(Phrase_2) Phrase_2
+    high(Phrase_3) Phrase_3
+    $00 $00
+}

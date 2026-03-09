@@ -384,3 +384,87 @@ subroutine place_spritechain_in_oam_buffer
 
     return;
 }
+
+
+
+
+
+
+
+#
+
+
+
+
+
+
+
+subroutine Copy_Tilemap
+{
+    # SP + $00 / $01 function return pointers
+    # SP + $02       width
+    # SP + $03 / $04 byte count
+    # SP + $05 / $06 source
+    # SP + $07 / $08 destination
+
+    HL = SP + $02;
+    A = [HL++];     # Width_Counter in A for now
+    
+    push AF;
+
+    A = [HL++];     # Gets count into temporary reg
+    C = A;
+    A = [HL++];
+    B = A;          # Stores count in BC
+    
+    A = [HL++];
+    E = A;
+    A = [HL++];
+    D = A;
+
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    #
+    label Copy_Loop;
+        # HL is dest
+        # DE is source
+        # BC is count
+
+        A = [DE];
+        DE++;
+        [HL++] = A;
+
+        pop AF;
+        # SP += $FE;  # This just gets width_counter off the stack
+
+        A--;
+
+        # push AF;
+
+        jump not_zero If_Width;
+            push BC;
+            B = A;
+            push HL;
+            HL = SP + $06;
+            A = $20;
+            A -= [HL];
+            C = A;
+            A = [HL];   # Resets 'width_counter' to width
+            pop HL;
+            HL += BC;   # Adds offset to dest
+            pop BC;     # Gets 'source' back
+        label If_Width;
+
+        push AF;
+
+        BC--;           # Decrements 'count'
+        A = B;
+        A |= C;
+    jump not_zero Copy_Loop;
+
+    SP += $02;
+
+    return;
+}

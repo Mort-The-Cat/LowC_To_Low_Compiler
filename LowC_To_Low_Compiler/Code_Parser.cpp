@@ -139,6 +139,27 @@ size_t Parse_Special_Recursive_Check(const Token* Tokens, std::vector<Parse_Node
 
 			if (Delta = Grammars[Grammar].Checks[Check].Check(Tokens + Tokens_Passed, &Generated_Nodes))
 			{
+				if ((&Grammars == &Function_Grammars || &Grammars == &Function_Dec_Grammars) && Check == 1)
+				{
+					Local_Function_Scope_Name = "__" + Tokens[Tokens_Passed].Name + "__";
+
+					Add_To_Parser_Identifiers({ S_ID16, Tokens[Tokens_Passed].Name });
+				}
+
+				if ((&Grammars == &Function_Grammars || &Grammars == &Function_Dec_Grammars) && Check == 0)
+				{
+					// This'll set the function return type
+					// Important for choosing the correct kind of expression for the return type
+
+					Return_Type_Of_Current_Parsed_Function = Generated_Nodes[0].Syntax_ID;
+				}
+
+				if ((&Grammars == &Function_Grammars || &Grammars == &Function_Dec_Grammars) && Grammars[Grammar].Checks[Check].Parameter == T_CLOSE_BR)
+				{
+					Declared_Functions.push_back(Generated_Nodes);
+				}
+
+
 				Tokens_Passed += Delta;
 			}
 			else

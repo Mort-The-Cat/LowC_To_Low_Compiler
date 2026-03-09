@@ -392,6 +392,45 @@ subroutine State_Function
 		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
+
+	H = B;		# Creates copy of State_Pointer
+	L = C;		# Creates copy of State_Pointer
+	A = [HL];		# Dereferences address
+	D = A;		# Moves @value@ into other register
+	A = 22;
+	A < D;		# S_LESS_THAN8
+	jump not_carry __if_statement__6;		# If statement jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = State_Pointer; 1
+		# C = State_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	H = B;		# Creates copy of State_Pointer
+	L = C;		# Creates copy of State_Pointer
+	[HL] = 22; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = State_Pointer; 1
+		# C = State_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# B = State_Pointer; 1
+	label __if_statement__6;		# If statement label
+
+	# Current tracer registers:
+		# A = ???; 0
+		# B = State_Pointer; 1
+		# C = State_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	H = B;		# Creates copy of State_Pointer
 	L = C;		# Creates copy of State_Pointer
 	[HL]--;		# Decrements address
@@ -430,7 +469,7 @@ subroutine State_Function
 	L = C;		# Creates copy of State_Pointer
 	A = [HL];		# Dereferences address
 	A < 19;		# S_LESS_THAN8
-	jump not_carry __if_statement__6;		# If statement jump
+	jump not_carry __if_statement__7;		# If statement jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = State_Pointer; 1
@@ -462,7 +501,7 @@ subroutine State_Function
 		# L = ???; 0
 	# Register snapshot:
 		# B = State_Pointer; 1
-	label __if_statement__6;		# If statement label
+	label __if_statement__7;		# If statement label
 
 	# Current tracer registers:
 		# A = ???; 0
@@ -501,7 +540,7 @@ subroutine State_Function
 	D = A;		# Moves @value@ into other register
 	A = 7;
 	A < D;		# S_LESS_THAN8
-	jump not_carry __if_statement__7;		# If statement jump
+	jump not_carry __if_statement__8;		# If statement jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = State_Pointer; 1
@@ -533,7 +572,7 @@ subroutine State_Function
 		# L = ???; 0
 	# Register snapshot:
 		# B = State_Pointer; 1
-	label __if_statement__7;		# If statement label
+	label __if_statement__8;		# If statement label
 
 	# Current tracer registers:
 		# A = ???; 0
@@ -548,7 +587,44 @@ subroutine State_Function
 	L = C;		# Creates copy of State_Pointer
 	A = [HL];		# Dereferences address
 	A < 7;		# S_LESS_THAN8
-	jump not_carry __if_statement__8;		# If statement jump
+	jump not_carry __if_statement__9;		# If statement jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = State_Pointer; 1
+		# C = State_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+
+	H = B;		# Creates copy of State_Pointer
+	L = C;		# Creates copy of State_Pointer
+	A = [HL];		# Dereferences address
+	A < 4;		# S_LESS_THAN8
+	jump not_carry __if_statement__10;		# If statement jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = State_Pointer; 1
+		# C = State_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	H = B;		# Creates copy of State_Pointer
+	L = C;		# Creates copy of State_Pointer
+	[HL] = 4; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = State_Pointer; 1
+		# C = State_Pointer; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# B = State_Pointer; 1
+	label __if_statement__10;		# If statement label
+
 	# Current tracer registers:
 		# A = ???; 0
 		# B = State_Pointer; 1
@@ -580,7 +656,7 @@ subroutine State_Function
 		# L = ???; 0
 	# Register snapshot:
 		# B = State_Pointer; 1
-	label __if_statement__8;		# If statement label
+	label __if_statement__9;		# If statement label
 
 	# Current tracer registers:
 		# A = ???; 0
@@ -1067,7 +1143,7 @@ subroutine Render_Player
 
 	D = A;		# Makes 'A' a copy of Condition
 	A |= A;		# This just gets the CPU flags
-	jump not_zero __if_statement__9;		# If statement jump
+	jump not_zero __if_statement__11;		# If statement jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Camera_Y; 1
@@ -1136,7 +1212,7 @@ subroutine Render_Player
 	HL++;
 	H = [HL];		# Store upper byte
 	L = A;		# Move lower byte from temp register
-	label __if_statement__9;		# If statement label
+	label __if_statement__11;		# If statement label
 
 	# Current tracer registers:
 		# A = ???; 0
@@ -1314,7 +1390,7 @@ subroutine Move_Player
 	HL = SP + 0;		# Fetches Inputs off the stack
 	A = [HL];		# Stores Inputs into A register
 	A.$01;		# Gets conditional
-	jump not_zero __if_statement__10;		# If statement jump
+	jump not_zero __if_statement__12;		# If statement jump
 	# Current tracer registers:
 		# A = Inputs; 1
 		# B = Player_X; 1
@@ -1335,7 +1411,7 @@ subroutine Move_Player
 	# Register snapshot:
 		# A = Inputs; 1
 		# B = Player_X; 1
-	label __if_statement__10;		# If statement label
+	label __if_statement__12;		# If statement label
 
 	# Current tracer registers:
 		# A = Inputs; 1
@@ -1347,7 +1423,7 @@ subroutine Move_Player
 		# L = @@stack_pointer@@; 0
 
 	A.$00;		# Gets conditional
-	jump not_zero __if_statement__11;		# If statement jump
+	jump not_zero __if_statement__13;		# If statement jump
 	# Current tracer registers:
 		# A = Inputs; 1
 		# B = Player_X; 1
@@ -1368,7 +1444,7 @@ subroutine Move_Player
 	# Register snapshot:
 		# A = Inputs; 1
 		# B = Player_X; 1
-	label __if_statement__11;		# If statement label
+	label __if_statement__13;		# If statement label
 
 	# Current tracer registers:
 		# A = Inputs; 1
@@ -1412,7 +1488,7 @@ subroutine Move_Player
 	return;
 }
 
-subroutine Test_Game_Loop
+subroutine Deallocate_Songs
 {
 	# Current tracer registers:
 		# A = ???; 0
@@ -1422,42 +1498,863 @@ subroutine Test_Game_Loop
 		# E = ???; 0
 		# H = Player_X; 0
 		# L = Player_X; 0
+	HL = SP + 2;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes address to the stack
+	call free;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = 2;
+	HL = SP + 2;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes address to the stack
+	call free;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = 4;
+	HL = SP + 2;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes address to the stack
+	call free;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = 6;
+	HL = SP + 2;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes address to the stack
+	call free;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 2;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call free;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 0
+		# L = Songs; 0
+	return;
+}
+
+subroutine Get_Songs
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 0
+		# L = Songs; 0
+	SP += 254;		# byte* Songs;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 0
+		# L = Songs; 0
+	BC = 8;
+	push BC;		# Pushes size to the stack
+	call malloc;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Destination to the stack
+	A = 0;
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	DE = 8;
+	push DE;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Songs; 0
+		# C = Songs; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 12;		# Fetches Channel_0 off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Song to the stack
+	call Get_Song_Handle;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes value to the stack
+	call write_16;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Songs; 0
+		# C = Songs; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = 2;
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 10;		# Fetches Channel_1 off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Song to the stack
+	call Get_Song_Handle;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes value to the stack
+	call write_16;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Songs; 0
+		# C = Songs; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = 2;
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 8;		# Fetches Wave off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Song to the stack
+	call Get_Song_Handle;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes value to the stack
+	call write_16;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Songs; 0
+		# C = Songs; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = 2;
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 6;		# Fetches Noise off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Song to the stack
+	call Get_Song_Handle;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes value to the stack
+	call write_16;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Songs; 0
+		# C = Songs; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Left to the stack
+	BC = 6;
+	push BC;		# Pushes Right to the stack
+	call sub16;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	SP += 2;		# Remove local variables from stack
+	return;
+}
+
+subroutine Play_Songs
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	SP += 254;		# byte* Song_Handle;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 4;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+
+	A = H;		# Copies high byte of Song_Handle into register
+	B = A;		# Moves @value@ into other register
+	A = L;		# copies lower byte into A register
+	A |= B;		# S_OR8
+	A |= A;		# This just gets the CPU flags
+	jump zero __if_statement__14;		# If statement jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Song_Handle
+	[HL] = C;		# Stores Song_Handle back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Song_Handle back into memory
+	HL = SP + 0;		# Fetches Song_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Song_Handle to the stack
+	A = $10;
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Audio_Register to stack
+	SP = HL;		# Update stack pointer
+	A = 0;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Silence to stack
+	SP = HL;		# Update stack pointer
+	call Play_Song_Handle;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# H = Song_Handle; 1
+	HL = SP + 0;		# Fetches Song_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	label __if_statement__14;		# If statement label
+
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 4;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL++;		# Increments Songs
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 1
+		# C = Song_Handle; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	HL++;		# Increments Songs
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 1
+		# C = Song_Handle; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	D = H;		# Moves Songs into upper register
+	E = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Song_Handle
+	[HL] = C;		# Stores Song_Handle back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Song_Handle back into memory
+	HL = SP + 4;		# Memory location of Songs
+	[HL] = E;		# Stores Songs back into memory
+	HL++;
+	[HL] = D;		# Stores upper byte of Songs back into memory
+	HL = SP + 4;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+
+	A = H;		# Copies high byte of Song_Handle into register
+	B = A;		# Moves @value@ into other register
+	A = L;		# copies lower byte into A register
+	A |= B;		# S_OR8
+	A |= A;		# This just gets the CPU flags
+	jump zero __if_statement__15;		# If statement jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Song_Handle
+	[HL] = C;		# Stores Song_Handle back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Song_Handle back into memory
+	HL = SP + 0;		# Fetches Song_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Song_Handle to the stack
+	A = $15;
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Audio_Register to stack
+	SP = HL;		# Update stack pointer
+	A = 0;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Silence to stack
+	SP = HL;		# Update stack pointer
+	call Play_Song_Handle;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# H = Song_Handle; 1
+	HL = SP + 0;		# Fetches Song_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	label __if_statement__15;		# If statement label
+
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 4;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL++;		# Increments Songs
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 1
+		# C = Song_Handle; 1
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	HL++;		# Increments Songs
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 1
+		# C = Song_Handle; 1
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	D = H;		# Moves Songs into upper register
+	E = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Song_Handle
+	[HL] = C;		# Stores Song_Handle back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Song_Handle back into memory
+	HL = SP + 4;		# Memory location of Songs
+	[HL] = E;		# Stores Songs back into memory
+	HL++;
+	[HL] = D;		# Stores upper byte of Songs back into memory
+	HL = SP + 4;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+
+	A = H;		# Copies high byte of Song_Handle into register
+	B = A;		# Moves @value@ into other register
+	A = L;		# copies lower byte into A register
+	A |= B;		# S_OR8
+	A |= A;		# This just gets the CPU flags
+	jump zero __if_statement__16;		# If statement jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Song_Handle
+	[HL] = C;		# Stores Song_Handle back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Song_Handle back into memory
+	HL = SP + 0;		# Fetches Song_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Song_Handle to the stack
+	A = $1A;
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Audio_Register to stack
+	SP = HL;		# Update stack pointer
+	A = 0;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Silence to stack
+	SP = HL;		# Update stack pointer
+	call Play_Song_Handle;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# H = Song_Handle; 1
+	HL = SP + 0;		# Fetches Song_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	label __if_statement__16;		# If statement label
+
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 4;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL++;		# Increments Songs
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 1
+		# C = Song_Handle; 1
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	HL++;		# Increments Songs
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 1
+		# C = Song_Handle; 1
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	D = H;		# Moves Songs into upper register
+	E = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Song_Handle
+	[HL] = C;		# Stores Song_Handle back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Song_Handle back into memory
+	HL = SP + 4;		# Memory location of Songs
+	[HL] = E;		# Stores Songs back into memory
+	HL++;
+	[HL] = D;		# Stores upper byte of Songs back into memory
+	HL = SP + 4;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+
+	A = H;		# Copies high byte of Song_Handle into register
+	B = A;		# Moves @value@ into other register
+	A = L;		# copies lower byte into A register
+	A |= B;		# S_OR8
+	A |= A;		# This just gets the CPU flags
+	jump zero __if_statement__17;		# If statement jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Song_Handle
+	[HL] = C;		# Stores Song_Handle back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Song_Handle back into memory
+	HL = SP + 0;		# Fetches Song_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Song_Handle to the stack
+	A = $1F;
+	B = H;		# Moves Song_Handle into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Audio_Register to stack
+	SP = HL;		# Update stack pointer
+	A = 0;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Silence to stack
+	SP = HL;		# Update stack pointer
+	call Play_Song_Handle;		# Calls function
+	SP += 4;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# H = Song_Handle; 1
+	HL = SP + 0;		# Fetches Song_Handle off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	label __if_statement__17;		# If statement label
+
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 1
+		# L = Song_Handle; 1
+	SP += 2;		# Remove local variables from stack
+	return;
+}
+
+subroutine Test_Game_Loop
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 0
+		# L = Song_Handle; 0
 	SP += 254;		# byte* Player_Data;
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Player_Data; 0
-		# C = Player_Data; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = Player_X; 0
-		# L = Player_X; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 0
+		# L = Song_Handle; 0
 	SP += 254;		# word Camera_X;
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Player_Data; 0
-		# C = Player_Data; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = Player_X; 0
-		# L = Player_X; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 0
+		# L = Song_Handle; 0
 	SP += 254;		# word Camera_Y;
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Player_Data; 0
-		# C = Player_Data; 0
-		# D = ???; 0
-		# E = ???; 0
-		# H = Player_X; 0
-		# L = Player_X; 0
+		# B = Song_Handle; 0
+		# C = Song_Handle; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 0
+		# L = Song_Handle; 0
 	BC = 0;
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Camera_X; 1
 		# C = Camera_X; 1
-		# D = ???; 0
-		# E = ???; 0
-		# H = Player_X; 0
-		# L = Player_X; 0
+		# D = Songs; 0
+		# E = Songs; 0
+		# H = Song_Handle; 0
+		# L = Song_Handle; 0
 	DE = 0;
 	# Current tracer registers:
 		# A = ???; 0
@@ -1465,8 +2362,8 @@ subroutine Test_Game_Loop
 		# C = Camera_X; 1
 		# D = Camera_Y; 1
 		# E = Camera_Y; 1
-		# H = Player_X; 0
-		# L = Player_X; 0
+		# H = Song_Handle; 0
+		# L = Song_Handle; 0
 	HL = SP + 2;		# Memory location of Camera_X
 	[HL] = C;		# Stores Camera_X back into memory
 	HL++;
@@ -1571,8 +2468,7 @@ subroutine Test_Game_Loop
 		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
-
-	label __do_while_statement__12;		# do/while loop label
+	SP += 254;		# byte* Songs;
 	# Current tracer registers:
 		# A = Game_Timer; 1
 		# B = ???; 0
@@ -1581,18 +2477,52 @@ subroutine Test_Game_Loop
 		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
-	HL = SP + 0;		# Memory location of Game_Timer
+	HL = SP + 2;		# Memory location of Game_Timer
 	[HL] = A;		# Stores Game_Timer back into memory
-	call Clean_OAM_Buffer;		# Calls function
+	BC = Stars_Song_0;
+	push BC;		# Pushes Channel_0 to the stack
+	BC = $00;
+	push BC;		# Pushes Channel_1 to the stack
+	BC = $00;
+	push BC;		# Pushes Wave to the stack
+	BC = Stars_Song_3;
+	push BC;		# Pushes Noise to the stack
+	call Get_Songs;		# Calls function
+	SP += 8;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = Game_Timer; 0
 		# B = ???; 0
 		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
+		# H = Songs; 1
+		# L = Songs; 1
+
+	label __do_while_statement__18;		# do/while loop label
+	# Current tracer registers:
+		# A = Game_Timer; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Songs; 1
+		# L = Songs; 1
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	call Clean_OAM_Buffer;		# Calls function
+	# Current tracer registers:
+		# A = Game_Timer; 0
+		# B = Songs; 0
+		# C = Songs; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
-	HL = SP + 5;		# Fetches Player_Data off the stack
+	HL = SP + 7;		# Fetches Player_Data off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
 	H = [HL];		# Store upper byte
@@ -1600,7 +2530,7 @@ subroutine Test_Game_Loop
 	push HL;		# Pushes Player_Data to the stack
 	B = H;		# Moves Player_Data into upper register
 	C = L;		# Moves into lower register
-	HL = SP + 5;		# Fetches Camera_X off the stack
+	HL = SP + 7;		# Fetches Camera_X off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
 	H = [HL];		# Store upper byte
@@ -1608,7 +2538,7 @@ subroutine Test_Game_Loop
 	push HL;		# Pushes Camera_X to the stack
 	D = H;		# Moves Camera_X into upper register
 	E = L;		# Moves into lower register
-	HL = SP + 5;		# Fetches Camera_Y off the stack
+	HL = SP + 7;		# Fetches Camera_Y off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
 	H = [HL];		# Store upper byte
@@ -1642,7 +2572,7 @@ subroutine Test_Game_Loop
 		# E = Camera_X; 0
 		# H = Camera_Y; 0
 		# L = Camera_Y; 0
-	HL = SP + 5;		# Fetches Player_Data off the stack
+	HL = SP + 7;		# Fetches Player_Data off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
 	H = [HL];		# Store upper byte
@@ -1658,7 +2588,23 @@ subroutine Test_Game_Loop
 		# E = Camera_X; 0
 		# H = Player_Data; 0
 		# L = Player_Data; 0
-	HL = SP + 0;		# Fetches Game_Timer off the stack
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Songs to the stack
+	call Play_Songs;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Player_Data; 0
+		# C = Player_Data; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Songs; 0
+		# L = Songs; 0
+	HL = SP + 2;		# Fetches Game_Timer off the stack
 	A = [HL];		# Stores Game_Timer into A register
 	A++;		# Increments Game_Timer
 	# Current tracer registers:
@@ -1673,7 +2619,7 @@ subroutine Test_Game_Loop
 	B = A;		# Moves @value@ into other register
 	A = 2;
 	A < B;		# S_LESS_THAN8
-	jump not_carry __if_statement__13;		# If statement jump
+	jump not_carry __if_statement__19;		# If statement jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Game_Timer; 1
@@ -1682,9 +2628,9 @@ subroutine Test_Game_Loop
 		# E = Camera_X; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
-	HL = SP + 0;		# Memory location of Game_Timer
+	HL = SP + 2;		# Memory location of Game_Timer
 	[HL] = B;		# Stores Game_Timer back into memory
-	HL = SP + 5;		# Fetches Player_Data off the stack
+	HL = SP + 7;		# Fetches Player_Data off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
 	H = [HL];		# Store upper byte
@@ -1712,11 +2658,11 @@ subroutine Test_Game_Loop
 	# Register snapshot:
 		# B = Game_Timer; 1
 	B = A;		# Moves value into expected register
-	label __if_statement__13;		# If statement label
+	label __if_statement__19;		# If statement label
 
 	A = 1;
 	A |= A;		# This just gets the CPU flags
-	jump  zero __do_while_statement__12_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  zero __do_while_statement__18_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Game_Timer; 1
@@ -1726,10 +2672,16 @@ subroutine Test_Game_Loop
 		# H = Player_Data; 0
 		# L = Player_Data; 0
 	# Register snapshot:
-		# A = Game_Timer; 1
-	A = B;		# Moves value into expected register
-	jump __do_while_statement__12;		# do/while loop jump
-	label __do_while_statement__12_memory_cleanup;
+		# H = Songs; 1
+	HL = SP + 2;		# Memory location of Game_Timer
+	[HL] = B;		# Stores Game_Timer back into memory
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	jump __do_while_statement__18;		# do/while loop jump
+	label __do_while_statement__18_memory_cleanup;
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Game_Timer; 1
@@ -1739,21 +2691,31 @@ subroutine Test_Game_Loop
 		# H = Player_Data; 0
 		# L = Player_Data; 0
 	# Register snapshot:
-		# A = Game_Timer; 1
-	A = B;		# Moves value into expected register
+		# H = Songs; 1
+	HL = SP + 2;		# Memory location of Game_Timer
+	[HL] = B;		# Stores Game_Timer back into memory
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
 
 
 	# Current tracer registers:
-		# A = Game_Timer; 1
+		# A = ???; 0
 		# B = Game_Timer; 0
 		# C = Player_Data; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
-	HL = SP + 0;		# Memory location of Game_Timer
-	[HL] = A;		# Stores Game_Timer back into memory
-	HL = SP + 5;		# Fetches Player_Data off the stack
+		# H = Songs; 1
+		# L = Songs; 1
+	B = H;		# Moves Songs into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Songs
+	[HL] = C;		# Stores Songs back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Songs back into memory
+	HL = SP + 7;		# Fetches Player_Data off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
 	H = [HL];		# Store upper byte
@@ -1763,13 +2725,29 @@ subroutine Test_Game_Loop
 	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Game_Timer; 0
-		# C = Player_Data; 0
+		# B = Songs; 0
+		# C = Songs; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
 		# H = Player_Data; 0
 		# L = Player_Data; 0
-	SP += 7;		# Remove local variables from stack
+	HL = SP + 0;		# Fetches Songs off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Songs to the stack
+	call Deallocate_Songs;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Songs; 0
+		# C = Songs; 0
+		# D = Camera_X; 0
+		# E = Camera_X; 0
+		# H = Songs; 0
+		# L = Songs; 0
+	SP += 9;		# Remove local variables from stack
 	return;
 }
 
@@ -1777,12 +2755,12 @@ subroutine Test_Return
 {
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Game_Timer; 0
-		# C = Player_Data; 0
+		# B = Songs; 0
+		# C = Songs; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# H = Songs; 0
+		# L = Songs; 0
 	A = $A0;
 	return;
 }
@@ -1791,12 +2769,12 @@ subroutine Test_Return_Two
 {
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Game_Timer; 0
-		# C = Player_Data; 0
+		# B = Songs; 0
+		# C = Songs; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
-		# H = Player_Data; 0
-		# L = Player_Data; 0
+		# H = Songs; 0
+		# L = Songs; 0
 	HL = $C000;
 	return;
 }
@@ -1805,8 +2783,8 @@ subroutine Wait_For_VBlank
 {
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Game_Timer; 0
-		# C = Player_Data; 0
+		# B = Songs; 0
+		# C = Songs; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
 		# H = ???; 0
@@ -1814,8 +2792,8 @@ subroutine Wait_For_VBlank
 	SP += 255;		# byte Scanline;
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Game_Timer; 0
-		# C = Player_Data; 0
+		# B = Songs; 0
+		# C = Songs; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
 		# H = ???; 0
@@ -1823,8 +2801,8 @@ subroutine Wait_For_VBlank
 	SP += 254;		# byte* Pointer;
 	# Current tracer registers:
 		# A = ???; 0
-		# B = Game_Timer; 0
-		# C = Player_Data; 0
+		# B = Songs; 0
+		# C = Songs; 0
 		# D = Camera_X; 0
 		# E = Camera_X; 0
 		# H = ???; 0
@@ -1956,7 +2934,7 @@ subroutine Wait_For_VBlank
 		# H = Other_Pointer; 0
 		# L = Other_Pointer; 0
 
-	label __do_while_statement__14;		# do/while loop label
+	label __do_while_statement__20;		# do/while loop label
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Other_Pointer; 0
@@ -1968,7 +2946,7 @@ subroutine Wait_For_VBlank
 	HL = $FF44;
 	A = [HL];		# Dereferences address
 	A < $90;		# S_LESS_THAN8
-	jump  not_carry __do_while_statement__14_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  not_carry __do_while_statement__20_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = Scanline; 1
 		# B = Other_Pointer; 0
@@ -1980,8 +2958,8 @@ subroutine Wait_For_VBlank
 	# Register snapshot:
 	HL = SP + 4;		# Memory location of Scanline
 	[HL] = A;		# Stores Scanline back into memory
-	jump __do_while_statement__14;		# do/while loop jump
-	label __do_while_statement__14_memory_cleanup;
+	jump __do_while_statement__20;		# do/while loop jump
+	label __do_while_statement__20_memory_cleanup;
 	# Current tracer registers:
 		# A = Scanline; 1
 		# B = Other_Pointer; 0
@@ -2068,7 +3046,7 @@ subroutine Clean_OAM_Buffer
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 
-	label __do_while_statement__15;		# do/while loop label
+	label __do_while_statement__21;		# do/while loop label
 	# Current tracer registers:
 		# A = Count; 1
 		# B = Pointer; 1
@@ -2104,7 +3082,7 @@ subroutine Clean_OAM_Buffer
 	A -= 4;		# S_MINUS8
 	B = A;		# Makes 'A' a copy of Count
 	A |= A;		# This just gets the CPU flags
-	jump  zero __do_while_statement__15_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  zero __do_while_statement__21_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Count; 1
@@ -2119,8 +3097,8 @@ subroutine Clean_OAM_Buffer
 	A = B;		# Moves value into expected register
 	B = H;		# Moves value into expected register
 	C = L;		# Moves value into expected register
-	jump __do_while_statement__15;		# do/while loop jump
-	label __do_while_statement__15_memory_cleanup;
+	jump __do_while_statement__21;		# do/while loop jump
+	label __do_while_statement__21_memory_cleanup;
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Count; 1
@@ -2362,6 +3340,26 @@ subroutine main
 		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
+	HL = $FF26;
+	[HL] = $80; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF25;
+	[HL] = $FF; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
 	call Test_Game_Loop;		# Calls function
 	# Current tracer registers:
 		# A = ???; 0
@@ -2374,7 +3372,7 @@ subroutine main
 
 	A = 1;
 	A |= A;		# This just gets the CPU flags
-	jump zero __if_statement__16;		# If statement jump
+	jump zero __if_statement__22;		# If statement jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -2384,7 +3382,7 @@ subroutine main
 		# H = ???; 0
 		# L = ???; 0
 
-	label __do_while_statement__17;		# do/while loop label
+	label __do_while_statement__23;		# do/while loop label
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -2440,7 +3438,7 @@ subroutine main
 	call dma_transfer;		# Calls function
 	A = 1;
 	A |= A;		# This just gets the CPU flags
-	jump  zero __do_while_statement__17_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  zero __do_while_statement__23_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -2450,8 +3448,8 @@ subroutine main
 		# H = ???; 0
 		# L = ???; 0
 	# Register snapshot:
-	jump __do_while_statement__17;		# do/while loop jump
-	label __do_while_statement__17_memory_cleanup;
+	jump __do_while_statement__23;		# do/while loop jump
+	label __do_while_statement__23_memory_cleanup;
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -2472,7 +3470,7 @@ subroutine main
 		# H = ???; 0
 		# L = ???; 0
 	# Register snapshot:
-	label __if_statement__16;		# If statement label
+	label __if_statement__22;		# If statement label
 
 	# Current tracer registers:
 		# A = ???; 0
@@ -2992,6 +3990,54 @@ data Title_Screen_UI_Blocks
 	$E0 $BF $FF $80 $FF $FF $FF $FD $07 $FD 
 	$07 $FD $07 $FD $07 $FD $07 $FD $FF $01 
 	$FF $FF $FF
+}
+
+data Phrase_0
+{
+	$BE $00 $40 $56 $9E $00 $00 $00 $86 $42 $00 
+	$00 $00 $86 $27 $86 $27 $86 $27 $00 $86 
+	$27 $00 $85 $ED $86 $27 $01
+}
+
+data Phrase_1
+{
+	$00 $00 $00 $00 $BE $00 $80 $56 $9E $87 $4F 
+	$86 $9E $87 $4F $86 $9E $00 $00 $96 $40 
+	$0B $86 $27 $00 $85 $ED $00 $01
+}
+
+data Phrase_2
+{
+	$BE $00 $40 $56 $72 $00 $86 $42 $00 $86 $27 
+	$00 $86 $42 $86 $27 $00 $00 $00 $00 $00 
+	$00 $00 $00 $01
+}
+
+data Phrase_3
+{
+	$F7 $80 $10 $14 $E7 $10 $14 $E7 $10 $14 $E7 
+	$1F $14 $E7 $20 $14 $E7 $20 $14 $E7 $2F 
+	$14 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$01
+}
+
+data Phrase_4
+{
+	$BF $00 $80 $32 $14 $00 $00 $00 $87 $14 $00 
+	$00 $00 $87 $14 $00 $00 $00 $87 $14 $00 
+	$00 $00 $01
+}
+
+data Stars_Song_0
+{
+	$07 Phrase_0 high(Phrase_0) Phrase_1 high(Phrase_1) 
+	Phrase_2 high(Phrase_2) $00 $00
+}
+
+data Stars_Song_3
+{
+	$07 Phrase_3 high(Phrase_3) Phrase_4 high(Phrase_4) 
+	Phrase_4 high(Phrase_4) $00 $00
 }
 
 data __main__Warm_Message

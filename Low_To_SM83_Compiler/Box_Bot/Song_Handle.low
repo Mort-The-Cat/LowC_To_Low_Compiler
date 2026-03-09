@@ -1,0 +1,215 @@
+subroutine Get_Song_Handle
+{
+    # Needs to malloc the 8 bytes required
+    # Memset them to 0
+    # Write the song to the song pointer
+
+    HL = SP + $02;
+    A = [HL++];
+    A |= [HL];
+
+    H = A;
+    L = A;
+
+    return zero;    # If the pointer is NULL, just return nothing vro
+
+    HL = $08;
+    push HL;
+    call malloc;
+    SP += $02;
+
+    push HL;        # Return
+    push HL;        # For write_16
+    push HL;        # for memset
+    SP += $FF;
+    HL = SP + $00;
+    [HL] = $00;
+    HL = $08;
+    push HL;
+    call memset;
+    SP += $05;
+
+    HL = SP + $06;  # Gets song pointer from stack
+    A = [HL++];
+    H = [HL];
+    L = A;
+    push HL;
+    call write_16;
+    SP += $04;
+
+    pop HL;
+
+    return;
+}
+
+subroutine Play_Song_Handle
+{
+    # SP + $04 and $05 are song handle pointers
+    # SP + $03 is the low-byte of the audio register pointer (they all have an upper-byte of $FF because they're io registers)
+    # SP + $02 is the priority byte
+    # SP + $00 and $01 are function return pointers
+
+    HL = SP + $04;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    # HL is now song-handle
+
+    A = [HL++];
+    C = A;
+    A = [HL++];
+    B = A;
+
+    [HL]++;         # Increments frame counter
+
+    A = [BC];       # Gets 'frames per beat' in A register
+    A < [HL];       # Compares frames/beat with frame counter
+
+    return not_carry;   # If frame counter hasn't exceded frames/beat,
+                        # no work necessary
+
+    # Otherwise? Start work on new note!
+    A ^= A;
+    [HL++] = A;   # Reset frame counter
+
+    BC++;
+
+    push HL;
+    L = [HL];
+    H = A;
+    L <<= 1;
+    H <<>|= 1; # Carries bit if necessary
+    HL += BC;
+    B = H;
+    C = L;
+    pop HL;
+
+    A = [BC];
+    E = A;
+    BC++;
+    A = [BC];
+    D = A;          # Places phrase pointer in DE register
+
+    A |= E;         # Checks phrase pointer against zero
+
+    return zero;    # If phrase pointer is null, stop working
+
+    # Otherwise, handle note code!
+
+    # DE is now the phrase pointer, containing actual note information
+
+    # We need to offset this by the note offset
+
+    HL++;
+
+    push HL;
+    L = [HL];
+    H = $00;
+    HL += DE;
+    D = H;
+    E = L;
+    pop HL;
+
+    # DE is now the current note we want
+
+    [HL]++;     # Increments note offset by 1
+
+    A = [DE];   # Gets note wrapper
+    A |= A;
+
+    jump zero Check_End_Of_Phrase;      # If the note wrapper is null,
+                                        # we're not playing a new note
+
+    push AF;
+
+    B = H;
+    C = L;
+    BC++;       # Previous sweep byte
+
+    DE++;       # Increments past note wrapper
+    A.3;
+    jump zero No_Sweep_Bit;
+        A = [DE];   # Gets new sweep information
+        [BC] = A;   # Sets new sweep info into song handle
+        DE++;
+        pop AF;     # Gets back note wrapper ...
+        SP += $FE;  # without moving the stack
+        [HL]++;     # Increments note offset (since we passed a sweep byte)
+    label No_Sweep_Bit;
+
+    BC++;
+    A.4;    # New duty/length byte?
+    jump zero No_Length_Bit;
+        A = [DE];
+        [BC] = A;
+        DE++;
+        pop AF;
+        SP += $FE;
+        [HL]++;
+    label No_Length_Bit;
+
+    BC++;
+    A.5;    # New volume byte?
+    jump zero No_Volume_Bit;
+        A = [DE];
+        [BC] = A;
+        DE++;
+        pop AF;
+        SP += $FE;
+        [HL]++;
+    label No_Volume_Bit;
+
+    [HL]++;
+
+    # Here, we copy the updates values into the audio registers
+    push HL;
+        HL = SP + $06; # priority address + $04 because of both push operations
+
+        A = [HL++];
+        A |= A;
+        jump zero Priority_Passed;
+            pop HL;
+            SP += $02;  # Reverses previous push instructions
+            jump Check_End_Of_Phrase;
+        label Priority_Passed;
+
+        C = [HL];   # This places the register address into C
+    pop HL;
+
+    HL++;       # Goes to note properties of Sound_Handle
+    A = [HL++];
+    [$FF00 + C] = A;    # Sweep
+    A = [HL++];
+    C++;
+    [$FF00 + C] = A;    # Duty/length
+    A = [HL--];
+    C++;
+    [$FF00 + C] = A;    # Volume/envelope
+
+    A = [DE];           # New frequency value 
+    C++;
+    [$FF00 + C] = A;
+
+    pop AF;             # Note wrapper & trigger bit
+    C++;
+    [$FF00 + C] = A;    # Finally played the note!
+
+    # Now, check for end-of-phrase...
+
+    HL--;
+    HL--;
+
+    label Check_End_Of_Phrase;
+
+    DE++;
+    A = [DE];
+    A--;
+    return not_zero;    # If the next note wrapper isn't $01, no worries! Just return
+                        # If it IS, we need to move to the next phrase
+
+    [HL--] = A;         # Set note offset to zero
+    [HL]++;             # Increment phrase offset
+
+    return;             # Done!!
+}

@@ -69,6 +69,26 @@ void Place_CB_Bit_Opcode(unsigned char* ROM, unsigned int* Token_Index, unsigned
 	ROM[(*ROM_Index)++] = Opcode + 8 * Get_Value_From_String(((Token*)(Target_Tokens->Data + Index))->Representation);
 }
 
+void Place_CB_Set_Reset_Bit_Opcode(unsigned char* ROM, unsigned int* Token_Index, unsigned int* ROM_Index, Vector* Identifiers, const Vector* Target_Tokens, unsigned int Opcode)
+{
+	unsigned int Index = *Token_Index;
+
+	unsigned int Set_Reset;
+
+	while (((Token*)(Target_Tokens->Data + Index))->Token != T_HEX_LITERAL && ((Token*)(Target_Tokens->Data + Index))->Token != T_NUMBER)
+		Index -= sizeof(Token);
+
+	Set_Reset = Get_Value_From_String(((Token*)(Target_Tokens->Data + Index))->Representation);
+
+	Index -= sizeof(Token);
+
+	while (((Token*)(Target_Tokens->Data + Index))->Token != T_HEX_LITERAL && ((Token*)(Target_Tokens->Data + Index))->Token != T_NUMBER)
+		Index -= sizeof(Token);
+
+	ROM[(*ROM_Index)++] = 0xCB;
+	ROM[(*ROM_Index)++] = Opcode + 8 * Get_Value_From_String(((Token*)(Target_Tokens->Data + Index))->Representation) + 0x40 * (Set_Reset + 1);
+}
+
 void Place_Direct_Word_Opcode(unsigned char* ROM, unsigned int* Token_Index, unsigned int* ROM_Index, Vector* Identifiers, const Vector* Target_Tokens, unsigned int Opcode)
 {
 	unsigned Index = *Token_Index;
@@ -267,7 +287,9 @@ void Place_Identifier_Word_Opcode(unsigned char* ROM, unsigned int* Token_Index,
 
 #define DEFINE_CB_BIT(Register, Offset)\
 	{ (const unsigned char[]){ Register, T_DOT, T_NUMBER, T_SEMI }, 4, Offset + 0x40, Place_CB_Bit_Opcode },\
-	{ (const unsigned char[]) { Register, T_DOT, T_HEX_LITERAL, T_SEMI }, 4, Offset + 0x40, Place_CB_Bit_Opcode }
+	{ (const unsigned char[]) { Register, T_DOT, T_HEX_LITERAL, T_SEMI }, 4, Offset + 0x40, Place_CB_Bit_Opcode },\
+	{ (const unsigned char[]){ Register, T_DOT, T_NUMBER, T_EQUALS, T_NUMBER, T_SEMI }, 6, Offset + 0x40, Place_CB_Set_Reset_Bit_Opcode },\
+	{ (const unsigned char[]) { Register, T_DOT, T_HEX_LITERAL, T_EQUALS, T_NUMBER, T_SEMI }, 6, Offset + 0x40, Place_CB_Set_Reset_Bit_Opcode }
 
 
 Token_Pattern Patterns[] =

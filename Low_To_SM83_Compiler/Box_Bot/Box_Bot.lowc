@@ -8,6 +8,9 @@
 #include "Bot_Animations.h"
 #include "Alphabet_Tiles.h"
 
+#include "Song_Handle.h"
+#include "Music/Stars.h"
+
 #include "Game_Loop.h"
 
 byte Test_Return()
@@ -110,6 +113,9 @@ void main()
     init_dma();
 
     *(LCDC_REGISTER) = 0x83;    // This turns it on- all we really need
+
+    *(APU_REGISTER) = 0x80;
+    *(APU_SOUND_PANNING) = 0xFF;
 
     // Wait_For_VBlank();
 

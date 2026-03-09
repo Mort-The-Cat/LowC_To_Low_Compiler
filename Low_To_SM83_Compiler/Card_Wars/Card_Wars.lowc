@@ -1,0 +1,108 @@
+#include "../../stdlow.h"
+#include "../../low_macros.h"
+
+#include "lowc_lib.h"
+
+#include "Table_Graphics.h"
+#include "Finny_Graphics.h"
+
+#include "Graphics/Table_Tilemap.c"
+
+#include "Table_Scrolling.h"
+
+void Wait_For_VBlank()
+{
+    byte Scanline;
+
+    do
+    {
+        Scanline = *(LCDY_REGISTER);
+    }while(Scanline < VBLANK_SCANLINE);
+
+    return;
+}
+
+void Copy_Tilemap(byte* Destination, byte* Source, word Count, byte Width);
+
+byte Get_Controller_Input(byte Flag)
+{
+    byte Value_Back;
+    byte* Controller_Reg;
+    Controller_Reg = CONTROLLER_REGISTER;
+    *Controller_Reg = Flag;
+
+    Value_Back = *(Controller_Reg);
+    Value_Back = *(Controller_Reg);
+    Value_Back = *(Controller_Reg);
+
+    return Value_Back;
+}
+
+void Test_Scroll_Loop()
+{
+    byte Player_Input;
+
+    *(Table_Near_Scroll) = 186;
+    *(Table_Far_Scroll) = 226;
+    *(Table_Delta_Scroll) = 40;
+    *(Table_Denom_Scroll) = Table_Denom_Default; // always initialised to 64
+
+    do
+    {
+        Wait_For_VBlank();
+        *(BACKGROUND_SCROLL_Y_REGISTER) = 226;
+        
+        *(Table_Denom_Scroll) = Table_Denom_Default; // always initialised to 64 at start of frame
+
+        *(Table_Near_Scroll)++;
+
+        *(Table_Far_Scroll) = shift_right( *(Table_Near_Scroll) );
+
+        *(Table_Delta_Scroll) = (*Table_Near_Scroll) - (*Table_Far_Scroll);
+
+        *(BACKGROUND_SCROLL_X_REGISTER) = *(Table_Far_Scroll); // + 232
+
+        Player_Input = Get_Controller_Input(CONTROLLER_SSBA_FLAG);
+    }while(bit(Player_Input, 3));
+
+    return;
+}
+
+void main()
+{
+    // Here, we just want to initialise the VRAM graphics into memory
+
+    Wait_For_VBlank();
+
+    *(LCDC_REGISTER) = 0;
+
+    init_dma();
+    init_screen_interrupts();
+
+    Set_Interrupt_Function(HBLANK_HRAM_FUNCTION_JUMP_ADDRESS, Table_Scroll_HBlank_Function);
+
+    memcpy(VRAM_BLOCK_2, Table_Graphics_Data, sizeof(Table_Graphics_Data));
+
+    memcpy(VRAM_BLOCK_1, Finny_Graphics_Data, sizeof(Finny_Graphics_Data));
+
+    memset(VRAM_TILEM_0, 0xFF, 0x400);
+
+    Copy_Tilemap(VRAM_TILEM_0, Table_Tilemap_Data, sizeof(Table_Tilemap_Data), Table_Tilemap_Width);
+
+    *(BACKGROUND_PALETTE_REGISTER) = b11100100;
+
+    *(LCDC_REGISTER) = 0x81;
+
+    *(LCD_STATUS_REGISTER) = 0x08;
+
+    *(INTERRUPT_ENABLE_REGISTER) = 0x02;
+
+    Test_Scroll_Loop();
+
+    do
+    {
+        Wait_For_VBlank();
+    }while(true);
+
+    return;
+}
