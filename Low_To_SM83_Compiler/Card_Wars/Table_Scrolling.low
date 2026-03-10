@@ -1,11 +1,14 @@
 
 macro Table_Near_Scroll $FF90;
-macro Table_Far_Scroll $FF91;
-macro Table_Delta_Scroll $FF92;
-macro Table_Denom_Scroll $FF93;
-macro Table_Direction_Scroll $FF94;
+#macro Table_Far_Scroll $FF91;
+#macro Table_Delta_Scroll $FF92;
+#macro Table_Denom_Scroll $FF93;
+#macro Table_Direction_Scroll $FF94;
 
-macro Table_Denom_Default 40;
+macro Table_Delta_Scroll $FF91;
+macro Table_Denom_Scroll $FF92;
+
+macro Table_Denom_Default 48;
 
 subroutine Table_Scroll_HBlank_Function
 {
@@ -18,45 +21,39 @@ subroutine Table_Scroll_HBlank_Function
 
     HL = BACKGROUND_SCROLL_Y_REGISTER;
 
-    A += [HL];
+    A += [HL];          # This will wrap only when LCDY_Register > Table_Y_Position
 
     jump not_carry Table_Not_Reached; 
-
-    [HL].0;
-    jump zero Skip_Iteration;
-    # HL--;
-    [HL]--;
-    label Skip_Iteration;
 
     A = [$FF00 + Table_Denom_Scroll];
     HL = Table_Delta_Scroll;
 
-    # push DE;
-
-    #E = [HL];
-    # E.7 = 0;    # Set sign bit to zero
     A -= [HL];
-    #E = [HL];
 
     jump not_carry End_Routine;
 
-        HL = BACKGROUND_SCROLL_X_REGISTER;
+        push DE;
+        HL--;
+        E = [HL];
+        #[HL].7;
 
+        HL = BACKGROUND_SCROLL_X_REGISTER;
         label Scroll_Loop;
-            #E.7;
-            #jump zero Positive_Delta;
-            #    [HL]++;
-            #    jump Increment_Denom;
-            #label Positive_Delta;
-            [HL]++;
-            #label Increment_Denom;
+            E.7;
+            jump zero Positive_Delta;
+                [HL]--;
+                jump Increment_Denom;
+            label Positive_Delta;
+                [HL]++;
+            label Increment_Denom;
 
             A += Table_Denom_Default;
         jump not_carry Scroll_Loop;
-
+        
+        pop DE;
     label End_Routine;
 
-    #pop DE;
+    # pop DE;
 
     [$FF00 + Table_Denom_Scroll] = A;
 
