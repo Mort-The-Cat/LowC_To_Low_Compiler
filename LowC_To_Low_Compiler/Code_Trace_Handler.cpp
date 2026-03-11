@@ -1021,7 +1021,7 @@ std::string Tracer_Shift(std::string& Output_Low_Code, Tracer_Data& Tracer, cons
 
 	std::string Value;
 
-	if (Node.Syntax_ID == S_RIGHT_SHIFT16 || Node.Syntax_ID == S_LEFT_SHIFT16)
+	if (Node.Syntax_ID == S_RIGHT_SHIFT16 || Node.Syntax_ID == S_LEFT_SHIFT16 || Node.Syntax_ID == S_RIGHT_A_SHIFT16)
 	{
 		Value = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["value"][0], REQUIRE_REG_PAIR, Copy_Requirements);
 
@@ -1030,10 +1030,15 @@ std::string Tracer_Shift(std::string& Output_Low_Code, Tracer_Data& Tracer, cons
 			Output_Low_Code += "\t" + Value.substr(0, 1) + " >>>= 1;\n";
 			Output_Low_Code += "\t" + Value.substr(1, 1) + " |>><= 1;\n";
 		}
-		else
+		else if(Node.Syntax_ID == S_LEFT_SHIFT16)
 		{
 			Output_Low_Code += "\t" + Value.substr(1, 1) + " <<= 1;\n";
 			Output_Low_Code += "\t" + Value.substr(0, 1) + " <<>|= 1;\n";
+		}
+		else
+		{
+			Output_Low_Code += "\t" + Value.substr(0, 1) + " >>= 1;\n";
+			Output_Low_Code += "\t" + Value.substr(1, 1) + " |>><= 1;\n";
 		}
 	}
 	else
@@ -1044,9 +1049,13 @@ std::string Tracer_Shift(std::string& Output_Low_Code, Tracer_Data& Tracer, cons
 		{
 			Output_Low_Code += "\t" + Value + " >>>= 1;\n";
 		}
-		else
+		else if(Node.Syntax_ID == S_LEFT_SHIFT8)
 		{
 			Output_Low_Code += "\t" + Value + " <<= 1;\n";
+		}
+		else
+		{
+			Output_Low_Code += "\t" + Value.substr(0, 1) + " >>= 1;\n";
 		}
 	}
 
@@ -1381,6 +1390,8 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 	case S_RIGHT_SHIFT8:
 	case S_LEFT_SHIFT16:
 	case S_LEFT_SHIFT8:
+	case S_RIGHT_A_SHIFT16:
+	case S_RIGHT_A_SHIFT8:
 	{
 		return Tracer_Shift(Output_Low_Code, Tracer, Node, Register_Requirements, Copy_Requirements);
 	}

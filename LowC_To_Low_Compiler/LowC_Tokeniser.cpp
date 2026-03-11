@@ -46,6 +46,7 @@ Token Compiler_Tokens[NUMBER_OF_TOKEN_IDS] =
 	{	T_POP_REGISTERS,	"pop"	},
 	{	T_ENABLEI,		"enablei"	},
 	{	T_DISABLEI,		"disablei"	},
+	{	T_SHIFT_RIGHT_A, "shift_righta"},
 	{	T_SHIFT_RIGHT,	"shift_right"},
 	{	T_SHIFT_LEFT,	"shift_left"},
 

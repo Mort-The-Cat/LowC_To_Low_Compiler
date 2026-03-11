@@ -226,9 +226,11 @@ enum Syntax_IDs
 	S_XOR8,
 	S_LEFT_SHIFT8,	// These are unique because it can be applied to any register/register pair!!
 	S_RIGHT_SHIFT8,	// These are unique because it can be applied to any register/register pair!!
+	S_RIGHT_A_SHIFT8,
 
 	S_LEFT_SHIFT16,
 	S_RIGHT_SHIFT16,
+	S_RIGHT_A_SHIFT16,
 
 	S_MINUS8,
 	S_PLUS8,					// addition between two 8-bit values

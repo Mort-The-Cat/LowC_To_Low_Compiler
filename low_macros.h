@@ -43,7 +43,7 @@
 	
 //      bit 3 background tile map 9800-9BFF or 9C00-9FF
 	
-//      bit 2 OBJ 8x8 or 8x1
+//      bit 2 OBJ 8x8 or 8x16
 	
 //      bit 1 controls if objects are enable
 	

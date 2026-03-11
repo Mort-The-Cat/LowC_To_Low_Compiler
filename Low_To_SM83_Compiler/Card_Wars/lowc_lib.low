@@ -259,6 +259,9 @@ subroutine init_dma
     call memcpy;
     SP += 6;    # Removes parameters off the stack
 
+    HL = $C0A0;
+    [HL] = $00;     # While we're at it, clear the OAM buffer!
+
     return;
 }
 

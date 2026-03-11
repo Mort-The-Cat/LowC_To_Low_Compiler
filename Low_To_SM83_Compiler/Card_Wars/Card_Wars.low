@@ -372,6 +372,64 @@ subroutine Scroll_Table
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
+	BC = Window_Spritechain_Data;
+	push BC;		# Pushes Spritechain to the stack
+	A = 12;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Count to stack
+	SP = HL;		# Update stack pointer
+	A = 20;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Y to stack
+	SP = HL;		# Update stack pointer
+	HL = $FF90;
+	A = [HL];		# Dereferences address
+	A >>= 1;
+	B = A;		# Moves @value@ into other register
+	A = 10;
+	A -= B;		# S_MINUS8
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes X to stack
+	SP = HL;		# Update stack pointer
+	call place_spritechain_in_oam_buffer;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = Window_Spritechain_Data;
+	push BC;		# Pushes Spritechain to the stack
+	A = 12;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Count to stack
+	SP = HL;		# Update stack pointer
+	A = 20;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Y to stack
+	SP = HL;		# Update stack pointer
+	HL = $FF90;
+	A = [HL];		# Dereferences address
+	A >>= 1;
+	B = A;		# Moves @value@ into other register
+	A = 116;
+	A -= B;		# S_MINUS8
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes X to stack
+	SP = HL;		# Update stack pointer
+	call place_spritechain_in_oam_buffer;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 1;		# Remove local variables from stack
 	return;
 }
@@ -434,7 +492,25 @@ subroutine Test_Scroll_Loop
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
+	call Clean_OAM_Buffer;		# Calls function
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
 	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	call dma_transfer;		# Calls function
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -588,7 +664,23 @@ subroutine main
 	push HL;		# Pushes Destination to the stack
 	BC = Finny_Graphics_Data;
 	push BC;		# Pushes Source to the stack
-	BC = 544;
+	BC = 608;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Player_Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = $8000;
+	push BC;		# Pushes Destination to the stack
+	BC = Open_Window_Graphics_Data;
+	push BC;		# Pushes Source to the stack
+	BC = 320;
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
@@ -638,22 +730,18 @@ subroutine main
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
-	# Current tracer registers:
-		# A = ???; 0
-		# B = ???; 0
-		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
-		# H = ???; 0
-		# L = ???; 0
-	BC = $9B60;
+	BC = $9B41;
 	push BC;		# Pushes Destination to the stack
-	BC = __main__Placeholder_Text;
+	BC = Finny_Tilemap_Data;
 	push BC;		# Pushes Source to the stack
-	BC = 18;
+	BC = 96;
 	push BC;		# Pushes Count to the stack
-	call memcpy;		# Calls function
-	SP += 6;		# Removes pushed parameters from stack
+	A = 16;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Width to stack
+	SP = HL;		# Update stack pointer
+	call Copy_Tilemap;		# Calls function
+	SP += 7;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -672,8 +760,18 @@ subroutine main
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
+	HL = $FF48;
+	[HL] = $9C; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF40;
-	[HL] = $81; 		# Stores value into memory location
+	[HL] = $87; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -956,15 +1054,21 @@ data Finny_Graphics_Data
 	$00 $01 $FF $01 $FF $01 $FF $01 $FF $01 
 	$FF $01 $FF $0F $F0 $FF $00 $11 $F0 $11 
 	$F0 $E1 $E0 $01 $00 $03 $00 $07 $00 $FF 
-	$00 $FE $00 $0F $00 $00 $00 $00 $00 $00 
-	$00 $00 $00 $00 $00 $00 $00 $00 $00 $FF 
-	$00 $87 $F8 $80 $FF $80 $FF $80 $FF $80 
-	$FF $80 $FF $80 $FF $FE $00 $FC $00 $7C 
-	$C4 $07 $FF $00 $FF $00 $FF $00 $FF $00 
-	$FF $7F $00 $3F $00 $3E $23 $E0 $FF $00 
-	$FF $00 $FF $00 $FF $00 $FF $FF $00 $E1 
-	$1F $01 $FF $01 $FF $01 $FF $01 $FF $01 
-	$FF $01 $FF
+	$00 $FE $00 $C0 $00 $C0 $00 $C0 $00 $C0 
+	$00 $C0 $00 $80 $00 $80 $00 $00 $00 $0F 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $FF $00 $87 $F8 $80 
+	$FF $80 $FF $80 $FF $80 $FF $80 $FF $80 
+	$FF $FE $00 $FC $00 $7C $C4 $07 $FF $00 
+	$FF $00 $FF $00 $FF $00 $FF $7F $00 $3F 
+	$00 $3E $23 $E0 $FF $00 $FF $00 $FF $00 
+	$FF $00 $FF $FF $00 $E1 $1F $01 $FF $01 
+	$FF $01 $FF $01 $FF $01 $FF $01 $FF $F0 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $F0 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00
 }
 
 data Alphabet_Graphics_Data
@@ -1073,8 +1177,67 @@ data Table_Tilemap_Data
 	$54 $55 $56 $57 $58 $59 $5A
 }
 
-data __main__Placeholder_Text
+data Finny_Tilemap_Data
 {
-	"INSERT FINN HERE!" 0
+	$FF $B3 $B5 $FF $FF $FF $B6 $B7 $B8 $B9 $FF 
+	$FF $FF $B3 $B5 $FF $FF $B3 $B5 $FF $FF 
+	$FF $BA $BB $BC $BD $FF $FF $FF $B3 $B5 
+	$FF $FF $AE $AF $FF $FF $BE $BF $C0 $C1 
+	$C2 $C3 $FF $FF $AE $AF $FF $FF $B0 $B1 
+	$FF $C4 $C5 $C6 $C7 $C8 $C9 $CA $CB $FF 
+	$B0 $B1 $FF $FF $FF $FF $FF $CC $CD $CE 
+	$CF $D0 $D1 $D2 $D3 $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $D4 $D5 $D6 $D7 $D8 $D9 
+	$FF $FF $FF $FF $FF
+}
+
+data Open_Window_Graphics_Data
+{
+	$60 $78 $7F $07 $7F $80 $73 $92 $73 $93 $73 
+	$93 $73 $93 $7B $9E $7F $80 $73 $B2 $73 
+	$B3 $F3 $93 $F3 $93 $F3 $93 $F3 $93 $F3 
+	$93 $00 $07 $FF $FF $FF $00 $FE $03 $8E 
+	$92 $8E $82 $8E $92 $8E $92 $FE $72 $FE 
+	$62 $8E $92 $8E $92 $8E $92 $8E $92 $8E 
+	$92 $8E $92 $00 $FF $FF $FF $FF $00 $00 
+	$FF $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $F0 $FF $FF $FF 
+	$00 $3F $C0 $38 $09 $38 $09 $38 $09 $39 
+	$29 $3F $26 $3F $22 $38 $29 $38 $29 $38 
+	$29 $38 $29 $38 $29 $38 $29 $02 $1E $FF 
+	$E1 $FF $01 $E7 $21 $C7 $C1 $C7 $C1 $C7 
+	$C1 $EF $39 $FF $01 $E7 $2D $C7 $C5 $C7 
+	$C0 $C7 $C0 $C7 $C0 $C7 $C0 $C7 $C0 $73 
+	$93 $73 $93 $73 $93 $7F $9E $7F $80 $7B 
+	$9B $73 $93 $73 $93 $73 $93 $7B $9E $7F 
+	$80 $7F $3F $00 $00 $00 $00 $00 $00 $00 
+	$00 $8E $92 $8E $92 $8E $82 $DE $F2 $FE 
+	$02 $8E $92 $8E $92 $8E $92 $8E $92 $FE 
+	$F2 $FF $00 $FF $E0 $7F $4F $7F $40 $00 
+	$1F $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $FF $00 $FF $00 $FF $FF $FF 
+	$00 $00 $FF $00 $00 $38 $29 $38 $29 $38 
+	$29 $3F $2F $3F $20 $38 $29 $38 $29 $38 
+	$29 $38 $29 $3F $3F $FF $02 $FF $03 $FE 
+	$FB $FF $01 $00 $FC $00 $00 $C7 $C0 $C7 
+	$C1 $C7 $C1 $FF $39 $FF $01 $CF $F9 $C7 
+	$C1 $C7 $C1 $C7 $C9 $EF $39 $FF $01 $FF 
+	$FD $00 $00 $00 $00 $00 $00 $00 $00
+}
+
+data Window_Spritechain_Data
+{
+	$00 $00 $00 $80 $00 $08 $02 $80 $00 $10 $04 
+	$80 $00 $18 $04 $80 $00 $20 $06 $80 $00 
+	$28 $08 $80 $10 $00 $0A $80 $10 $08 $0C 
+	$80 $10 $10 $0E $80 $10 $18 $0E $80 $10 
+	$20 $10 $80 $10 $28 $12 $80
+}
+
+data Wall_Decal
+{
+	$00 $00 $AA $80
 }
 

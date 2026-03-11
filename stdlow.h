@@ -21,6 +21,8 @@ void _call(const unsigned char* Function_Pointer);	// This needs a direct LOW im
 
 #define shift_right(expression)
 
+#define shift_righta(expression)
+
 #define bit(expression, bit_number) (1 & (expression >> bit_number))
 
 #define push()

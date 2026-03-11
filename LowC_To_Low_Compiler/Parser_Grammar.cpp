@@ -1583,6 +1583,18 @@ const std::vector<Grammar_Checker> Shift_Expression8 =
 
 	Grammar_Checker(
 		{
+			Checker_Function(Is_Token, T_SHIFT_RIGHT_A),
+			Checker_Function(Parse_Special_Recursive_Check, Expression8_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("value", Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_RIGHT_A_SHIFT8);
+		}
+	),
+
+	Grammar_Checker(
+		{
 			Checker_Function(Is_Token, T_SHIFT_LEFT),
 			Checker_Function(Parse_Special_Recursive_Check, Expression8_Grammars)
 		},
@@ -1910,6 +1922,18 @@ const std::vector<Grammar_Checker> Shift_Expression16 =
 		{
 			Node_Copy("value", Recursively_Generated_Nodes[0]);
 			Node_Set_Syntax(S_RIGHT_SHIFT16);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_SHIFT_RIGHT_A),
+			Checker_Function(Parse_Special_Recursive_Check, Expression16_Grammars)
+		},
+		Node_Init
+		{
+			Node_Copy("value", Recursively_Generated_Nodes[0]);
+			Node_Set_Syntax(S_RIGHT_A_SHIFT16);
 		}
 	),
 

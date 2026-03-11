@@ -64,3 +64,36 @@ subroutine Table_Scroll_HBlank_Function
 
     returni;
 }
+
+
+
+#
+
+subroutine Clean_OAM_Buffer
+{
+    HL = $C0A0;
+    A = [HL];
+    
+    A < $A0;    # If we've used every element of the OAM buffer?
+    return zero;    # Return early
+
+    # Otherwise? Start clearin'
+
+    L = A;
+
+    A = $A0;
+
+    label Clean_Loop;
+        [HL] = $FF;     # Places sprite firmly off-screen
+        HL++;
+        HL++;
+        HL++;
+        HL++;
+
+        A < L;
+    jump not_zero Clean_Loop;
+
+    [HL] = $00;     # Resets OAM counter
+
+    return;
+}
