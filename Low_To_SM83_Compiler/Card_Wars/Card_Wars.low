@@ -630,7 +630,7 @@ subroutine main
 	push BC;		# Pushes Destination to the stack
 	BC = Table_Graphics_Data;
 	push BC;		# Pushes Source to the stack
-	BC = 1456;
+	BC = 1472;
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
@@ -699,6 +699,42 @@ subroutine main
 	[HL] = A;		# Writes Value to stack
 	SP = HL;		# Update stack pointer
 	BC = $400;
+	push BC;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = $9820;
+	push BC;		# Pushes Destination to the stack
+	A = $5B;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	BC = 32;
+	push BC;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = $98C0;
+	push BC;		# Pushes Destination to the stack
+	A = $B2;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	BC = 18;
 	push BC;		# Pushes Count to the stack
 	call memset;		# Calls function
 	SP += 5;		# Removes pushed parameters from stack
@@ -877,9 +913,9 @@ data Table_Graphics_Data
 	$1C $FE $1E $FE $0E $F7 $07 $7B $03 $7F 
 	$03 $7D $81 $7C $82 $00 $00 $00 $00 $00 
 	$00 $00 $00 $80 $80 $80 $80 $C0 $C0 $E0 
-	$E0 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$E0 $00 $00 $00 $00 $FF $00 $00 $FF $00 
 	$00 $01 $01 $01 $01 $03 $03 $1F $1C $3B 
-	$3C $7F $70 $7E $71 $EA $F5 $F4 $CB $E9 
+	$3C $FF $70 $7E $F1 $EA $F5 $F4 $CB $E9 
 	$D6 $89 $F6 $90 $6D $23 $DC $23 $DC $73 
 	$8C $F1 $0E $C3 $3C $E0 $18 $C0 $3C $E1 
 	$0C $E3 $08 $C2 $18 $C3 $14 $86 $30 $85 
@@ -896,8 +932,8 @@ data Table_Graphics_Data
 	$87 $72 $0C $7D $02 $37 $88 $01 $B2 $38 
 	$87 $1F $C0 $1C $43 $0F $50 $3C $C3 $2F 
 	$50 $07 $68 $82 $2D $03 $B4 $C1 $16 $01 
-	$DA $E1 $0A $F0 $F0 $F0 $70 $F8 $38 $7C 
-	$9C $1C $FC $9E $6E $DF $27 $F7 $0F $07 
+	$DA $E1 $0A $F0 $F0 $F0 $70 $FF $38 $7C 
+	$9F $1C $FC $9E $6E $DF $27 $F7 $0F $07 
 	$07 $07 $07 $0E $0F $1E $1D $3C $3F $38 
 	$3F $7F $70 $FE $E1 $93 $6C $37 $C8 $A7 
 	$58 $4F $B0 $4F $B0 $9F $60 $BF $40 $3E 
@@ -1003,7 +1039,9 @@ data Table_Graphics_Data
 	$0C $FB $04 $F9 $07 $FC $23 $FE $81 $FE 
 	$01 $FF $00 $FF $00 $FF $00 $FF $00 $E0 
 	$E0 $E0 $E0 $70 $70 $38 $B8 $38 $F8 $1C 
-	$DC $0E $6E $0F $3F
+	$DC $0E $6E $0F $3F $00 $00 $00 $00 $FF 
+	$00 $00 $FF $00 $00 $00 $00 $00 $00 $00 
+	$00
 }
 
 data Finny_Graphics_Data
@@ -1165,9 +1203,9 @@ data Alphabet_Graphics_Data
 data Table_Tilemap_Data
 {
 	$FF $FF $FF $00 $01 $02 $03 $04 $05 $06 $07 
-	$08 $09 $0A $0B $FF $FF $FF $FF $FF $0C 
+	$08 $09 $0A $0B $FF $FF $FF $5B $5B $0C 
 	$0D $0E $0F $10 $11 $12 $13 $14 $15 $16 
-	$17 $18 $FF $FF $FF $FF $FF $19 $1A $1B 
+	$17 $18 $5B $5B $5B $FF $FF $19 $1A $1B 
 	$1C $1D $1E $1F $20 $21 $22 $23 $24 $25 
 	$26 $FF $FF $FF $27 $28 $29 $2A $2B $2C 
 	$2D $2E $2F $30 $31 $32 $33 $34 $35 $36 

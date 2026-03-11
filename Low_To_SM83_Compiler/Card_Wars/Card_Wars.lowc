@@ -132,6 +132,9 @@ void main()
 
     memset(VRAM_TILEM_0, 0xFF, 0x400);
 
+    memset(addressof(0x9820), 0x5B, 32);
+    memset(addressof(0x98C0), 0xB2, 18);
+
     Copy_Tilemap(VRAM_TILEM_0, Table_Tilemap_Data, sizeof(Table_Tilemap_Data), Table_Tilemap_Width);
 
     // const byte Placeholder_Text[] = "INSERT FINN HERE!";
