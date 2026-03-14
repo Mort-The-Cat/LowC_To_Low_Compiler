@@ -561,11 +561,21 @@ subroutine Test_Scroll_Loop
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
+	HL = $FF40;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = Player_Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
 	SP += 1;		# Remove local variables from stack
 	return;
 }
 
-subroutine main
+subroutine Start_Table_Scene
 {
 	# Current tracer registers:
 		# A = Player_Input; 0
@@ -586,24 +596,6 @@ subroutine main
 		# L = ???; 0
 	HL = $FF40;
 	[HL] = 0; 		# Stores value into memory location
-	# Current tracer registers:
-		# A = Player_Input; 0
-		# B = ???; 0
-		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
-		# H = ???; 0
-		# L = ???; 0
-	call init_dma;		# Calls function
-	# Current tracer registers:
-		# A = Player_Input; 0
-		# B = ???; 0
-		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
-		# H = ???; 0
-		# L = ???; 0
-	call init_screen_interrupts;		# Calls function
 	# Current tracer registers:
 		# A = Player_Input; 0
 		# B = ???; 0
@@ -845,8 +837,435 @@ subroutine main
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
+	return;
+}
+
+subroutine Start_Board_Scene
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF43;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FFFF;
+	[HL] = $00; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = $9000;
+	push BC;		# Pushes Destination to the stack
+	BC = Test_Card_Graphics_Data;
+	push BC;		# Pushes Source to the stack
+	BC = 192;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = $9800;
+	push BC;		# Pushes Destination to the stack
+	A = $FF;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	BC = $400;
+	push BC;		# Pushes Count to the stack
+	call memset;		# Calls function
+	SP += 5;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = $9820;
+	push BC;		# Pushes Destination to the stack
+	BC = Card_Tilemap_Data;
+	push BC;		# Pushes Source to the stack
+	BC = 48;
+	push BC;		# Pushes Count to the stack
+	A = 6;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Width to stack
+	SP = HL;		# Update stack pointer
+	call Copy_Tilemap;		# Calls function
+	SP += 7;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF40;
+	[HL] = $87; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	SP += 255;		# byte Input;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	A = 0;
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
 
 	label __do_while_statement__4;		# do/while loop label
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 0;		# Memory location of Input
+	[HL] = A;		# Stores Input back into memory
+	A = $D0;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Flag to stack
+	SP = HL;		# Update stack pointer
+	call Get_Controller_Input;		# Calls function
+	SP += 1;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 0;		# Memory location of Input
+	[HL] = A;		# Stores Input back into memory
+	call Clean_OAM_Buffer;		# Calls function
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	call dma_transfer;		# Calls function
+	HL = SP + 0;		# Fetches Input off the stack
+	A = [HL];		# Stores Input into A register
+	A.$03;		# Gets conditional
+	jump  zero __do_while_statement__4_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	# Register snapshot:
+		# A = Input; 1
+	jump __do_while_statement__4;		# do/while loop jump
+	label __do_while_statement__4_memory_cleanup;
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	# Register snapshot:
+		# A = Input; 1
+
+
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	SP += 1;		# Remove local variables from stack
+	return;
+}
+
+subroutine Wait_For_Button_Release
+{
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	SP += 255;		# byte Input;
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+
+	label __do_while_statement__5;		# do/while loop label
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	A = $D0;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Flag to stack
+	SP = HL;		# Update stack pointer
+	call Get_Controller_Input;		# Calls function
+	SP += 1;		# Removes pushed parameters from stack
+	A.$03;		# Gets conditional
+	jump  not_zero __do_while_statement__5_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	# Register snapshot:
+	HL = SP + 0;		# Memory location of Input
+	[HL] = A;		# Stores Input back into memory
+	jump __do_while_statement__5;		# do/while loop jump
+	label __do_while_statement__5_memory_cleanup;
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	# Register snapshot:
+	HL = SP + 0;		# Memory location of Input
+	[HL] = A;		# Stores Input back into memory
+
+
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	SP += 1;		# Remove local variables from stack
+	return;
+}
+
+subroutine Alternate_Game_Loops
+{
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+
+	label __do_while_statement__6;		# do/while loop label
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	call Start_Table_Scene;		# Calls function
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	call Wait_For_Button_Release;		# Calls function
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	call Start_Board_Scene;		# Calls function
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	call Wait_For_Button_Release;		# Calls function
+	A = $01;
+	A |= A;		# This just gets the CPU flags
+	jump  zero __do_while_statement__6_memory_cleanup;		# do/while memory-cleanup loop jump
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	# Register snapshot:
+	jump __do_while_statement__6;		# do/while loop jump
+	label __do_while_statement__6_memory_cleanup;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	# Register snapshot:
+
+
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	return;
+}
+
+subroutine main
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = @@stack_pointer@@; 0
+		# L = @@stack_pointer@@; 0
+	HL = $FF40;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	call init_dma;		# Calls function
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	call init_screen_interrupts;		# Calls function
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF40;
+	[HL] = $80; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+	call Alternate_Game_Loops;		# Calls function
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = Flag; 0
+		# H = ???; 0
+		# L = ???; 0
+
+	label __do_while_statement__7;		# do/while loop label
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -858,7 +1277,7 @@ subroutine main
 	call Wait_For_VBlank;		# Calls function
 	A = $01;
 	A |= A;		# This just gets the CPU flags
-	jump  zero __do_while_statement__4_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  zero __do_while_statement__7_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -868,8 +1287,8 @@ subroutine main
 		# H = ???; 0
 		# L = ???; 0
 	# Register snapshot:
-	jump __do_while_statement__4;		# do/while loop jump
-	label __do_while_statement__4_memory_cleanup;
+	jump __do_while_statement__7;		# do/while loop jump
+	label __do_while_statement__7_memory_cleanup;
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -1229,6 +1648,39 @@ data Finny_Tilemap_Data
 	$FF $FF $FF $FF $FF
 }
 
+data Card_Tilemap_Data
+{
+	$AE $B2 $B2 $B2 $B2 $AF $B5 $8C $91 $8A $97 
+	$B3 $B5 $B6 $B7 $B8 $B9 $B3 $B5 $BA $BB 
+	$BC $BD $B3 $B5 $BF $C0 $C1 $C2 $B3 $B5 
+	$AD $83 $00 $00 $B3 $B5 $AC $89 $00 $00 
+	$B3 $B0 $B4 $B4 $B4 $B4 $B1
+}
+
+data Test_Card_Graphics_Data
+{
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $03 $03 $0C $0C $08 $08 $10 $10 $12 
+	$12 $00 $00 $00 $00 $00 $00 $C0 $C0 $30 
+	$30 $10 $10 $08 $08 $88 $88 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $10 
+	$10 $0A $0A $0D $0D $03 $03 $00 $00 $0F 
+	$0F $00 $00 $00 $00 $08 $08 $90 $90 $30 
+	$30 $C0 $C0 $80 $80 $E0 $E0 $BC $BC $80 
+	$80 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $03 $03 $02 
+	$02 $06 $06 $04 $04 $18 $18 $10 $10 $80 
+	$80 $80 $80 $C0 $C0 $40 $40 $30 $30 $18 
+	$18 $08 $08 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00
+}
+
 data Open_Window_Graphics_Data
 {
 	$60 $78 $7F $07 $7F $80 $73 $92 $73 $93 $73 
@@ -1272,10 +1724,5 @@ data Window_Spritechain_Data
 	$28 $08 $80 $10 $00 $0A $80 $10 $08 $0C 
 	$80 $10 $10 $0E $80 $10 $18 $0E $80 $10 
 	$20 $10 $80 $10 $28 $12 $80
-}
-
-data Wall_Decal
-{
-	$00 $00 $AA $80
 }
 
