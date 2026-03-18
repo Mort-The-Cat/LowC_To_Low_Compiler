@@ -47,6 +47,7 @@ void Start_Table_Scene()
 }
 
 
+
 void Start_Board_Scene()
 {
     //Wait_For_VBlank();
@@ -55,16 +56,27 @@ void Start_Board_Scene()
 
     *BACKGROUND_SCROLL_X_REGISTER = 0;
 
+    *BACKGROUND_SCROLL_Y_REGISTER = 0;
+
     *(INTERRUPT_ENABLE_REGISTER) = 0x00;
 
-    memcpy(VRAM_BLOCK_2, Test_Card_Graphics_Data, sizeof(Test_Card_Graphics_Data));
+    // memcpy(VRAM_BLOCK_2, Test_Card_Graphics_Data, sizeof(Test_Card_Graphics_Data));
 
     memset(VRAM_TILEM_0, 0xFF, 0x400);
 
     // write 0x98E0 if you want the bottom of the screen, just below the table
-    Copy_Tilemap(addressof(0x9820), Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
+    
+    Draw_Board_Creature_Card(0, Placeholder_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(2, Placeholder_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(13, Placeholder_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(7, Placeholder_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(5, Placeholder_Card_Data); // This will draw the creature to the screen
 
-    *(LCDC_REGISTER) = 0x87;
+    Draw_Board_Creature_Card(8, Placeholder_Card_Data); // This will draw the creature to the screen
+
+    //Copy_Tilemap(addressof(0x9820), Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
+
+    *(LCDC_REGISTER) = 0x97;
 
     byte Input;
 
@@ -72,8 +84,31 @@ void Start_Board_Scene()
 
     do
     {
-        Input = Get_Controller_Input(CONTROLLER_SSBA_FLAG);
         Clean_OAM_Buffer();
+
+        Input = Get_Controller_Input(CONTROLLER_DPAD_FLAG);
+
+        if(!bit(Input, CONTROLLER_BUTTON_DOWN_BIT))
+        {
+            *(BACKGROUND_SCROLL_Y_REGISTER)++;
+        }
+
+        if(!bit(Input, CONTROLLER_BUTTON_UP_BIT))
+        {
+            *(BACKGROUND_SCROLL_Y_REGISTER)--;
+        }
+
+        if(!bit(Input, CONTROLLER_BUTTON_RIGHT_BIT))
+        {
+            *(BACKGROUND_SCROLL_X_REGISTER)++;
+        }
+
+        if(!bit(Input, CONTROLLER_BUTTON_LEFT_BIT))
+        {
+            *(BACKGROUND_SCROLL_X_REGISTER)--;
+        }
+
+        Input = Get_Controller_Input(CONTROLLER_SSBA_FLAG);
         Wait_For_VBlank();
         dma_transfer();
     }while(bit(Input, CONTROLLER_BUTTON_START_BIT));

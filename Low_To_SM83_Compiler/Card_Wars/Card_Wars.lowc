@@ -3,6 +3,10 @@
 
 #include "lowc_lib.h"
 
+byte* Split_Byte(byte Value);
+
+byte* Int_To_BCD(byte Value);
+
 void Wait_For_VBlank();
 void Copy_Tilemap(byte* Destination, byte* Source, word Count, byte Width);
 byte Get_Controller_Input(byte Flag);
@@ -14,6 +18,7 @@ byte Get_Controller_Input(byte Flag);
 #include "Graphics/Table_Tilemap.c"
 #include "Graphics/Finny_Tilemap.c"
 #include "Graphics/Card_Tilemap.c"
+#include "Test_Skeleton_Graphics.h"
 
 #include "Test_Card.h"
 
@@ -112,7 +117,9 @@ void Test_Scroll_Loop()
     return;
 }
 
+#include "Board_Card_Info.h"
 #include "Game_Loops.h"
+
 
 void main()
 {

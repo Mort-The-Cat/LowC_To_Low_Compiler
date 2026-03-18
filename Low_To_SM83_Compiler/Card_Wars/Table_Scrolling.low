@@ -65,7 +65,83 @@ subroutine Table_Scroll_HBlank_Function
     returni;
 }
 
+subroutine Split_Byte
+{
+    # SP + $00 / $01 return pointers
+    # SP + $02          byte
+    HL = SP + $02;
+    A = [HL];
+    H = A;
+    swap H;
+    D = $0F;
+    A &= D;
+    L = A;      # Stores lower nibble in lower byte
+    A = D;
+    A &= H;
+    H = A;
 
+    return;
+}
+
+subroutine Int_To_BCD
+{
+    # SP + $00 / $01    function return pointers
+    # SP + $02          byte
+    HL = SP + $02;
+    A = [HL];
+    HL = 10;
+
+    label Division;
+        H++;
+        A -= L;
+    jump not_carry Division;
+
+    A += L;
+    H--;
+
+    L = A;
+
+    jump not_zero Skip_Step;
+        H = L;
+        L = $FF;
+    label Skip_Step;
+
+    return;
+}
+
+subroutine Draw_Card_Graphics_Tilemap
+{
+    # SP + $00 / $01    function pointer
+    # SP + $02          tile
+    # SP + $03 / $04    destination
+    HL = SP + $02;
+    A = [HL++];         # the tile we want
+    B = A;
+
+    A = [HL++];
+    H = [HL];
+    L = A;              # the destination
+
+    A = B;
+
+    C = 3;              # height
+    
+    label Scanline;
+        B = 4;          # width
+        label Tile;
+            [HL++] = A; # write tile
+            A++;        # next tile
+            B--;
+        jump not_zero Tile;
+        push BC;
+        BC = 28;
+        HL += BC;
+        pop BC;
+        C--;
+    jump not_zero Scanline;
+
+    return;
+}
 
 #
 

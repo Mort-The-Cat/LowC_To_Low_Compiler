@@ -1412,7 +1412,7 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 		// return "HL";	// Stored in the HL register
 
-		std::string Right_Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["right"][0], REQUIRE_REG_PAIR, 0);
+		std::string Right_Registers = Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["right"][0], REQUIRE_REG_PAIR, 1);
 		Trace* Right_Trace = Register_From_Name(Tracer, Right_Registers[0]);
 
 		std::string Name[2] = { Right_Trace[0].Value, Right_Trace[1].Value };

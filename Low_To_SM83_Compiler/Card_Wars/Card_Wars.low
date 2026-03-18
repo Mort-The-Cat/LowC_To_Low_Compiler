@@ -575,7 +575,7 @@ subroutine Test_Scroll_Loop
 	return;
 }
 
-subroutine Start_Table_Scene
+subroutine Position_To_Tileset_Value
 {
 	# Current tracer registers:
 		# A = Player_Input; 0
@@ -585,7 +585,7 @@ subroutine Start_Table_Scene
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
-	call Wait_For_VBlank;		# Calls function
+	SP += 254;		# byte* Address;
 	# Current tracer registers:
 		# A = Player_Input; 0
 		# B = ???; 0
@@ -594,14 +594,670 @@ subroutine Start_Table_Scene
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
-	HL = $FF40;
-	[HL] = 0; 		# Stores value into memory location
+	HL = SP + 4;		# Fetches Position off the stack
+	L = [HL];		# Stores Position into lower byte of HL
+	H = $00;		# Zeroes out upper byte
 	# Current tracer registers:
 		# A = Player_Input; 0
 		# B = ???; 0
 		# C = ???; 0
 		# D = ???; 0
 		# E = Flag; 0
+		# H = Address; 1
+		# L = Address; 1
+	B = H;		# Makes 'H' a copy of Address
+	C = L;		# Makes 'L' a copy of Address
+	D = H;		# Moves Address into upper register
+	E = L;		# Moves into lower register
+	HL = SP + 5;		# Fetches Destinations off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Address; 1
+		# L = Address; 1
+	B = $00;		# Zeros upper byte
+	C = [HL];		# Dereferences address
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	D = B;		# Makes 'H' a copy of Address
+	E = C;		# Makes 'L' a copy of Address
+	C <<= 1;
+	B <<>|= 1;
+	C <<= 1;
+	B <<>|= 1;
+	C <<= 1;
+	B <<>|= 1;
+	C <<= 1;
+	B <<>|= 1;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Address; 1
+		# C = Address; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	DE = $8000;
+	H = B;		# Creates copy of Address
+	L = C;		# Creates copy of Address
+	HL += DE;		# S_PLUS16
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Address; 1
+		# L = Address; 1
+	B = H;		# Makes 'H' a copy of Address
+	C = L;		# Makes 'L' a copy of Address
+	SP += 2;		# Remove local variables from stack
+	return;
+}
+
+subroutine Draw_Board_Creature_Card
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	SP += 254;		# byte* Destination;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	SP += 254;		# byte* Number;
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Address; 0
+		# C = Address; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = __Draw_Board_Creature_Card__Tileset_Destinations;
+	push BC;		# Pushes Destinations to the stack
+	HL = SP + 10;		# Fetches Position off the stack
+	A = [HL];		# Stores Position into A register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Position to stack
+	SP = HL;		# Update stack pointer
+	call Position_To_Tileset_Value;		# Calls function
+	SP += 3;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Position; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	B = H;		# Moves Destination into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Memory location of Destination
+	[HL] = C;		# Stores Destination back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Destination back into memory
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Destination to the stack
+	BC = Skeleton_Graphics_Data;
+	push BC;		# Pushes Source to the stack
+	BC = 192;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 0
+		# L = Destination; 0
+	HL = SP + 8;		# Fetches Position off the stack
+	A = [HL];		# Stores Position into A register
+	A <<= 1;
+	B = $00;		# Zeroes high byte
+	C = A;		# Copies lower byte
+	HL = __Draw_Board_Creature_Card__Tilemap_Destinations;
+	HL += BC;		# S_PLUS16
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	B = H;		# Moves Destination into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Memory location of Destination
+	[HL] = C;		# Stores Destination back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Destination back into memory
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Destination; 0
+		# C = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	B = H;		# Moves Destination into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Memory location of Destination
+	[HL] = C;		# Stores Destination back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Destination back into memory
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Destination to the stack
+	BC = Card_Tilemap_Data;
+	push BC;		# Pushes Source to the stack
+	BC = 48;
+	push BC;		# Pushes Count to the stack
+	A = 6;
+	B = H;		# Moves Destination into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Width to stack
+	SP = HL;		# Update stack pointer
+	call Copy_Tilemap;		# Calls function
+	SP += 7;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Destination; 0
+		# C = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 6;		# Fetches Card_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	A = [HL];		# Dereferences address
+	B = H;		# Moves Card_Data into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	call Split_Byte;		# Calls function
+	SP += 1;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Card_Data; 0
+		# C = Card_Data; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Number; 1
+		# L = Number; 1
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Number
+	[HL] = C;		# Stores Number back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Number back into memory
+	HL = SP + 0;		# Fetches Number off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = C;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	call Int_To_BCD;		# Calls function
+	SP += 1;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 0
+		# C = Number; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Number; 1
+		# L = Number; 1
+	A = H;		# Copies high byte of Number into register
+	B = A;		# Moves @value@ into other register
+	A = $80;
+	A |= B;		# S_OR8
+	BC = 34;
+	D = H;		# Moves Number into upper register
+	E = L;		# Moves into lower register
+	push DE;		# Makes room by pushing Number to stack.
+	HL = SP + 4;		# Fetches Destination off the stack
+	D = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = D;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	[HL] = A; 		# Stores value into memory location
+	pop BC;		# Gets Number back off the stack.
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	A = $80;
+	A |= C;		# S_OR8
+	DE = 35;
+	push BC;		# Makes room by pushing Number to stack.
+	HL = SP + 4;		# Fetches Destination off the stack
+	B = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = B;		# Move lower byte from temp register
+	HL += DE;		# S_PLUS16
+	[HL] = A; 		# Stores value into memory location
+	pop BC;		# Gets Number back off the stack.
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	DE = 65;
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += DE;		# S_PLUS16
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	D = H;		# Moves Destination into upper register
+	E = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Number
+	[HL] = C;		# Stores Number back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Number back into memory
+	HL = SP + 2;		# Memory location of Destination
+	[HL] = E;		# Stores Destination back into memory
+	HL++;
+	[HL] = D;		# Stores upper byte of Destination back into memory
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Location to the stack
+	B = H;		# Moves Destination into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 10;		# Fetches Position off the stack
+	L = [HL];		# Stores Position into lower byte of HL
+	H = $00;		# Zeroes out upper byte
+	D = H;		# Moves  into upper register
+	E = L;		# Moves into lower register
+	HL = __Draw_Board_Creature_Card__Tileset_Destinations;
+	HL += DE;		# S_PLUS16
+	A = [HL];		# Dereferences address
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	call Draw_Card_Graphics_Tilemap;		# Calls function
+	SP += 3;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Destination; 0
+		# C = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = 97;
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	B = H;		# Moves Destination into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Memory location of Destination
+	[HL] = C;		# Stores Destination back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Destination back into memory
+	BC = 1;
+	HL = SP + 6;		# Fetches Card_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Number; 1
+		# L = Number; 1
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Number
+	[HL] = C;		# Stores Number back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Number back into memory
+	BC = 1;
+	HL = SP + 0;		# Fetches Number off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	A = [HL];		# Dereferences address
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	call Split_Byte;		# Calls function
+	SP += 1;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Number; 1
+		# L = Number; 1
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Number
+	[HL] = C;		# Stores Number back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Number back into memory
+	HL = SP + 0;		# Fetches Number off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	B = H;		# Moves @parameter@ into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = B;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	call Int_To_BCD;		# Calls function
+	SP += 1;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 0
+		# C = Number; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Number; 1
+		# L = Number; 1
+	A = H;		# Copies high byte of Number into register
+	B = A;		# Moves @value@ into other register
+	A = $80;
+	A |= B;		# S_OR8
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Fetches Destination off the stack
+	D = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = D;		# Move lower byte from temp register
+	[HL] = A; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL++;		# Increments Destination
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	A = $80;
+	A |= C;		# S_OR8
+	D = H;		# Makes 'H' a copy of Destination
+	E = L;		# Makes 'L' a copy of Destination
+	[HL] = A; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = Destination; 1
+		# E = Destination; 1
+		# H = ???; 0
+		# L = ???; 0
+	HL = 31;
+	push BC;		# Makes room by pushing Number to stack.
+	B = H;		# Moves  into upper register
+	C = L;		# Moves into lower register
+	H = D;		# Creates copy of Destination
+	L = E;		# Creates copy of Destination
+	HL += BC;		# S_PLUS16
+	pop BC;		# Gets Number back off the stack.
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = ???; 0
+		# E = ???; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	D = H;		# Moves Destination into upper register
+	E = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Number
+	[HL] = C;		# Stores Number back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Number back into memory
+	HL = SP + 2;		# Memory location of Destination
+	[HL] = E;		# Stores Destination back into memory
+	HL++;
+	[HL] = D;		# Stores upper byte of Destination back into memory
+	BC = 1;
+	HL = SP + 6;		# Fetches Card_Data off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Number; 1
+		# L = Number; 1
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Number
+	[HL] = C;		# Stores Number back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Number back into memory
+	HL = SP + 0;		# Fetches Number off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	A = [HL];		# Dereferences address
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Value to stack
+	SP = HL;		# Update stack pointer
+	call Int_To_BCD;		# Calls function
+	SP += 1;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 0
+		# C = Number; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = Number; 1
+		# L = Number; 1
+	A = H;		# Copies high byte of Number into register
+	B = A;		# Moves @value@ into other register
+	A = $80;
+	A |= B;		# S_OR8
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Fetches Destination off the stack
+	D = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = D;		# Move lower byte from temp register
+	[HL] = A; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = ???; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	HL++;		# Increments Destination
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = ???; 0
+		# E = Destination; 0
+		# H = Destination; 1
+		# L = Destination; 1
+	A = $80;
+	A |= C;		# S_OR8
+	D = H;		# Makes 'H' a copy of Destination
+	E = L;		# Makes 'L' a copy of Destination
+	[HL] = A; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 1
+		# C = Number; 1
+		# D = Destination; 1
+		# E = Destination; 1
+		# H = ???; 0
+		# L = ???; 0
+	SP += 4;		# Remove local variables from stack
+	return;
+}
+
+subroutine Start_Table_Scene
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 0
+		# C = Number; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	call Wait_For_VBlank;		# Calls function
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 0
+		# C = Number; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF40;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Number; 0
+		# C = Number; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $FF89;
@@ -611,11 +1267,11 @@ subroutine Start_Table_Scene
 	call Set_Interrupt_Function;		# Calls function
 	SP += 4;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Player_Input; 0
+		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $9000;
@@ -627,11 +1283,11 @@ subroutine Start_Table_Scene
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Player_Input; 0
+		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $8800;
@@ -643,11 +1299,11 @@ subroutine Start_Table_Scene
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Player_Input; 0
+		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = 864;
@@ -661,11 +1317,11 @@ subroutine Start_Table_Scene
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Player_Input; 0
+		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $8000;
@@ -677,11 +1333,11 @@ subroutine Start_Table_Scene
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
 	# Current tracer registers:
-		# A = Player_Input; 0
+		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $9800;
@@ -698,8 +1354,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $9820;
@@ -716,8 +1372,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $98C0;
@@ -734,8 +1390,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $9800;
@@ -754,8 +1410,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $9B41;
@@ -774,8 +1430,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF47;
@@ -784,8 +1440,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF48;
@@ -794,8 +1450,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF40;
@@ -804,8 +1460,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF41;
@@ -814,8 +1470,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FFFF;
@@ -824,8 +1480,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	call Test_Scroll_Loop;		# Calls function
@@ -833,8 +1489,8 @@ subroutine Start_Table_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	return;
@@ -846,8 +1502,8 @@ subroutine Start_Board_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF43;
@@ -856,8 +1512,18 @@ subroutine Start_Board_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF42;
+	[HL] = 0; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FFFF;
@@ -866,24 +1532,8 @@ subroutine Start_Board_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
-		# H = ???; 0
-		# L = ???; 0
-	BC = $9000;
-	push BC;		# Pushes Destination to the stack
-	BC = Test_Card_Graphics_Data;
-	push BC;		# Pushes Source to the stack
-	BC = 192;
-	push BC;		# Pushes Count to the stack
-	call memcpy;		# Calls function
-	SP += 6;		# Removes pushed parameters from stack
-	# Current tracer registers:
-		# A = ???; 0
-		# B = ???; 0
-		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	BC = $9800;
@@ -900,38 +1550,114 @@ subroutine Start_Board_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
-	BC = $9820;
-	push BC;		# Pushes Destination to the stack
-	BC = Card_Tilemap_Data;
-	push BC;		# Pushes Source to the stack
-	BC = 48;
-	push BC;		# Pushes Count to the stack
-	A = 6;
+	A = 0;
 	HL = SP + 255;		# Makes room on stack for 1 byte
-	[HL] = A;		# Writes Width to stack
+	[HL] = A;		# Writes Position to stack
 	SP = HL;		# Update stack pointer
-	call Copy_Tilemap;		# Calls function
-	SP += 7;		# Removes pushed parameters from stack
+	BC = Placeholder_Card_Data;
+	push BC;		# Pushes Card_Data to the stack
+	call Draw_Board_Creature_Card;		# Calls function
+	SP += 3;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	A = 2;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Position to stack
+	SP = HL;		# Update stack pointer
+	BC = Placeholder_Card_Data;
+	push BC;		# Pushes Card_Data to the stack
+	call Draw_Board_Creature_Card;		# Calls function
+	SP += 3;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	A = 13;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Position to stack
+	SP = HL;		# Update stack pointer
+	BC = Placeholder_Card_Data;
+	push BC;		# Pushes Card_Data to the stack
+	call Draw_Board_Creature_Card;		# Calls function
+	SP += 3;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	A = 7;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Position to stack
+	SP = HL;		# Update stack pointer
+	BC = Placeholder_Card_Data;
+	push BC;		# Pushes Card_Data to the stack
+	call Draw_Board_Creature_Card;		# Calls function
+	SP += 3;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	A = 5;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Position to stack
+	SP = HL;		# Update stack pointer
+	BC = Placeholder_Card_Data;
+	push BC;		# Pushes Card_Data to the stack
+	call Draw_Board_Creature_Card;		# Calls function
+	SP += 3;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	A = 8;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Position to stack
+	SP = HL;		# Update stack pointer
+	BC = Placeholder_Card_Data;
+	push BC;		# Pushes Card_Data to the stack
+	call Draw_Board_Creature_Card;		# Calls function
+	SP += 3;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF40;
-	[HL] = $87; 		# Stores value into memory location
+	[HL] = $97; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	SP += 255;		# byte Input;
@@ -939,8 +1665,8 @@ subroutine Start_Board_Scene
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	A = 0;
@@ -948,8 +1674,8 @@ subroutine Start_Board_Scene
 		# A = Input; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 
@@ -958,8 +1684,165 @@ subroutine Start_Board_Scene
 		# A = Input; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = SP + 0;		# Memory location of Input
+	[HL] = A;		# Stores Input back into memory
+	call Clean_OAM_Buffer;		# Calls function
+	# Current tracer registers:
+		# A = Input; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	A = $E0;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	[HL] = A;		# Writes Flag to stack
+	SP = HL;		# Update stack pointer
+	call Get_Controller_Input;		# Calls function
+	SP += 1;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+
+	A.$03;		# Gets conditional
+	jump not_zero __if_statement__5;		# If statement jump
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF42;
+	[HL]++;		# Increments address
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# A = Input; 1
+	label __if_statement__5;		# If statement label
+
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+
+	A.$02;		# Gets conditional
+	jump not_zero __if_statement__6;		# If statement jump
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF42;
+	[HL]--;		# Decrements address
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# A = Input; 1
+	label __if_statement__6;		# If statement label
+
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+
+	A.$00;		# Gets conditional
+	jump not_zero __if_statement__7;		# If statement jump
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF43;
+	[HL]++;		# Increments address
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# A = Input; 1
+	label __if_statement__7;		# If statement label
+
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+
+	A.$01;		# Gets conditional
+	jump not_zero __if_statement__8;		# If statement jump
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF43;
+	[HL]--;		# Decrements address
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	# Register snapshot:
+		# A = Input; 1
+	label __if_statement__8;		# If statement label
+
+	# Current tracer registers:
+		# A = Input; 1
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = SP + 0;		# Memory location of Input
@@ -974,28 +1857,19 @@ subroutine Start_Board_Scene
 		# A = Input; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = SP + 0;		# Memory location of Input
 	[HL] = A;		# Stores Input back into memory
-	call Clean_OAM_Buffer;		# Calls function
-	# Current tracer registers:
-		# A = Input; 0
-		# B = ???; 0
-		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
-		# H = ???; 0
-		# L = ???; 0
 	call Wait_For_VBlank;		# Calls function
 	# Current tracer registers:
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	call dma_transfer;		# Calls function
@@ -1007,8 +1881,8 @@ subroutine Start_Board_Scene
 		# A = Input; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	# Register snapshot:
@@ -1019,8 +1893,8 @@ subroutine Start_Board_Scene
 		# A = Input; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	# Register snapshot:
@@ -1031,8 +1905,8 @@ subroutine Start_Board_Scene
 		# A = Input; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	SP += 1;		# Remove local variables from stack
@@ -1045,8 +1919,8 @@ subroutine Wait_For_Button_Release
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	SP += 255;		# byte Input;
@@ -1054,18 +1928,18 @@ subroutine Wait_For_Button_Release
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 
-	label __do_while_statement__5;		# do/while loop label
+	label __do_while_statement__9;		# do/while loop label
 	# Current tracer registers:
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	A = $D0;
@@ -1075,26 +1949,26 @@ subroutine Wait_For_Button_Release
 	call Get_Controller_Input;		# Calls function
 	SP += 1;		# Removes pushed parameters from stack
 	A.$03;		# Gets conditional
-	jump  not_zero __do_while_statement__5_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  not_zero __do_while_statement__9_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = Input; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	# Register snapshot:
 	HL = SP + 0;		# Memory location of Input
 	[HL] = A;		# Stores Input back into memory
-	jump __do_while_statement__5;		# do/while loop jump
-	label __do_while_statement__5_memory_cleanup;
+	jump __do_while_statement__9;		# do/while loop jump
+	label __do_while_statement__9_memory_cleanup;
 	# Current tracer registers:
 		# A = Input; 1
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	# Register snapshot:
@@ -1106,8 +1980,8 @@ subroutine Wait_For_Button_Release
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	SP += 1;		# Remove local variables from stack
@@ -1120,18 +1994,18 @@ subroutine Alternate_Game_Loops
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 
-	label __do_while_statement__6;		# do/while loop label
+	label __do_while_statement__10;		# do/while loop label
 	# Current tracer registers:
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	call Start_Table_Scene;		# Calls function
@@ -1139,8 +2013,8 @@ subroutine Alternate_Game_Loops
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	call Wait_For_Button_Release;		# Calls function
@@ -1148,8 +2022,8 @@ subroutine Alternate_Game_Loops
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	call Start_Board_Scene;		# Calls function
@@ -1157,31 +2031,31 @@ subroutine Alternate_Game_Loops
 		# A = Input; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	call Wait_For_Button_Release;		# Calls function
 	A = $01;
 	A |= A;		# This just gets the CPU flags
-	jump  zero __do_while_statement__6_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  zero __do_while_statement__10_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	# Register snapshot:
-	jump __do_while_statement__6;		# do/while loop jump
-	label __do_while_statement__6_memory_cleanup;
+	jump __do_while_statement__10;		# do/while loop jump
+	label __do_while_statement__10_memory_cleanup;
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	# Register snapshot:
@@ -1191,8 +2065,8 @@ subroutine Alternate_Game_Loops
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	return;
@@ -1204,8 +2078,8 @@ subroutine main
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	call Wait_For_VBlank;		# Calls function
@@ -1213,8 +2087,8 @@ subroutine main
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	HL = $FF40;
@@ -1223,8 +2097,8 @@ subroutine main
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	call init_dma;		# Calls function
@@ -1232,8 +2106,8 @@ subroutine main
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	call init_screen_interrupts;		# Calls function
@@ -1241,8 +2115,8 @@ subroutine main
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF40;
@@ -1251,8 +2125,8 @@ subroutine main
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	call Alternate_Game_Loops;		# Calls function
@@ -1260,41 +2134,41 @@ subroutine main
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 
-	label __do_while_statement__7;		# do/while loop label
+	label __do_while_statement__11;		# do/while loop label
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	call Wait_For_VBlank;		# Calls function
 	A = $01;
 	A |= A;		# This just gets the CPU flags
-	jump  zero __do_while_statement__7_memory_cleanup;		# do/while memory-cleanup loop jump
+	jump  zero __do_while_statement__11_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	# Register snapshot:
-	jump __do_while_statement__7;		# do/while loop jump
-	label __do_while_statement__7_memory_cleanup;
+	jump __do_while_statement__11;		# do/while loop jump
+	label __do_while_statement__11_memory_cleanup;
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	# Register snapshot:
@@ -1304,8 +2178,8 @@ subroutine main
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
-		# D = ???; 0
-		# E = Flag; 0
+		# D = Destination; 0
+		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
 	return;
@@ -1650,11 +2524,35 @@ data Finny_Tilemap_Data
 
 data Card_Tilemap_Data
 {
-	$AE $B2 $B2 $B2 $B2 $AF $B5 $8C $91 $8A $97 
+	$AE $B2 $B2 $B2 $B2 $AF $B5 $AB $AB $AB $AB 
 	$B3 $B5 $B6 $B7 $B8 $B9 $B3 $B5 $BA $BB 
 	$BC $BD $B3 $B5 $BF $C0 $C1 $C2 $B3 $B5 
-	$AD $83 $00 $00 $B3 $B5 $AC $89 $00 $00 
+	$AD $83 $FF $FF $B3 $B5 $AC $89 $FF $FF 
 	$B3 $B0 $B4 $B4 $B4 $B4 $B1
+}
+
+data Skeleton_Graphics_Data
+{
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $01 $01 $0D $0D $01 $03 $03 $07 $07 
+	$07 $04 $04 $04 $04 $07 $07 $01 $03 $80 
+	$82 $F0 $F8 $FC $FC $FC $FE $CE $CE $CC 
+	$CE $78 $7E $F0 $FE $A8 $AC $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $18 $18 $30 $34 $14 $34 $08 
+	$18 $00 $00 $00 $00 $00 $00 $00 $00 $E9 
+	$E9 $20 $2E $00 $00 $03 $07 $00 $08 $03 
+	$03 $00 $04 $00 $03 $50 $58 $E6 $E6 $01 
+	$3F $3C $FC $60 $62 $CA $DE $40 $40 $60 
+	$FC $00 $00 $00 $00 $80 $80 $60 $60 $10 
+	$30 $00 $10 $10 $10 $08 $08 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $03 $03 $06 $06 $01 $01 $04 
+	$06 $04 $04 $0C $0E $00 $1C $00 $08 $20 
+	$E0 $CC $CC $F8 $F8 $CC $CC $02 $06 $01 
+	$01 $00 $03 $00 $01 $08 $08 $0C $0C $18 
+	$1C $10 $18 $00 $00 $80 $80 $80 $80 $00 
+	$80 $00 $00 $00 $00 $00 $00 $00 $00
 }
 
 data Test_Card_Graphics_Data
@@ -1724,5 +2622,42 @@ data Window_Spritechain_Data
 	$28 $08 $80 $10 $00 $0A $80 $10 $08 $0C 
 	$80 $10 $10 $0E $80 $10 $18 $0E $80 $10 
 	$20 $10 $80 $10 $28 $12 $80
+}
+
+data Card_Name
+{
+	"CARDTEST!" 0
+}
+
+data Card_Description
+{
+	"PLACEHOLDER TEXT" 0
+}
+
+data Placeholder_Creature_Data
+{
+	$10 $52
+}
+
+data Placeholder_Card_Data
+{
+	$01 Placeholder_Creature_Data high(Placeholder_Creature_Data) 
+	$00 $00 Card_Name high(Card_Name) Card_Description 
+	high(Card_Description) Skeleton_Graphics_Data 
+	high(Skeleton_Graphics_Data)
+}
+
+data __Draw_Board_Creature_Card__Tileset_Destinations
+{
+	$00 $0C $18 $24 $30 $3C $48 $54 $60 $6C $B6 
+	$C2 $CE $DA $E6 $F2
+}
+
+data __Draw_Board_Creature_Card__Tilemap_Destinations
+{
+	$00 $98 $06 $98 $0C $98 $12 $98 $00 $99 $06 
+	$99 $0C $99 $12 $99 $00 $9A $06 $9A $0C 
+	$9A $12 $9A $00 $9B $06 $9B $0C $9B $12 
+	$9B
 }
 

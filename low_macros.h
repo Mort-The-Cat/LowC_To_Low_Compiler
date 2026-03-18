@@ -36,7 +36,7 @@
 	
 //      bit 5 window enable
 	
-//      bit 4 controls addressing mode for tile *data
+//      bit 4 controls addressing mode for tileset *data
 //          if bit 4 is not, 0-127 corresponds to $9000-97FF, and 128-255 corresponds to $8800-8FFF
 //	        if bit 4 is set, 0-127 corresponds to $8000-87FF, and 128-255 corresponds to $8800-8FFF
 //	            Note that objects always use the latter unsigned addressing mode for tile data
