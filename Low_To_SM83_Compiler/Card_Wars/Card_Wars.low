@@ -736,26 +736,56 @@ subroutine Draw_Board_Creature_Card
 	[HL] = C;		# Stores Destination back into memory
 	HL++;
 	[HL] = B;		# Stores upper byte of Destination back into memory
-	HL = SP + 2;		# Fetches Destination off the stack
+	BC = 9;
+	HL = SP + 6;		# Fetches Card_Data off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
 	H = [HL];		# Store upper byte
 	L = A;		# Move lower byte from temp register
-	push HL;		# Pushes Destination to the stack
-	BC = Skeleton_Graphics_Data;
-	push BC;		# Pushes Source to the stack
-	BC = 192;
-	push BC;		# Pushes Count to the stack
-	call memcpy;		# Calls function
-	SP += 6;		# Removes pushed parameters from stack
+	HL += BC;		# S_PLUS16
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
 		# C = ???; 0
 		# D = ???; 0
 		# E = ???; 0
-		# H = Destination; 0
-		# L = Destination; 0
+		# H = Number; 1
+		# L = Number; 1
+	B = H;		# Moves Number into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 0;		# Memory location of Number
+	[HL] = C;		# Stores Number back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Number back into memory
+	HL = SP + 2;		# Fetches Destination off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Destination to the stack
+	B = H;		# Moves Destination into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 2;		# Fetches Number off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Source to the stack
+	DE = 192;
+	push DE;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Destination; 0
+		# C = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
+		# H = Number; 0
+		# L = Number; 0
 	HL = SP + 8;		# Fetches Position off the stack
 	A = [HL];		# Stores Position into A register
 	A <<= 1;
@@ -1558,7 +1588,7 @@ subroutine Start_Board_Scene
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Position to stack
 	SP = HL;		# Update stack pointer
-	BC = Placeholder_Card_Data;
+	BC = Skeleton_Card_Data;
 	push BC;		# Pushes Card_Data to the stack
 	call Draw_Board_Creature_Card;		# Calls function
 	SP += 3;		# Removes pushed parameters from stack
@@ -1574,7 +1604,7 @@ subroutine Start_Board_Scene
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Position to stack
 	SP = HL;		# Update stack pointer
-	BC = Placeholder_Card_Data;
+	BC = Ancient_Scholar_Card_Data;
 	push BC;		# Pushes Card_Data to the stack
 	call Draw_Board_Creature_Card;		# Calls function
 	SP += 3;		# Removes pushed parameters from stack
@@ -1590,7 +1620,7 @@ subroutine Start_Board_Scene
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Position to stack
 	SP = HL;		# Update stack pointer
-	BC = Placeholder_Card_Data;
+	BC = Pig_Card_Data;
 	push BC;		# Pushes Card_Data to the stack
 	call Draw_Board_Creature_Card;		# Calls function
 	SP += 3;		# Removes pushed parameters from stack
@@ -1606,7 +1636,7 @@ subroutine Start_Board_Scene
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Position to stack
 	SP = HL;		# Update stack pointer
-	BC = Placeholder_Card_Data;
+	BC = Skeleton_Card_Data;
 	push BC;		# Pushes Card_Data to the stack
 	call Draw_Board_Creature_Card;		# Calls function
 	SP += 3;		# Removes pushed parameters from stack
@@ -1622,7 +1652,7 @@ subroutine Start_Board_Scene
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Position to stack
 	SP = HL;		# Update stack pointer
-	BC = Placeholder_Card_Data;
+	BC = Skeleton_Card_Data;
 	push BC;		# Pushes Card_Data to the stack
 	call Draw_Board_Creature_Card;		# Calls function
 	SP += 3;		# Removes pushed parameters from stack
@@ -1638,7 +1668,7 @@ subroutine Start_Board_Scene
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	[HL] = A;		# Writes Position to stack
 	SP = HL;		# Update stack pointer
-	BC = Placeholder_Card_Data;
+	BC = Mage_Card_Data;
 	push BC;		# Pushes Card_Data to the stack
 	call Draw_Board_Creature_Card;		# Calls function
 	SP += 3;		# Removes pushed parameters from stack
@@ -2404,22 +2434,22 @@ data Finny_Graphics_Data
 
 data Alphabet_Graphics_Data
 {
-	$00 $00 $1A $1A $24 $24 $4A $4A $52 $52 $24 
-	$24 $58 $58 $00 $00 $00 $00 $18 $18 $38 
-	$38 $08 $08 $08 $08 $08 $08 $3C $3C $00 
-	$00 $00 $00 $18 $18 $24 $24 $04 $04 $18 
-	$18 $20 $20 $3C $3C $00 $00 $00 $00 $18 
-	$18 $24 $24 $08 $08 $04 $04 $24 $24 $18 
-	$18 $00 $00 $00 $00 $20 $20 $28 $28 $28 
-	$28 $3C $3C $08 $08 $08 $08 $00 $00 $00 
-	$00 $3C $3C $20 $20 $38 $38 $04 $04 $24 
-	$24 $18 $18 $00 $00 $00 $00 $1C $1C $20 
-	$20 $38 $38 $24 $24 $24 $24 $18 $18 $00 
-	$00 $00 $00 $78 $78 $08 $08 $3C $3C $10 
-	$10 $10 $10 $10 $10 $00 $00 $00 $00 $18 
-	$18 $24 $24 $18 $18 $24 $24 $24 $24 $18 
-	$18 $00 $00 $00 $00 $18 $18 $24 $24 $1C 
-	$1C $04 $04 $08 $08 $08 $08 $00 $00 $00 
+	$00 $00 $1D $1D $22 $22 $45 $4D $51 $59 $22 
+	$22 $5C $5C $00 $00 $00 $00 $08 $08 $18 
+	$18 $38 $38 $08 $08 $08 $08 $7F $7F $00 
+	$00 $00 $00 $3E $3E $41 $41 $01 $01 $1E 
+	$1E $20 $20 $7F $7F $00 $00 $00 $00 $3E 
+	$3E $41 $41 $0E $0E $01 $01 $41 $41 $3E 
+	$3E $00 $00 $00 $00 $40 $40 $44 $44 $44 
+	$44 $7F $7F $04 $04 $04 $04 $00 $00 $00 
+	$00 $7F $7F $40 $40 $7E $7E $01 $01 $41 
+	$41 $3E $3E $00 $00 $00 $00 $3E $3E $40 
+	$40 $7E $7E $41 $41 $41 $41 $3E $3E $00 
+	$00 $00 $00 $7F $7F $41 $41 $02 $02 $1E 
+	$1E $04 $04 $0C $0C $00 $00 $00 $00 $3E 
+	$3E $41 $41 $3E $3E $41 $41 $41 $41 $3E 
+	$3E $00 $00 $00 $00 $3E $3E $41 $41 $3E 
+	$3E $02 $02 $04 $04 $04 $04 $00 $00 $00 
 	$00 $00 $00 $1C $1C $22 $22 $24 $24 $1A 
 	$1A $00 $00 $00 $00 $20 $20 $20 $20 $3C 
 	$3C $22 $22 $32 $32 $2C $2C $00 $00 $00 
@@ -2555,6 +2585,155 @@ data Skeleton_Graphics_Data
 	$80 $00 $00 $00 $00 $00 $00 $00 $00
 }
 
+data Mage_Graphics_Data
+{
+	$00 $01 $00 $07 $00 $07 $00 $06 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $80 $00 $C0 $00 
+	$C1 $00 $DF $00 $CF $00 $84 $00 $83 $00 
+	$8F $00 $00 $00 $00 $00 $F8 $00 $FE $00 
+	$FF $00 $FF $00 $FF $20 $DF $00 $00 $00 
+	$80 $00 $40 $00 $C0 $00 $C0 $00 $D0 $00 
+	$E0 $00 $E0 $00 $01 $00 $01 $00 $01 $00 
+	$03 $0E $0F $0F $0F $0F $0F $0F $0F $00 
+	$8F $01 $9E $03 $0C $13 $18 $03 $00 $01 
+	$00 $07 $01 $FF $00 $CC $33 $DE $A5 $FE 
+	$85 $FF $84 $FF $00 $FF $18 $FF $01 $FF 
+	$FF $00 $F0 $20 $F0 $38 $F8 $8C $6C $00 
+	$E0 $00 $80 $E0 $80 $E0 $00 $03 $07 $01 
+	$07 $00 $04 $00 $0C $00 $0C $00 $0C $00 
+	$08 $00 $18 $DF $C0 $E3 $E0 $6F $60 $07 
+	$0E $03 $0E $03 $1E $03 $1E $03 $3F $FF 
+	$00 $E3 $1C $CF $30 $FF $00 $FF $01 $FF 
+	$1F $FC $7F $F0 $FE $E0 $10 $E0 $18 $C0 
+	$3C $80 $FC $90 $FC $20 $FC $40 $F8 $80 
+	$F8
+}
+
+data The_Pig_Graphics_Data
+{
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $61 $01 $1A $00 $00 $00 $00 $00 
+	$00 $00 $07 $1B $24 $77 $88 $FF $00 $FF 
+	$00 $00 $02 $22 $54 $22 $54 $66 $98 $6E 
+	$91 $6F $90 $FF $00 $FF $01 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $80 $80 
+	$40 $80 $40 $03 $3C $03 $14 $03 $04 $03 
+	$04 $03 $04 $03 $04 $03 $04 $03 $00 $FF 
+	$00 $FF $00 $FF $00 $FF $00 $FF $00 $FF 
+	$00 $FF $00 $FF $00 $FF $10 $FF $01 $FF 
+	$01 $FF $01 $EF $10 $E0 $1F $EF $1F $D7 
+	$2F $E0 $E0 $E0 $F0 $70 $F0 $F0 $F0 $E0 
+	$E0 $00 $E0 $40 $80 $00 $C0 $01 $02 $00 
+	$01 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $7F $80 $FF $00 $6F $90 $61 
+	$1E $68 $04 $60 $0C $00 $60 $00 $00 $FE 
+	$01 $F9 $06 $FE $00 $B2 $4D $22 $15 $22 
+	$14 $20 $10 $00 $00 $80 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00
+}
+
+data Ancient_Scholar_Graphics_Data
+{
+	$00 $00 $00 $00 $00 $00 $00 $00 $01 $01 $05 
+	$06 $07 $08 $10 $1C $0C $0C $08 $18 $38 
+	$28 $36 $0E $FF $80 $FF $00 $FF $00 $1E 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $40 
+	$C0 $F0 $11 $F0 $08 $18 $04 $00 $00 $40 
+	$00 $A0 $08 $40 $14 $00 $88 $00 $40 $00 
+	$98 $50 $74 $03 $1B $1B $13 $05 $09 $02 
+	$04 $01 $02 $01 $01 $00 $03 $00 $07 $E1 
+	$E1 $BE $FF $BE $FF $7F $7F $80 $00 $7F 
+	$80 $3F $C0 $7F $80 $E8 $E4 $EC $E0 $DC 
+	$C4 $30 $08 $D0 $31 $41 $C0 $D2 $31 $F9 
+	$08 $40 $58 $88 $88 $88 $F0 $24 $88 $7C 
+	$50 $F2 $04 $02 $7C $62 $9C $04 $0C $0F 
+	$07 $1C $17 $0C $17 $0C $17 $0C $17 $0C 
+	$17 $0F $13 $5E $60 $08 $10 $C7 $C7 $3C 
+	$FF $25 $FF $25 $FF $25 $FF $24 $FF $3C 
+	$24 $7C $74 $9A $F6 $1A $F6 $0E $FA $CE 
+	$FA $DE $F2 $1E $F2 $10 $AE $10 $E6 $00 
+	$BE $00 $7E $00 $5C $00 $38 $00 $00 $00 
+	$00
+}
+
+data Skeleton_Name
+{
+	"SKELETON" 0
+}
+
+data Skeleton_Description
+{
+	"PLACEHOLDER TEXT" 0
+}
+
+data Skeleton_Creature_Data
+{
+	$01 $11
+}
+
+data Skeleton_Card_Data
+{
+	$01 Skeleton_Creature_Data high(Skeleton_Creature_Data) 
+	$00 $00 Skeleton_Name high(Skeleton_Name) 
+	Skeleton_Description high(Skeleton_Description) 
+	Skeleton_Graphics_Data high(Skeleton_Graphics_Data)
+}
+
+data Ancient_Scholar_Creature_Data
+{
+	$07 $32
+}
+
+data Ancient_Scholar_Name
+{
+	"ANCIENT SCHOLAR" 0
+}
+
+data Ancient_Scholar_Card_Data
+{
+	$03 Ancient_Scholar_Creature_Data high(Ancient_Scholar_Creature_Data) 
+	$00 $00 Ancient_Scholar_Name high(Ancient_Scholar_Name) 
+	Skeleton_Description high(Skeleton_Description) 
+	Ancient_Scholar_Graphics_Data high(Ancient_Scholar_Graphics_Data)
+}
+
+data Mage_Creature_Data
+{
+	$05 $52
+}
+
+data Mage_Name
+{
+	"MAGE" 0
+}
+
+data Mage_Card_Data
+{
+	$02 Mage_Creature_Data high(Mage_Creature_Data) 
+	$00 $00 Mage_Name high(Mage_Name) Skeleton_Description 
+	high(Skeleton_Description) Mage_Graphics_Data 
+	high(Mage_Graphics_Data)
+}
+
+data Pig_Creature_Data
+{
+	$06 $11
+}
+
+data Pig_Name
+{
+	"PIG" 0
+}
+
+data Pig_Card_Data
+{
+	$01 Pig_Creature_Data high(Pig_Creature_Data) 
+	$00 $00 Pig_Name high(Pig_Name) Skeleton_Description 
+	high(Skeleton_Description) The_Pig_Graphics_Data 
+	high(The_Pig_Graphics_Data)
+}
+
 data Test_Card_Graphics_Data
 {
 	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
@@ -2622,29 +2801,6 @@ data Window_Spritechain_Data
 	$28 $08 $80 $10 $00 $0A $80 $10 $08 $0C 
 	$80 $10 $10 $0E $80 $10 $18 $0E $80 $10 
 	$20 $10 $80 $10 $28 $12 $80
-}
-
-data Card_Name
-{
-	"CARDTEST!" 0
-}
-
-data Card_Description
-{
-	"PLACEHOLDER TEXT" 0
-}
-
-data Placeholder_Creature_Data
-{
-	$10 $52
-}
-
-data Placeholder_Card_Data
-{
-	$01 Placeholder_Creature_Data high(Placeholder_Creature_Data) 
-	$00 $00 Card_Name high(Card_Name) Card_Description 
-	high(Card_Description) Skeleton_Graphics_Data 
-	high(Skeleton_Graphics_Data)
 }
 
 data __Draw_Board_Creature_Card__Tileset_Destinations

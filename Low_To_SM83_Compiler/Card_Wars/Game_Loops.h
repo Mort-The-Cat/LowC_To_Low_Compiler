@@ -66,13 +66,13 @@ void Start_Board_Scene()
 
     // write 0x98E0 if you want the bottom of the screen, just below the table
     
-    Draw_Board_Creature_Card(0, Placeholder_Card_Data); // This will draw the creature to the screen
-    Draw_Board_Creature_Card(2, Placeholder_Card_Data); // This will draw the creature to the screen
-    Draw_Board_Creature_Card(13, Placeholder_Card_Data); // This will draw the creature to the screen
-    Draw_Board_Creature_Card(7, Placeholder_Card_Data); // This will draw the creature to the screen
-    Draw_Board_Creature_Card(5, Placeholder_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(0, Skeleton_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(2, Ancient_Scholar_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(13, Pig_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(7, Skeleton_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(5, Skeleton_Card_Data); // This will draw the creature to the screen
 
-    Draw_Board_Creature_Card(8, Placeholder_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(8, Mage_Card_Data); // This will draw the creature to the screen
 
     //Copy_Tilemap(addressof(0x9820), Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
 

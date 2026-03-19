@@ -18,7 +18,13 @@ byte Get_Controller_Input(byte Flag);
 #include "Graphics/Table_Tilemap.c"
 #include "Graphics/Finny_Tilemap.c"
 #include "Graphics/Card_Tilemap.c"
-#include "Test_Skeleton_Graphics.h"
+
+#include "Cards/Test_Skeleton_Graphics.h"
+#include "Cards/Mage_Graphics.h"
+#include "Cards/The_Pig_Graphics.h"
+#include "Cards/Ancient_Scholar_Graphics.h"
+
+#include "Cards/Card_Data.h"
 
 #include "Test_Card.h"
 
