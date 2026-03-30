@@ -62,17 +62,36 @@ void Start_Board_Scene()
 
     // memcpy(VRAM_BLOCK_2, Test_Card_Graphics_Data, sizeof(Test_Card_Graphics_Data));
 
+    memcpy(addressof(0x8780), Card_Icon_Graphics_Data, sizeof(Card_Icon_Graphics_Data));
+
     memset(VRAM_TILEM_0, 0xFF, 0x400);
 
     // write 0x98E0 if you want the bottom of the screen, just below the table
     
-    Draw_Board_Creature_Card(0, Skeleton_Card_Data); // This will draw the creature to the screen
-    Draw_Board_Creature_Card(2, Ancient_Scholar_Card_Data); // This will draw the creature to the screen
-    Draw_Board_Creature_Card(13, Pig_Card_Data); // This will draw the creature to the screen
-    Draw_Board_Creature_Card(7, Skeleton_Card_Data); // This will draw the creature to the screen
-    Draw_Board_Creature_Card(5, Skeleton_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(0, Skeleton_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(2, Ancient_Scholar_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(13, Pig_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(7, Skeleton_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(5, Skeleton_Card_Data); // This will draw the creature to the screen
+//
+    //Draw_Board_Creature_Card(8, Mage_Card_Data); // This will draw the creature to the screen
 
-    Draw_Board_Creature_Card(8, Mage_Card_Data); // This will draw the creature to the screen
+    Draw_Board_Creature_Card(0, Ancient_Scholar_Card_Data);
+    Draw_Board_Creature_Card(1, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(2, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(3, Mage_Card_Data);
+    Draw_Board_Creature_Card(4, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(5, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(6, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(7, Pig_Card_Data);
+    Draw_Board_Creature_Card(8, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(9, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(10, Bald_Man_Card_Data);
+    Draw_Board_Creature_Card(11, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(12, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(13, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(14, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(15, Skeleton_Card_Data);
 
     //Copy_Tilemap(addressof(0x9820), Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
 

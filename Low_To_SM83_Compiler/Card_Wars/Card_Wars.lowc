@@ -22,7 +22,10 @@ byte Get_Controller_Input(byte Flag);
 #include "Cards/Test_Skeleton_Graphics.h"
 #include "Cards/Mage_Graphics.h"
 #include "Cards/The_Pig_Graphics.h"
+#include "Cards/Bald_Man_Graphics.h"
 #include "Cards/Ancient_Scholar_Graphics.h"
+
+#include "Cards/Card_Icon_Graphics.h"
 
 #include "Cards/Card_Data.h"
 

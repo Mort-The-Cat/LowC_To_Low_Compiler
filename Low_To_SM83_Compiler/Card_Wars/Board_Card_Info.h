@@ -74,10 +74,12 @@ void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible p
 
     Copy_Tilemap(Destination, Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
 
-    Number = Split_Byte(*Card_Data);
-    Number = Int_To_BCD( (byte)Number );
-    *(Destination + 34) = 0x80 | high(Number);
-    *(Destination + 35) = 0x80 | (byte)Number;
+    Number = Split_Byte(*Card_Data);            // Card cost
+    Number = Int_To_BCD( shift_right((byte)Number) );
+    *(Destination + 35) = 0x80 | high(Number);
+    *(Destination + 36) = 0x80 | (byte)Number;
+    *(Destination + 34) = 0xA1;     // x symbol
+    *(Destination + 33) = 0x78 | ((*Card_Data) & 0x01);
 
     Destination = Destination + 65;
     Draw_Card_Graphics_Tilemap(Destination, *(Tileset_Destinations + (word)Position) );
@@ -97,15 +99,44 @@ void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible p
     *Destination = 0x80 | (byte)Number;
     Destination = Destination + 31;
 
-    Number = load_16( Card_Data + 1);
+    Number = load_16( Card_Data + 1);   // HP
 
-    Number = Int_To_BCD(*Number);
+    Number = Int_To_BCD(0x3F & (*Number));
 
     // Number = Int_To_BCD(*load_16(Card_Data + (word)1));
 
     *Destination = 0x80 | high(Number);
     Destination++;
     *Destination = 0x80 | (byte)Number;
+    Destination++;
+
+    Number = load_16( Card_Data + 1 );
+    
+    byte Movement_Flag;
+
+    Movement_Flag = b11000000 & (*Number);
+
+    // b10 is rock          (0x7C)
+    // b11 is move left     (0x7A)
+    // b00 is normal        (0xFF)
+    // b01 is move right    (0x7B)
+
+    if(bit(Movement_Flag, 6)) // some kind of movement sigil
+    {
+        if(bit(Movement_Flag, 7))
+        {
+            *Destination = 0x7A;    // move left
+            return;
+        }
+
+        *Destination = 0x7B;        // move right
+        return;
+    }
+
+    if(bit(Movement_Flag, 7))
+    {
+        *Destination = 0x7C;        // rock
+    }
 
     return;
 }
