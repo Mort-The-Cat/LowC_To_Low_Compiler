@@ -18,16 +18,19 @@ byte Get_Controller_Input(byte Flag);
 #include "Graphics/Table_Tilemap.c"
 #include "Graphics/Finny_Tilemap.c"
 #include "Graphics/Card_Tilemap.c"
+#include "Menu/Card_Menu_Tilemap.c"
 
 #include "Cards/Test_Skeleton_Graphics.h"
 #include "Cards/Mage_Graphics.h"
 #include "Cards/The_Pig_Graphics.h"
 #include "Cards/Bald_Man_Graphics.h"
 #include "Cards/Ancient_Scholar_Graphics.h"
+#include "Cards/Strawman_Graphics.h"
 
 #include "Cards/Card_Icon_Graphics.h"
 
 #include "Cards/Card_Data.h"
+#include "Cards/Card_Catalogue.h"
 
 #include "Test_Card.h"
 
@@ -129,7 +132,6 @@ void Test_Scroll_Loop()
 #include "Board_Card_Info.h"
 #include "Game_Loops.h"
 
-
 void main()
 {
     // Here, we just want to initialise the VRAM graphics into memory
@@ -140,15 +142,25 @@ void main()
 
     init_dma();
     init_screen_interrupts();
+    memset(MALLOC_MAP_ADDRESS, 0x00, 0x100);
+
+    byte* Game_Info;
+
+    Game_Info = malloc(Game_Info_Bytecount);
+
+    Init_Game_Info(Game_Info);
 
     *(LCDC_REGISTER) = 0x80;
 
-    Alternate_Game_Loops();
+    Alternate_Game_Loops(Game_Info);
 
     do
     {
         Wait_For_VBlank();
     }while(true);
+
+    Delete_Game_Info(Game_Info);
+    free(Game_Info);
 
     return;
 }

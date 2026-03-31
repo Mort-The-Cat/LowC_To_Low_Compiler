@@ -23,7 +23,7 @@
 #define LCD_STATUS_REGISTER addressof(0xFF41)
 //		bit 6 is set when you want a STAT interrupt to occur during LYC == LCDY
 //		bit 3 is set when you want HBLANK interrupts 
-//		bit 2 is set when LYC == LCDY
+//		bit 2 is set when LYC == LCDY 
 //		bits 1 and 0 determine the current PPU mode (0 if HBlank or currently disabled, 1 if VBlank)
 
 

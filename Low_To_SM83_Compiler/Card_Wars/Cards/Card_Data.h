@@ -23,7 +23,21 @@
 
 // 
 
-
+const byte Strawman_Name[] = "STRAWMAN";
+const byte Strawman_Creature_Data[] =
+{
+    0x01,
+    0x00
+};
+const byte Strawman_Card_Data[] =
+{
+    0x00,
+    Strawman_Creature_Data, high(Strawman_Creature_Data),
+    0x00, 0x00,
+    Strawman_Name, high(Strawman_Name),
+    Skeleton_Description, high(Skeleton_Description),
+    Strawman_Graphics_Data, high(Strawman_Graphics_Data)
+};
 
 const byte Skeleton_Name[] = "SKELETON";
 const byte Skeleton_Description[] = "PLACEHOLDER TEXT";

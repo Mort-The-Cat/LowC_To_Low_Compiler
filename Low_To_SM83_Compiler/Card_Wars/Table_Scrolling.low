@@ -116,6 +116,7 @@ subroutine Draw_Card_Graphics_Tilemap
     # SP + $03 / $04    destination
     HL = SP + $02;
     A = [HL++];         # the tile we want
+    A ^= $80;
     B = A;
 
     A = [HL++];

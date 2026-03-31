@@ -5,6 +5,14 @@
 // The deck etc will store pointers to the const values
 // Only the creature cards in play are copies
 
+//
+
+
+
+// Board structure:
+//      00 - card id
+//      01 - creature data pointer
+
 void Draw_Card_Graphics_Tilemap(byte* Location, byte Value);
 
 byte* Position_To_Tileset_Value(byte* Destinations, byte Position)
@@ -14,20 +22,19 @@ byte* Position_To_Tileset_Value(byte* Destinations, byte Position)
     Address = Destinations + Address;
     Address = *Address;
     Address = shift_left(shift_left(shift_left(shift_left(Address))));
-    Address = Address + 0x8000;
+    Address = Address + 0x8800;
     return Address;
 }
 
 void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible positions to place the card
 {
-
-    const byte Tileset_Destinations[] = // tile ID
+    const byte Tileset_Destinations[] =
     {
-        0x00, 0x0C, 0x18, 0x24,
-        0x30, 0x3C, 0x48, 0x54,
-        0x60, 0x6C, 0xB6, 0xC2,
-        0xCE, 0xDA, 0xE6, 0xF2
-    }; // $8B60 is start of second tilemap (tile $B6)
+        0x36, 0x42, 0x4E, 0x5A,
+        0x66, 0x72, 0x80, 0x8C,
+        0x98, 0xA4, 0xB0, 0xBC,
+        0xC8, 0xD4, 0xE0, 0xEC
+    };
 
     const byte Tilemap_Destinations[] =
     {

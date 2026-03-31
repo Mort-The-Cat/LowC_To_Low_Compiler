@@ -1,7 +1,5 @@
-void Start_Table_Scene()
+void Start_Table_Scene(byte* Game_Info)
 {
-    Wait_For_VBlank();
-
     *(LCDC_REGISTER) = 0;
 
     Set_Interrupt_Function(HBLANK_HRAM_FUNCTION_JUMP_ADDRESS, Table_Scroll_HBlank_Function);
@@ -46,56 +44,21 @@ void Start_Table_Scene()
     return;
 }
 
+//
 
-
-void Start_Board_Scene()
+void Test_Card_Menu(byte* Game_Info)
 {
     //Wait_For_VBlank();
 
-    // *(LCDC_REGISTER) = 0x00;
+    //*(LCDC_REGISTER) = 0x00;
 
     *BACKGROUND_SCROLL_X_REGISTER = 0;
 
     *BACKGROUND_SCROLL_Y_REGISTER = 0;
 
-    *(INTERRUPT_ENABLE_REGISTER) = 0x00;
+    Copy_Tilemap(addressof(0x9800), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
 
-    // memcpy(VRAM_BLOCK_2, Test_Card_Graphics_Data, sizeof(Test_Card_Graphics_Data));
-
-    memcpy(addressof(0x8780), Card_Icon_Graphics_Data, sizeof(Card_Icon_Graphics_Data));
-
-    memset(VRAM_TILEM_0, 0xFF, 0x400);
-
-    // write 0x98E0 if you want the bottom of the screen, just below the table
-    
-    //Draw_Board_Creature_Card(0, Skeleton_Card_Data); // This will draw the creature to the screen
-    //Draw_Board_Creature_Card(2, Ancient_Scholar_Card_Data); // This will draw the creature to the screen
-    //Draw_Board_Creature_Card(13, Pig_Card_Data); // This will draw the creature to the screen
-    //Draw_Board_Creature_Card(7, Skeleton_Card_Data); // This will draw the creature to the screen
-    //Draw_Board_Creature_Card(5, Skeleton_Card_Data); // This will draw the creature to the screen
-//
-    //Draw_Board_Creature_Card(8, Mage_Card_Data); // This will draw the creature to the screen
-
-    Draw_Board_Creature_Card(0, Ancient_Scholar_Card_Data);
-    Draw_Board_Creature_Card(1, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(2, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(3, Mage_Card_Data);
-    Draw_Board_Creature_Card(4, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(5, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(6, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(7, Pig_Card_Data);
-    Draw_Board_Creature_Card(8, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(9, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(10, Bald_Man_Card_Data);
-    Draw_Board_Creature_Card(11, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(12, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(13, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(14, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(15, Skeleton_Card_Data);
-
-    //Copy_Tilemap(addressof(0x9820), Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
-
-    *(LCDC_REGISTER) = 0x97;
+    *(LCDC_REGISTER) = 0x87;
 
     byte Input;
 
@@ -132,6 +95,95 @@ void Start_Board_Scene()
         dma_transfer();
     }while(bit(Input, CONTROLLER_BUTTON_START_BIT));
 
+    *(LCDC_REGISTER) = 0x00;
+
+    return;
+}
+
+//
+
+void Start_Board_Scene(byte* Game_Info)
+{
+    *BACKGROUND_SCROLL_X_REGISTER = 0;
+
+    *BACKGROUND_SCROLL_Y_REGISTER = 0;
+
+    *(INTERRUPT_ENABLE_REGISTER) = 0x00;
+
+    // memcpy(VRAM_BLOCK_2, Test_Card_Graphics_Data, sizeof(Test_Card_Graphics_Data));
+
+    memcpy(addressof(0x9780), Card_Icon_Graphics_Data, sizeof(Card_Icon_Graphics_Data));
+
+    memset(VRAM_TILEM_0, 0xFF, 0x400);
+
+    // write 0x98E0 if you want the bottom of the screen, just below the table
+    
+    //Draw_Board_Creature_Card(0, Skeleton_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(2, Ancient_Scholar_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(13, Pig_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(7, Skeleton_Card_Data); // This will draw the creature to the screen
+    //Draw_Board_Creature_Card(5, Skeleton_Card_Data); // This will draw the creature to the screen
+//
+    //Draw_Board_Creature_Card(8, Mage_Card_Data); // This will draw the creature to the screen
+
+    Draw_Board_Creature_Card(0, Ancient_Scholar_Card_Data);
+    Draw_Board_Creature_Card(1, Strawman_Card_Data);
+    Draw_Board_Creature_Card(2, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(3, Mage_Card_Data);
+    Draw_Board_Creature_Card(4, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(5, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(6, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(7, Pig_Card_Data);
+    Draw_Board_Creature_Card(8, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(9, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(10, Bald_Man_Card_Data);
+    Draw_Board_Creature_Card(11, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(12, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(13, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(14, Skeleton_Card_Data);
+    Draw_Board_Creature_Card(15, Skeleton_Card_Data);
+
+    //Copy_Tilemap(addressof(0x9820), Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
+
+    *(LCDC_REGISTER) = 0x87;
+
+    byte Input;
+
+    Input = 0;
+
+    do
+    {
+        Clean_OAM_Buffer();
+
+        Input = Get_Controller_Input(CONTROLLER_DPAD_FLAG);
+
+        if(!bit(Input, CONTROLLER_BUTTON_DOWN_BIT))
+        {
+            *(BACKGROUND_SCROLL_Y_REGISTER)++;
+        }
+
+        if(!bit(Input, CONTROLLER_BUTTON_UP_BIT))
+        {
+            *(BACKGROUND_SCROLL_Y_REGISTER)--;
+        }
+
+        if(!bit(Input, CONTROLLER_BUTTON_RIGHT_BIT))
+        {
+            *(BACKGROUND_SCROLL_X_REGISTER)++;
+        }
+
+        if(!bit(Input, CONTROLLER_BUTTON_LEFT_BIT))
+        {
+            *(BACKGROUND_SCROLL_X_REGISTER)--;
+        }
+
+        Input = Get_Controller_Input(CONTROLLER_SSBA_FLAG);
+        Wait_For_VBlank();
+        dma_transfer();
+    }while(bit(Input, CONTROLLER_BUTTON_START_BIT));
+
+    *LCDC_REGISTER = 0x00;
+
     return;
 }
 
@@ -150,15 +202,19 @@ void Wait_For_Button_Release()
     return;
 }
 
-void Alternate_Game_Loops()
+void Alternate_Game_Loops(byte* Game_Info)
 {
     do
     {
-        Start_Table_Scene();
+        Start_Table_Scene(Game_Info);
 
         Wait_For_Button_Release();
 
-        Start_Board_Scene();
+        Start_Board_Scene(Game_Info);
+
+        Wait_For_Button_Release();
+
+        Test_Card_Menu(Game_Info);
 
         Wait_For_Button_Release();
 
