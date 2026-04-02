@@ -23,6 +23,8 @@
 
 #define MREQUIRE_COPY		1u		// 'copy' required
 
+void Debug_Output_Current_Tracer_State(std::string& Output_Low_Code, Tracer_Data& Tracer);
+
 Trace* Find_Value_In_Tracer_Register(Tracer_Data& Tracer, std::string Value, int Search_Flags = 3);
 
 Trace* Register_From_Name(Tracer_Data& Tracer, char Letter);
@@ -316,6 +318,9 @@ std::string Fit_Register_Requirements(std::string& Output_Low_Code, Tracer_Data&
 				Register = Reg[0].Name;
 
 				Output_Low_Code += "\tA = " + Register + ";\t\t";
+
+				Reg[0].Modified_Counter = Previously_Modified;
+				Reg[0].Value = Value;
 
 				if (Copy_Requirements)
 				{
@@ -885,8 +890,8 @@ bool Writeback_Panic_Push(std::string& Output_Low_Code, Tracer_Data& Tracer)
 
 			Register = Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_REG_PAIR);
 
-			Register[0].Value = Tracer.Stack.back().Value;
-			Register[1].Value = Register[0].Value;
+			Register[0].Value = Tracer.Stack[Tracer.Stack.size() - 2].Value;
+			Register[1].Value = Tracer.Stack.back().Value;
 
 			Register[0].Modified_Counter = 1;
 			Register[1].Modified_Counter = 1;
@@ -942,6 +947,8 @@ std::string Tracer_Operator8(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 	else
 		Previous_Modified_Counter = 0;
 
+	Debug_Output_Current_Tracer_State(Output_Low_Code, Tracer);
+
 	Tracer_Make_Value_Hot(Output_Low_Code, Tracer, Node["left"][0], REQUIRE_A_REG, Copy_Requirements);
 
 	if (Right_Trace)	// note that this can be an int-literal
@@ -958,6 +965,8 @@ std::string Tracer_Operator8(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 		Right_Trace->Modified_Counter = Previous_Modified_Counter;		// This returns it to its "pre-modified" state
 		Right_Trace->Value = Right_Trace_Name;
 	}
+
+	Debug_Output_Current_Tracer_State(Output_Low_Code, Tracer);
 	
 	Clear_Tracer_Registers(Tracer);
 
@@ -1639,13 +1648,16 @@ void Call_Function_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, 
 
 	size_t Pre_Function_Stack_Size = Tracer.Stack.size();
 
-	for (size_t Index = 0; Index < 7; Index++)
-		if (Tracer.Registers[Index].Modified_Counter == 1)
-		{
-			Store_Tracer_Register_Back_In_Memory(Output_Low_Code, Tracer, &Tracer.Registers[Index]);
+	for (size_t Pass = 0; Pass < 3; Pass++)					// If there are 16-bit values in BC and HL or DE and HL, this will fail to correctly store the HL value back into memory unless we repeat this a number of times
+	{
+		for (size_t Index = 0; Index < 7; Index++)
+			if (Tracer.Registers[Index].Modified_Counter == 1)
+			{
+				Store_Tracer_Register_Back_In_Memory(Output_Low_Code, Tracer, &Tracer.Registers[Index]);
 
-			Writeback_Panic_Push(Output_Low_Code, Tracer);
-		}
+				Writeback_Panic_Push(Output_Low_Code, Tracer);
+			}
+	}
 
 	// for each parameter...
 
@@ -2129,13 +2141,18 @@ void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse
 
 //
 
-void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+void Debug_Output_Current_Tracer_State(std::string& Output_Low_Code, Tracer_Data& Tracer)
 {
 	Output_Low_Code += "\t# Current tracer registers:\n";
 	for (size_t Reg = 0; Reg < Tracer.Registers.size(); Reg++)
 	{
 		Output_Low_Code += "\t\t# " + Tracer.Registers[Reg].Name + " = " + Tracer.Registers[Reg].Value + "; " + std::to_string(Tracer.Registers[Reg].Modified_Counter) + "\n";
 	}
+}
+
+void Analyse_Statement_LowC(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
+{
+	Debug_Output_Current_Tracer_State(Output_Low_Code, Tracer);
 
 	if (Node.Syntax_ID == S_IF_STATEMENT)
 	{

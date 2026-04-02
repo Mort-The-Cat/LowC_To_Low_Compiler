@@ -441,6 +441,13 @@ size_t Skip_Comments(const char* File)
 	return 0;
 }
 
+void Concatenate_String_Tokens(std::vector<Token>& Tokens)
+{
+	std::vector<Token> Old_Tokens = Tokens;
+
+	// This will also go through T_STRING tokens and resolve the \00 hex characters
+}
+
 void Tokenise(std::vector<Token>& Tokens, const char* File_Directory)
 {
 	// Gets file contents

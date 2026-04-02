@@ -10,6 +10,7 @@ byte* Int_To_BCD(byte Value);
 void Wait_For_VBlank();
 void Copy_Tilemap(byte* Destination, byte* Source, word Count, byte Width);
 byte Get_Controller_Input(byte Flag);
+void Update_Player_Inputs(byte* Game_Info);
 
 #include "Table_Graphics.h"
 #include "Finny_Graphics.h"

@@ -1,7 +1,15 @@
 // We'll store game info in a simple structure like so:
 //      00 - Player_Deck pointer (this is a list of the cards that the player has in their deck)
 //      02 - Board pointer
+//      04 - Controller DPAD read
+//      05 - Controller SSBA read
+//      06 - Controller fresh DPAD
+//      07 - Controller fresh SSBA
 #define Game_Info_Bytecount 0x04
+#define Game_Info_DPAD_Read 04
+#define Game_Info_DPAD_Fresh 06
+#define Game_Info_SSBA_Read 05
+#define Game_Info_SSBA_Fresh 07
 
 // Board info:
 //      00 - Player_Deck_Pile pointer (list of cards that the player has in the deck pile in-game)

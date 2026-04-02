@@ -82,11 +82,15 @@ void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible p
     Copy_Tilemap(Destination, Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
 
     Number = Split_Byte(*Card_Data);            // Card cost
-    Number = Int_To_BCD( shift_right((byte)Number) );
-    *(Destination + 35) = 0x80 | high(Number);
-    *(Destination + 36) = 0x80 | (byte)Number;
-    *(Destination + 34) = 0xA1;     // x symbol
-    *(Destination + 33) = 0x78 | ((*Card_Data) & 0x01);
+    
+    if((byte)Number)                            // if there's no cost, don't display it
+    {
+        Number = Int_To_BCD( shift_right((byte)Number) );
+        *(Destination + 35) = 0x80 | high(Number);
+        *(Destination + 36) = 0x80 | (byte)Number;
+        *(Destination + 34) = 0xA1;     // x symbol
+        *(Destination + 33) = 0x78 | ((*Card_Data) & 0x01);
+    }
 
     Destination = Destination + 65;
     Draw_Card_Graphics_Tilemap(Destination, *(Tileset_Destinations + (word)Position) );
