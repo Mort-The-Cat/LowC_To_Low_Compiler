@@ -21,7 +21,52 @@
 //      09  Graphics        : 16-bit pointer to tileset (i.e. what tiles the card uses for its graphics)
 
 
-// 
+//
+
+const byte Sir_Slicer_Name[] = "SIR-SLICER";
+const byte Sir_Slicer_Creature_Data[] =
+{
+    0x47,
+    0x30
+};
+const byte Sir_Slicer_Card_Data[] =
+{
+    0x06,
+    Sir_Slicer_Creature_Data, high(Sir_Slicer_Creature_Data),
+    0x00, 0x00,
+    Sir_Slicer_Name, high(Sir_Slicer_Name),
+    Skeleton_Description, high(Skeleton_Description),
+    Sir_Slicer_Graphics_Data, high(Sir_Slicer_Graphics_Data)
+};
+
+
+const byte Starchy_Name[] = "STARCHY!";
+const byte Starchy_Creature_Data[] =
+{
+    0x02,
+    0x10
+};
+const byte Starchy_Card_Data[] =
+{
+    0x02,
+    Starchy_Creature_Data, high(Starchy_Creature_Data),
+    0x00, 0x00,
+    Starchy_Name, high(Starchy_Name),
+    Skeleton_Description, high(Skeleton_Description),
+    Starchy_Graphics_Data, high(Starchy_Graphics_Data)
+};
+
+
+const byte Coffin_Name[] = "COFFIN";    // This DOESN'T have creature data because it's a card
+const byte Coffin_Card_Data[] =
+{
+    0x83,                               // high nibble LSB is 0 because it's a building (see class Card definition)
+    0x00, 0x00,                          // no creature data (it's a building)
+    0x00, 0x00,
+    Coffin_Name, high(Coffin_Name),
+    Skeleton_Description, high(Skeleton_Description),
+    Coffin_Graphics_Data, high(Coffin_Graphics_Data)
+};
 
 const byte Strawman_Name[] = "STRAWMAN";
 const byte Strawman_Creature_Data[] =

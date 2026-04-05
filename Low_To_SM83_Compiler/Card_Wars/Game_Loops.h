@@ -33,7 +33,7 @@ void Start_Table_Scene(byte* Game_Info)
 
     *(OBJECT_PALETTE_0_REGISTER) = b10011100;
 
-    *(OBJECT_PALETTE_1_REGISTER) = b01100011;
+    *(OBJECT_PALETTE_1_REGISTER) = b01000000;
 
     *(LCDC_REGISTER) = 0x87;
 
@@ -210,6 +210,15 @@ void Board_Scene_Selected_Card_Icon(byte* Game_Info, byte* Selected_Card)
 
     place_spritechain_in_oam_buffer(Selected_Card_Spritechain, 4, Y - (*BACKGROUND_SCROLL_Y_REGISTER), X - (*BACKGROUND_SCROLL_X_REGISTER));
 
+    if(!bit(*(Game_Info + Game_Info_SSBA_Fresh), CONTROLLER_BUTTON_A_BIT))
+    {
+        Place_Card_On_Board(Game_Info, *Selected_Card, ID_Strawman);
+        Wait_For_VBlank();
+        *(LCDC_REGISTER) = 0x00;
+        Draw_Board_Cards(Game_Info);
+        *(LCDC_REGISTER) = 0x83;
+    }
+
     return;
 }
 
@@ -237,22 +246,37 @@ void Start_Board_Scene(byte* Game_Info)
 //
     //Draw_Board_Creature_Card(8, Mage_Card_Data); // This will draw the creature to the screen
 
-    Draw_Board_Creature_Card(0, Ancient_Scholar_Card_Data);
-    Draw_Board_Creature_Card(1, Strawman_Card_Data);
-    Draw_Board_Creature_Card(2, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(3, Mage_Card_Data);
-    Draw_Board_Creature_Card(4, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(5, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(6, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(7, Pig_Card_Data);
-    Draw_Board_Creature_Card(8, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(9, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(10, Bald_Man_Card_Data);
-    Draw_Board_Creature_Card(11, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(12, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(13, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(14, Skeleton_Card_Data);
-    Draw_Board_Creature_Card(15, Skeleton_Card_Data);
+    //Draw_Board_Creature_Card(0, Ancient_Scholar_Card_Data);
+    //Draw_Board_Creature_Card(1, Strawman_Card_Data);
+    //Draw_Board_Creature_Card(2, Starchy_Card_Data);
+    //Draw_Board_Creature_Card(3, Mage_Card_Data);
+    //Draw_Board_Creature_Card(4, Sir_Slicer_Card_Data);
+    //Draw_Board_Creature_Card(5, Skeleton_Card_Data);
+    //Draw_Board_Creature_Card(6, Skeleton_Card_Data);
+    //Draw_Board_Creature_Card(7, Pig_Card_Data);
+    //Draw_Board_Creature_Card(8, Skeleton_Card_Data);
+    //Draw_Board_Creature_Card(9, Skeleton_Card_Data);
+    //Draw_Board_Creature_Card(10, Bald_Man_Card_Data);
+    //Draw_Board_Creature_Card(11, Skeleton_Card_Data);
+    //Draw_Board_Creature_Card(12, Coffin_Card_Data);
+    //Draw_Board_Creature_Card(13, Coffin_Card_Data);
+    //Draw_Board_Creature_Card(14, Skeleton_Card_Data);
+    //Draw_Board_Creature_Card(15, Coffin_Card_Data);
+
+    Place_Card_On_Board(Game_Info, 0, ID_Ancient_Scholar);
+    Place_Card_On_Board(Game_Info, 1, ID_Strawman);
+    Place_Card_On_Board(Game_Info, 2, ID_Starchy);
+    Place_Card_On_Board(Game_Info, 3, ID_Mage);
+    Place_Card_On_Board(Game_Info, 4, ID_Sir_Slicer);
+    Place_Card_On_Board(Game_Info, 5, ID_Skeleton);
+    Place_Card_On_Board(Game_Info, 7, ID_Pig);
+    Place_Card_On_Board(Game_Info, 8, ID_Skeleton);
+    Place_Card_On_Board(Game_Info, 9, ID_Skeleton);
+    Place_Card_On_Board(Game_Info, 10, ID_Bald_Man);
+    Place_Card_On_Board(Game_Info, 12, ID_Coffin);
+    Place_Card_On_Board(Game_Info, 13, ID_Coffin);
+
+    Draw_Board_Cards(Game_Info);
 
     //Copy_Tilemap(addressof(0x9820), Card_Tilemap_Data, sizeof(Card_Tilemap_Data), Card_Tilemap_Width);
 

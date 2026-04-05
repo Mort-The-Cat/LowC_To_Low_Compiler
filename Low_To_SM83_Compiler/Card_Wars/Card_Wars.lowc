@@ -20,13 +20,18 @@ void Update_Player_Inputs(byte* Game_Info);
 #include "Graphics/Finny_Tilemap.c"
 #include "Graphics/Card_Tilemap.c"
 #include "Menu/Card_Menu_Tilemap.c"
+#include "Graphics/Cards/No_Card.c"
 
-#include "Cards/Test_Skeleton_Graphics.h"
+#include "Cards/Skeleton_Graphics.h"
 #include "Cards/Mage_Graphics.h"
 #include "Cards/The_Pig_Graphics.h"
 #include "Cards/Bald_Man_Graphics.h"
 #include "Cards/Ancient_Scholar_Graphics.h"
 #include "Cards/Strawman_Graphics.h"
+#include "Cards/Coffin_Graphics.h"
+#include "Cards/Sir_Slicer_Graphics.h"
+#include "Cards/Starchy_Graphics.h"
+#include "Cards/Death_Graphics.h"
 
 #include "Cards/Card_Icon_Graphics.h"
 
@@ -151,6 +156,8 @@ void main()
 
     Init_Game_Info(Game_Info);
 
+    Init_Game_Board(Game_Info);
+
     *(LCDC_REGISTER) = 0x80;
 
     Alternate_Game_Loops(Game_Info);
@@ -160,6 +167,7 @@ void main()
         Wait_For_VBlank();
     }while(true);
 
+    Delete_Game_Board(Game_Info);
     Delete_Game_Info(Game_Info);
     free(Game_Info);
 

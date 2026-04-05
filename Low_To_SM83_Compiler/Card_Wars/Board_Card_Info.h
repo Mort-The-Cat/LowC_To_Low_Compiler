@@ -26,7 +26,143 @@ byte* Position_To_Tileset_Value(byte* Destinations, byte Position)
     return Address;
 }
 
-void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible positions to place the card
+void Place_Card_On_Board(byte* Game_Info, byte Position, byte Card_ID)
+{
+    Position = Position + Position + Position;
+
+    byte* Pointer;
+    Pointer = load_16(Game_Info + (word)Game_Info_Board_Pointer);
+    Pointer = Pointer + Board_Info_Board_Card_Data;
+
+    Pointer = Pointer + (word)Position;
+
+    *(Pointer) = Card_ID;
+
+    Pointer++;
+
+    //Card_ID = shift_left(Card_ID);
+
+    byte* Card_Pointer;
+
+    Card_Pointer = Card_Catalogue;
+
+    Card_Pointer = load_16(Card_Pointer + shift_left((word)Card_ID));   // The card pointer
+    Card_Pointer++;
+    Card_Pointer = load_16( Card_Pointer );                             // The creature pointer
+
+    byte* Copy_Pointer;
+
+    if((byte)Card_Pointer | high(Card_Pointer))
+    {
+        // if it's an actual object? write it
+
+        Game_Info = load_16(Game_Info + Game_Info_Board_Pointer);
+        Game_Info = Game_Info + Board_Info_Board_Creature_Data;
+        Copy_Pointer = Game_Info + shift_left((word)Position);
+
+        memcpy(Copy_Pointer, Card_Pointer, 2);
+
+        Card_Pointer = Copy_Pointer;
+    }
+
+    // Copy_Pointer = malloc(2); // allocates 2 bytes for the object data (if necessary)
+
+    write_16(Pointer, Card_Pointer);                                    // simply copies creature pointer to the board
+
+    // For now, this doesn't create a copy of the data
+
+    // it'll just point to the original address
+
+    return;
+}
+
+void Draw_Board_Creature_Card(byte Position, byte* Card_Data, byte* Creature_Data);
+
+const byte Tilemap_Destinations[] =
+{
+    0x00, 0x98,
+    0x06, 0x98,
+    0x0C, 0x98,
+    0x12, 0x98,
+
+    0x00, 0x99,
+    0x06, 0x99,
+    0x0C, 0x99,
+    0x12, 0x99,
+
+    0x00, 0x9A,
+    0x06, 0x9A,
+    0x0C, 0x9A,
+    0x12, 0x9A,
+
+    0x00, 0x9B,
+    0x06, 0x9B,
+    0x0C, 0x9B,
+    0x12, 0x9B
+};
+
+void Draw_Empty_Card_Space(byte Position)
+{
+    byte* Destination;
+
+    Destination = Tilemap_Destinations + (word)Position;
+    Destination = load_16(Destination);
+
+    Copy_Tilemap(Destination, No_Card_Tilemap_Data, sizeof(No_Card_Tilemap_Data), No_Card_Tilemap_Width);
+
+    return;
+}
+
+void Draw_Board_Cards_Iteration(byte* Pointer, byte Card_ID, byte Count)
+{
+    byte* Card_Data;
+
+    if( Card_ID < 255 ) // If it's a valid card? draw it
+    {
+        Card_Data = load_16(Card_Catalogue + shift_left((word)Card_ID));
+
+        Draw_Board_Creature_Card(Count, Card_Data, load_16(Pointer));
+        return;
+    }
+
+    Draw_Empty_Card_Space(shift_left(Count));
+
+    return;
+}
+
+void Draw_Board_Cards(byte* Game_Info)
+{
+    byte Count;
+
+    byte* Pointer;
+
+    Pointer = load_16(Game_Info + (word)Game_Info_Board_Pointer);//
+    Pointer = Pointer + Board_Info_Board_Card_Data;
+
+    byte Card_ID;
+
+    Count = 0;
+
+    do
+    {
+        Card_ID = *Pointer;
+        Pointer++;
+
+        // Draw_Empty_Card_Space(shift_left(Count));
+
+        Draw_Board_Cards_Iteration(Pointer, Card_ID, Count);
+
+        // Otherwise? Don't worry about it
+
+        Pointer++;
+        Pointer++;
+        Count++;
+    }while(Count < 16);
+
+    return;
+}
+
+void Draw_Board_Creature_Card(byte Position, byte* Card_Data, byte* Creature_Data)   // 16 possible positions to place the card
 {
     const byte Tileset_Destinations[] =
     {
@@ -34,29 +170,6 @@ void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible p
         0x66, 0x72, 0x80, 0x8C,
         0x98, 0xA4, 0xB0, 0xBC,
         0xC8, 0xD4, 0xE0, 0xEC
-    };
-
-    const byte Tilemap_Destinations[] =
-    {
-        0x00, 0x98,
-        0x06, 0x98,
-        0x0C, 0x98,
-        0x12, 0x98,
-
-        0x00, 0x99,
-        0x06, 0x99,
-        0x0C, 0x99,
-        0x12, 0x99,
-
-        0x00, 0x9A,
-        0x06, 0x9A,
-        0x0C, 0x9A,
-        0x12, 0x9A,
-
-        0x00, 0x9B,
-        0x06, 0x9B,
-        0x0C, 0x9B,
-        0x12, 0x9B
     };
 
     byte* Destination;
@@ -95,9 +208,16 @@ void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible p
     Destination = Destination + 65;
     Draw_Card_Graphics_Tilemap(Destination, *(Tileset_Destinations + (word)Position) );
 
-    Destination = Destination + 97;
+    // Here, we'll check if this is a building or a creature.
 
-    Number = load_16( Card_Data + 1);   // Gets attack/floop data from creature
+    Number = Creature_Data; //load_16( Card_Data + 1);   // Gets attack/floop data from creature
+
+    if(! ((byte)Number | high(Number))) // if 'creature data' is NULL, don't render it
+    {
+        return;
+    }
+
+    Destination = Destination + 97;
 
     Number = Split_Byte( *(Number + 1) ); // Splits packed attack/floop data
 
@@ -110,7 +230,7 @@ void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible p
     *Destination = 0x80 | (byte)Number;
     Destination = Destination + 31;
 
-    Number = load_16( Card_Data + 1);   // HP
+    Number = Creature_Data; //load_16( Card_Data + 1);   // HP
 
     Number = Int_To_BCD(0x3F & (*Number));
 
@@ -121,7 +241,7 @@ void Draw_Board_Creature_Card(byte Position, byte* Card_Data)   // 16 possible p
     *Destination = 0x80 | (byte)Number;
     Destination++;
 
-    Number = load_16( Card_Data + 1 );
+    Number = Creature_Data; //load_16( Card_Data + 1 );
     
     byte Movement_Flag;
 
