@@ -328,6 +328,30 @@ const std::vector<Grammar_Checker> ID_Assign_Grammars =
 	)
 };
 
+const std::vector<Grammar_Checker> Concatenated_String_Literals =
+{
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_STRING_LITERAL),
+			Checker_Function(Parse_Recursive_Check, Concatenated_String_Literals)
+		},
+		Node_Init
+		{
+			Node_Add("data", S_INT_LITERAL, Tokens[0].Name + " " + Recursively_Generated_Nodes[0].Child_Nodes["data"][0].Value);
+		}
+	),
+
+	Grammar_Checker(
+		{
+			Checker_Function(Is_Token, T_STRING_LITERAL)
+		},
+		Node_Init
+		{
+			Node_Add("data", S_INT_LITERAL, Tokens[0].Name);
+		}
+	)
+};
+
 // NOTE that an identifier is *automatically* identified by the tracer as *constant* if it's not found on the local stack or in existing global variables
 // At which point, it'll retry (given the current local function scope name)
 
@@ -357,7 +381,9 @@ const std::vector<Grammar_Checker> ROM_Declaration_Grammars =
 		}
 	),
 
-	Grammar_Checker(	// const byte Id[] = "insert string literal here";
+	
+		/*
+		Grammar_Checker(	// const byte Id[] = "insert string literal here" "insertion optional string literals here";
 		{
 			Checker_Function(Is_Token, T_CONST),
 			Checker_Function(Is_Token, T_BYTE), Checker_Function(Is_Token, T_IDENTIFIER),
@@ -379,6 +405,31 @@ const std::vector<Grammar_Checker> ROM_Declaration_Grammars =
 			Node_Add("size", S_INT_LITERAL, std::to_string(Tokens[6].Name.length() + 1));
 
 			Node_Add("data", S_INT_LITERAL, "\"" + Tokens[6].Name + "\"");
+		}
+	),*/
+
+	Grammar_Checker(	// const byte Id[] = "insert string literal here" "insertion optional string literals here";
+		{
+			Checker_Function(Is_Token, T_CONST),
+			Checker_Function(Is_Token, T_BYTE), Checker_Function(Is_Token, T_IDENTIFIER),
+			Checker_Function(Is_Token, T_OPEN_SQ), Checker_Function(Is_Token, T_CLOSE_SQ),
+			Checker_Function(Is_Token, T_EQUALS),
+			Checker_Function(Parse_Recursive_Check, Concatenated_String_Literals),
+			Checker_Function(Is_Token, T_SEMI)
+		},
+		Node_Init
+		{
+			Node_Add("type", S_BYTE_ARRAY, "byte[]");
+
+			std::string Name = Local_Function_Scope_Name + Tokens[2].Name;
+
+			Node_Add("id", S_ID16, Name);
+
+			Add_To_Parser_Identifiers({ S_ID16, Name });
+
+			Node_Add("size", S_INT_LITERAL, std::to_string(Recursively_Generated_Nodes[0].Child_Nodes["data"][0].Value.length() + 1));
+
+			Node_Add("data", S_INT_LITERAL, Recursively_Generated_Nodes[0].Child_Nodes["data"][0].Value);
 		}
 	),
 

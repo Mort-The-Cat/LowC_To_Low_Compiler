@@ -21,6 +21,7 @@ void Update_Player_Inputs(byte* Game_Info);
 #include "Graphics/Card_Tilemap.c"
 #include "Menu/Card_Menu_Tilemap.c"
 #include "Graphics/Cards/No_Card.c"
+#include "Graphics/Sacrifice_Graphics.h"
 
 #include "Cards/Skeleton_Graphics.h"
 #include "Cards/Mage_Graphics.h"

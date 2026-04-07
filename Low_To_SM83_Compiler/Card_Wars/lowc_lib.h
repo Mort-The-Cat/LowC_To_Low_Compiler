@@ -12,6 +12,8 @@
 
 #define MALLOC_MAP_ADDRESS addressof(0xD000)
 
+#define Newline "\x0A"
+
 byte* malloc(word size); 
 	// Defined here is a __malloc_map address for this to work
 	// $D000 onwards is recommended for this because

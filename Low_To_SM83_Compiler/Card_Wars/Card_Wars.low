@@ -3405,6 +3405,19 @@ subroutine Start_Table_Scene
 	return;
 }
 
+subroutine Display_Card_List
+{
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	return;
+}
+
 subroutine Test_Card_Menu
 {
 	# Current tracer registers:
@@ -3416,7 +3429,7 @@ subroutine Test_Card_Menu
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF43;
-	[HL] = 0; 		# Stores value into memory location
+	[HL] = 32; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -3435,7 +3448,7 @@ subroutine Test_Card_Menu
 		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
-	BC = $9800;
+	BC = $9804;
 	push BC;		# Pushes Destination to the stack
 	BC = Card_Menu_Tilemap;
 	push BC;		# Pushes Source to the stack
@@ -4726,6 +4739,22 @@ subroutine Start_Board_Scene
 	BC = Card_Icon_Graphics_Data;
 	push BC;		# Pushes Source to the stack
 	BC = 80;
+	push BC;		# Pushes Count to the stack
+	call memcpy;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Selected_Card; 0
+		# E = Selected_Card; 0
+		# H = ???; 0
+		# L = ???; 0
+	BC = $8000;
+	push BC;		# Pushes Destination to the stack
+	BC = Sacrifice_Graphics_Data;
+	push BC;		# Pushes Source to the stack
+	BC = 48;
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
@@ -6390,6 +6419,15 @@ data No_Card_Tilemap_Data
 	$FF $FF $FF $FF $FF $FF $FF
 }
 
+data Sacrifice_Graphics_Data
+{
+	$04 $04 $0E $0A $0E $0A $07 $05 $07 $05 $7F 
+	$7E $FF $80 $7F $7E $07 $05 $07 $05 $0E 
+	$0A $0E $0A $1C $14 $1C $14 $38 $28 $38 
+	$28 $38 $28 $70 $50 $70 $50 $70 $50 $3C 
+	$2C $1F $13 $0F $0C $03 $03
+}
+
 data Skeleton_Graphics_Data
 {
 	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
@@ -6685,7 +6723,7 @@ data Coffin_Name
 
 data Coffin_Card_Data
 {
-	$83 $00 $00 $00 $00 Coffin_Name high(Coffin_Name) 
+	$03 $00 $00 $00 $00 Coffin_Name high(Coffin_Name) 
 	Skeleton_Description high(Skeleton_Description) 
 	Coffin_Graphics_Data high(Coffin_Graphics_Data)
 }
@@ -6891,6 +6929,18 @@ data Tilemap_Destinations
 	$99 $0C $99 $12 $99 $00 $9A $06 $9A $0C 
 	$9A $12 $9A $00 $9B $06 $9B $0C $9B $12 
 	$9B
+}
+
+data Concatenated_String_Test
+{
+	"Test deck" $0A "Hello!" 0
+}
+
+data Sacrifice_Spritechain
+{
+	$20 $18 $00 $00 $20 $20 $00 $20 $28 $18 $01 
+	$00 $28 $20 $01 $20 $30 $18 $02 $00 $30 
+	$20 $02 $20
 }
 
 data __Init_Game_Info__Player_Starting_Deck

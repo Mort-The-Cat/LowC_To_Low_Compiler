@@ -48,17 +48,28 @@ void Start_Table_Scene(byte* Game_Info)
 
 //
 
+const byte Concatenated_String_Test[] = "Test deck" Newline "Hello!";
+
+void Display_Card_List(byte* Game_Info, byte* List_Name, byte* Card_List)
+{
+
+    // 0x9825 is destination for list name
+    // 0x9865 is destination for first item of card_list
+
+    return;
+}
+
 void Test_Card_Menu(byte* Game_Info)
 {
     //Wait_For_VBlank();
 
     //*(LCDC_REGISTER) = 0x00;
 
-    *BACKGROUND_SCROLL_X_REGISTER = 0;
+    *BACKGROUND_SCROLL_X_REGISTER = 32;
 
     *BACKGROUND_SCROLL_Y_REGISTER = 0;
 
-    Copy_Tilemap(addressof(0x9800), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
+    Copy_Tilemap(addressof(0x9804), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
 
     *(LCDC_REGISTER) = 0x87;
 
@@ -178,6 +189,16 @@ void Select_Board_Card(byte Fresh_Inputs, byte* Selected_Card)
     return;
 }
 
+const byte Sacrifice_Spritechain[] =
+{
+    0x20, 0x18, 0x00, 0x00,
+    0x20, 0x20, 0x00, 0x20, // horizontal flip
+    0x28, 0x18, 0x01, 0x00,
+    0x28, 0x20, 0x01, 0x20, // horizontal flip
+    0x30, 0x18, 0x02, 0x00,
+    0x30, 0x20, 0x02, 0x20 // horizontal flip
+};
+
 void Board_Scene_Selected_Card_Icon(byte* Game_Info, byte* Selected_Card)
 {
     const byte Selected_Card_Spritechain[] =
@@ -209,6 +230,7 @@ void Board_Scene_Selected_Card_Icon(byte* Game_Info, byte* Selected_Card)
     Y = *(Sprite_Position_Y + shift_right(shift_right((word)Y)));
 
     place_spritechain_in_oam_buffer(Selected_Card_Spritechain, 4, Y - (*BACKGROUND_SCROLL_Y_REGISTER), X - (*BACKGROUND_SCROLL_X_REGISTER));
+    // place_spritechain_in_oam_buffer(Sacrifice_Spritechain, 6, Y - (*BACKGROUND_SCROLL_Y_REGISTER), X - (*BACKGROUND_SCROLL_X_REGISTER));
 
     if(!bit(*(Game_Info + Game_Info_SSBA_Fresh), CONTROLLER_BUTTON_A_BIT))
     {
@@ -233,6 +255,8 @@ void Start_Board_Scene(byte* Game_Info)
     // memcpy(VRAM_BLOCK_2, Test_Card_Graphics_Data, sizeof(Test_Card_Graphics_Data));
 
     memcpy(addressof(0x9780), Card_Icon_Graphics_Data, sizeof(Card_Icon_Graphics_Data));
+
+    memcpy(VRAM_BLOCK_0, Sacrifice_Graphics_Data, sizeof(Sacrifice_Graphics_Data));
 
     memset(VRAM_TILEM_0, 0xFF, 0x400);
 

@@ -258,16 +258,32 @@ size_t Token_Check_String_Literal(const char* File, std::vector<Token>& Target_T
 	{
 		// We have a string literal!
 
+		int Hex_Literal = 0;
+
 		Token New_Token;
 		New_Token.Token = T_STRING_LITERAL;
 
 		while ((++File)[0] != '\"')
 		{
-			New_Token.Name.push_back(File[0]);
+			if (File[0] == '\\')
+			{
+				// some kind of hex literal
+				Hex_Literal++;
+			}
+			else
+				New_Token.Name.push_back(File[0]);
+		}
+
+		if (!Hex_Literal)
+			New_Token.Name = "\"" + New_Token.Name + "\"";
+		else
+		{
+			New_Token.Name = New_Token.Name.substr(1);
+			New_Token.Name = "$" + New_Token.Name;
 		}
 
 		Target_Tokens.push_back(New_Token);
-		return New_Token.Name.length() + 2;		// account for 2 quote marks
+		return New_Token.Name.length() + Hex_Literal + (Hex_Literal > 0) * 3;		// account for 2 quote marks
 	}
 
 	return 0;

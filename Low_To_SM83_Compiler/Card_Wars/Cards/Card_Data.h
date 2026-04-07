@@ -60,7 +60,7 @@ const byte Starchy_Card_Data[] =
 const byte Coffin_Name[] = "COFFIN";    // This DOESN'T have creature data because it's a card
 const byte Coffin_Card_Data[] =
 {
-    0x83,                               // high nibble LSB is 0 because it's a building (see class Card definition)
+    0x03,                               // high nibble LSB is 0 because it's a building (see class Card definition)
     0x00, 0x00,                          // no creature data (it's a building)
     0x00, 0x00,
     Coffin_Name, high(Coffin_Name),
