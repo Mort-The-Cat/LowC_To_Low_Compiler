@@ -862,9 +862,9 @@ void Clear_Tracer_Registers(Tracer_Data& Tracer)
 	}
 }
 
-bool Writeback_Panic_Push(std::string& Output_Low_Code, Tracer_Data& Tracer)
+bool Writeback_Panic_Push(std::string& Output_Low_Code, Tracer_Data& Tracer, size_t Stack_Start = 1)
 {
-	if (Tracer.Stack.size() < 2)
+	if (Tracer.Stack.size() <= Stack_Start)
 		return false;					// No panic writebacks
 
 	if (Tracer.Stack.back().Name == "@resolved@")
@@ -1631,7 +1631,7 @@ void Call_Function_Handle_Parameter(std::string& Output_Low_Code, Tracer_Data& T
 	// Writeback_Panic_Push(Output_Low_Code, Tracer);
 
 	if (Parameter_Node.Child_Nodes.count("parameters"))
-		Call_Function_Handle_Parameter(Output_Low_Code, Tracer, Node["parameters"][0], Parameter_Node["parameters"][0]);
+		Call_Function_Handle_Parameter(Output_Low_Code, Tracer, Node["parameters"].back(), Parameter_Node["parameters"].back());
 }
 
 void Call_Function_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
@@ -1899,15 +1899,57 @@ void Node_Return_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, co
 
 //
 
-bool Check_In_ID_Snapshot(Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot, size_t Index)
+Trace* Check_In_ID_Snapshot(Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot, std::string& Value)
 {
 	for (size_t Snapshot_Index = 0; Snapshot_Index < ID_Snapshot.size(); Snapshot_Index++)
 	{
-		if (ID_Snapshot[Snapshot_Index].Value == Tracer.Registers[Index].Value)
-			return true;
+		if (ID_Snapshot[Snapshot_Index].Value == Value)
+			return &ID_Snapshot[Snapshot_Index];
 	}
 
-	return false;
+	return nullptr;
+}
+
+void Move_Value_To_Desired_Register(std::string& Output_Low_Code, Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot, size_t Index, Trace* Desired_Reg, Trace* ID_Reg)
+{
+	for (size_t Reg = 0; Reg < 1 + ID_Snapshot[Index].Pointer_Flag / 2; Reg++)
+	{
+
+		if (Desired_Reg[Reg].Value != ID_Snapshot[Index].Value || Desired_Reg[Reg].Modified_Counter != 1) // if not the 'hot' register
+		{
+			if (Desired_Reg[Reg].Modified_Counter)
+			{
+				// some kind of swap is required...
+
+				
+				/*Trace* Temp = Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_NONE);	// Gets a free register to temporarily use
+
+				Output_Low_Code += "\t" + Temp->Name + " = " + Desired_Reg[Reg].Name + ";\t\t# Temporarily stores value here\n";
+				Output_Low_Code += "\t" + Desired_Reg[Reg].Name + " = " + ID_Reg[Reg].Name + ";\t\t# Moves value into expected register\n";
+				Output_Low_Code += "\t" + ID_Reg[Reg].Name + " = " + Temp->Name + ";\t\t# Swaps temporarily value\n";
+
+				std::swap(ID_Reg[Reg].Value, Desired_Reg[Reg].Value); // This just swaps their values around
+
+				Temp->Modified_Counter = 0;							// frees up 'temp'
+				*/
+
+				Trace* Other = Check_In_ID_Snapshot(Tracer, ID_Snapshot, Desired_Reg[Reg].Value);
+
+				Move_Value_To_Desired_Register(Output_Low_Code, Tracer, ID_Snapshot, Other - ID_Snapshot.data(), Register_From_Name(Tracer, Other->Name[0]), Find_Value_In_Tracer_Register(Tracer, Other->Value));
+			}
+			//else
+			{
+				// just get register and store it here!
+
+				Desired_Reg[Reg].Value = ID_Reg[Reg].Value;
+				Desired_Reg[Reg].Modified_Counter = 1;
+
+				ID_Reg[Reg].Modified_Counter = 0;
+
+				Output_Low_Code += "\t" + Desired_Reg[Reg].Name + " = " + ID_Reg[Reg].Name + ";\t\t# Moves value into expected register\n";
+			}
+		}
+	}
 }
 
 void Restore_Register_Snapshot(std::string& Output_Low_Code, Tracer_Data& Tracer, std::vector<Trace>& ID_Snapshot)
@@ -1932,7 +1974,7 @@ void Restore_Register_Snapshot(std::string& Output_Low_Code, Tracer_Data& Tracer
 
 	for (size_t Reg = 0; Reg < Tracer.Registers.size(); Reg++)
 	{
-		if (!Check_In_ID_Snapshot(Tracer, ID_Snapshot, Reg) && Tracer.Registers[Reg].Modified_Counter == 1)
+		if (!Check_In_ID_Snapshot(Tracer, ID_Snapshot, Tracer.Registers[Reg].Value) && Tracer.Registers[Reg].Modified_Counter == 1)
 			Store_Tracer_Register_Back_In_Memory(Output_Low_Code, Tracer, &Tracer.Registers[Reg]); // This stores the values (which aren't in the snapshot) back into memory
 	}
 
@@ -1950,40 +1992,9 @@ void Restore_Register_Snapshot(std::string& Output_Low_Code, Tracer_Data& Tracer
 
 		Trace* ID_Reg = Register_From_Name(Tracer, Identifier[0]);
 
-		for (size_t Reg = 0; Reg < 1 + ID_Snapshot[Index].Pointer_Flag / 2; Reg++)
-		{
+		Move_Value_To_Desired_Register(Output_Low_Code, Tracer, ID_Snapshot, Index, Desired_Reg, ID_Reg);
 
-			if (Desired_Reg[Reg].Value != ID_Snapshot[Index].Value || Desired_Reg[Reg].Modified_Counter != 1) // if not the 'hot' register
-			{
-				if (Desired_Reg[Reg].Modified_Counter)
-				{
-					// some kind of swap is required...
-
-					Trace* Temp = Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_NONE);	// Gets a free register to temporarily use
-
-					Output_Low_Code += "\t" + Temp->Name + " = " + Desired_Reg[Reg].Name + ";\t\t# Temporarily stores value here\n";
-					Output_Low_Code += "\t" + Desired_Reg[Reg].Name + " = " + ID_Reg[Reg].Name + ";\t\t# Moves value into expected register\n";
-					Output_Low_Code += "\t" + ID_Reg[Reg].Name + " = " + Temp->Name + ";\t\t# Swaps temporarily value\n";
-
-					std::swap(ID_Reg[Reg].Value, Desired_Reg[Reg].Value); // This just swaps their values around
-
-					Temp->Modified_Counter = 0;							// frees up 'temp'
-				}
-				else
-				{
-					// just get register and store it here!
-
-					Desired_Reg[Reg].Value = ID_Reg[Reg].Value;
-					Desired_Reg[Reg].Modified_Counter = 1;
-
-					ID_Reg[Reg].Modified_Counter = 0;
-
-					Output_Low_Code += "\t" + Desired_Reg[Reg].Name + " = " + ID_Reg[Reg].Name + ";\t\t# Moves value into expected register\n";
-				}
-			}
-		}
-
-		Writeback_Panic_Push(Output_Low_Code, Tracer);
+		while(Writeback_Panic_Push(Output_Low_Code, Tracer));
 	}
 
 
@@ -2072,6 +2083,8 @@ void Do_While_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const
 
 	Get_Register_Snapshot(Tracer, ID_Snapshot); // This records the current 'hot' registers and what identifiers are stored in them (if any)
 
+	// size_t Stack_Size = Tracer.Stack.size();
+
 	// writes statements code
 
 	Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["local_statements"][0]);
@@ -2089,14 +2102,14 @@ void Do_While_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const
 
 	Restore_Register_Snapshot(Handle_Stack_Code, Tracer, ID_Snapshot);	// After the local statement code is generated, set registers back to expected values
 
-	Writeback_Panic_Push(Handle_Stack_Code, Tracer);
-
 	Output_Low_Code += "\tjump " + Condition + " " + Label_Name + "_memory_cleanup;\t\t# do/while memory-cleanup loop jump\n";
 
 	Output_Low_Code += Handle_Stack_Code;
 	Output_Low_Code += "\tjump " + Label_Name + ";\t\t# do/while loop jump\n";
 	Output_Low_Code += "\tlabel " + Label_Name + "_memory_cleanup;\n";
 	Output_Low_Code += Handle_Stack_Code + "\n\n";
+
+	Writeback_Panic_Push(Handle_Stack_Code, Tracer);
 }
 
 void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse_Node& Node)
@@ -2124,19 +2137,21 @@ void If_Statement(std::string& Output_Low_Code, Tracer_Data& Tracer, const Parse
 
 	Get_Register_Snapshot(Tracer, ID_Snapshot); // This records the current 'hot' registers and what identifiers are stored in them (if any)
 
+	//size_t Stack_Size = Tracer.Stack.size();
+
 	// writes statements code
 
 	Analyse_Statements_LowC(Output_Low_Code, Tracer, Node["local_statements"][0]);
 
 	Restore_Register_Snapshot(Output_Low_Code, Tracer, ID_Snapshot);	// After the local statement code is generated, set registers back to expected values
 
-	Writeback_Panic_Push(Output_Low_Code, Tracer);
-
 	// at the end of the if statement? return the registers to the snapshot state
 
 	// get label
 
 	Output_Low_Code += "\tlabel " + Label_Name + ";\t\t# If statement label\n\n";
+
+	Writeback_Panic_Push(Output_Low_Code, Tracer);
 }
 
 //

@@ -48,16 +48,38 @@ void Start_Table_Scene(byte* Game_Info)
 
 //
 
-const byte Concatenated_String_Test[] = "Test deck" Newline "Hello!";
+const byte Concatenated_String_Test[] = "TEST DECK" Newline "HELLO!";
+const byte Your_Hand[] = "YOUR HAND";
 
-void Display_Card_List(byte* Game_Info, byte* List_Name, byte* Card_List)
-{
-
-    // 0x9825 is destination for list name
-    // 0x9865 is destination for first item of card_list
-
-    return;
-}
+void Display_Card_List(byte* Game_Info, byte* List_Name, byte* Card_List);
+// {
+// 
+//     // 0x9825 is destination for list name
+//     // 0x9865 is destination for first item of card_list
+// 
+//     Write_Text_Tiles(addressof(0x9825), List_Name);
+//     // Write_Text_Tiles(addressof(0x9865), Concatenated_String_Test);
+// 
+//     byte* Card;
+// 
+//     byte* Destination;
+// 
+//     //byte Count;
+// 
+//     //Count = 10;
+// 
+//     Destination = addressof(0x9865);
+// 
+//     while( 0xFF - *Card_List )          // until we've reached an 'end' ID
+//     {
+//         Card = load_16(Card_Catalogue + shift_left((word)*Card_List));
+//         Write_Text_Tiles(Destination, load_16(Card + Card_Data_Name));
+//         Card_List++;
+//         Destination = Destination + 32;
+//     }
+// 
+//     return;
+// }
 
 void Test_Card_Menu(byte* Game_Info)
 {
@@ -70,6 +92,8 @@ void Test_Card_Menu(byte* Game_Info)
     *BACKGROUND_SCROLL_Y_REGISTER = 0;
 
     Copy_Tilemap(addressof(0x9804), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
+
+    Display_Card_List(Game_Info, Your_Hand, load_16(Game_Info));
 
     *(LCDC_REGISTER) = 0x87;
 

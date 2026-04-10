@@ -428,7 +428,7 @@ subroutine Init_Game_Info
 		# E = Address; 0
 		# H = Game_Info; 0
 		# L = Game_Info; 0
-	BC = 10;
+	BC = 11;
 	push BC;		# Pushes size to the stack
 	call malloc;		# Calls function
 	SP += 2;		# Removes pushed parameters from stack
@@ -478,7 +478,7 @@ subroutine Init_Game_Info
 	push HL;		# Pushes Destination to the stack
 	BC = __Init_Game_Info__Player_Starting_Deck;
 	push BC;		# Pushes Source to the stack
-	BC = 10;
+	BC = 11;
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
@@ -3405,19 +3405,6 @@ subroutine Start_Table_Scene
 	return;
 }
 
-subroutine Display_Card_List
-{
-	# Current tracer registers:
-		# A = ???; 0
-		# B = ???; 0
-		# C = ???; 0
-		# D = Destination; 0
-		# E = Destination; 0
-		# H = ???; 0
-		# L = ???; 0
-	return;
-}
-
 subroutine Test_Card_Menu
 {
 	# Current tracer registers:
@@ -3468,12 +3455,45 @@ subroutine Test_Card_Menu
 		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
+	HL = SP + 2;		# Fetches Game_Info off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes Game_Info to the stack
+	BC = Your_Hand;
+	push BC;		# Pushes List_Name to the stack
+	B = H;		# Moves Game_Info into upper register
+	C = L;		# Moves into lower register
+	HL = SP + 6;		# Memory location of Game_Info
+	[HL] = C;		# Stores Game_Info back into memory
+	HL++;
+	[HL] = B;		# Stores upper byte of Game_Info back into memory
+	HL = SP + 6;		# Fetches Game_Info off the stack
+	A = [HL];		# Store lower byte temporarily
+	HL++;
+	H = [HL];		# Store upper byte
+	L = A;		# Move lower byte from temp register
+	push HL;		# Pushes address to the stack
+	call load_16;		# Calls function
+	SP += 2;		# Removes pushed parameters from stack
+	push HL;		# Pushes Card_List to the stack
+	call Display_Card_List;		# Calls function
+	SP += 6;		# Removes pushed parameters from stack
+	# Current tracer registers:
+		# A = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
 	HL = $FF40;
 	[HL] = $87; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3481,8 +3501,8 @@ subroutine Test_Card_Menu
 	SP += 255;		# byte Input;
 	# Current tracer registers:
 		# A = ???; 0
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3490,8 +3510,8 @@ subroutine Test_Card_Menu
 	A = 0;
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3500,8 +3520,8 @@ subroutine Test_Card_Menu
 	label __do_while_statement__13;		# do/while loop label
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3511,8 +3531,8 @@ subroutine Test_Card_Menu
 	call Clean_OAM_Buffer;		# Calls function
 	# Current tracer registers:
 		# A = Input; 0
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3525,8 +3545,8 @@ subroutine Test_Card_Menu
 	SP += 1;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3536,8 +3556,8 @@ subroutine Test_Card_Menu
 	jump not_zero __if_statement__14;		# If statement jump
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3546,8 +3566,8 @@ subroutine Test_Card_Menu
 	[HL]++;		# Increments address
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3558,8 +3578,8 @@ subroutine Test_Card_Menu
 
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3569,8 +3589,8 @@ subroutine Test_Card_Menu
 	jump not_zero __if_statement__15;		# If statement jump
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3579,8 +3599,8 @@ subroutine Test_Card_Menu
 	[HL]--;		# Decrements address
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3591,8 +3611,8 @@ subroutine Test_Card_Menu
 
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3602,8 +3622,8 @@ subroutine Test_Card_Menu
 	jump not_zero __if_statement__16;		# If statement jump
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3612,8 +3632,8 @@ subroutine Test_Card_Menu
 	[HL]++;		# Increments address
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3624,8 +3644,8 @@ subroutine Test_Card_Menu
 
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3635,8 +3655,8 @@ subroutine Test_Card_Menu
 	jump not_zero __if_statement__17;		# If statement jump
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3645,8 +3665,8 @@ subroutine Test_Card_Menu
 	[HL]--;		# Decrements address
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3657,8 +3677,8 @@ subroutine Test_Card_Menu
 
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3673,8 +3693,8 @@ subroutine Test_Card_Menu
 	SP += 1;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3684,8 +3704,8 @@ subroutine Test_Card_Menu
 	call Wait_For_VBlank;		# Calls function
 	# Current tracer registers:
 		# A = Input; 0
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3697,8 +3717,8 @@ subroutine Test_Card_Menu
 	jump  zero __do_while_statement__13_memory_cleanup;		# do/while memory-cleanup loop jump
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
@@ -3709,8 +3729,8 @@ subroutine Test_Card_Menu
 	label __do_while_statement__13_memory_cleanup;
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
@@ -3721,8 +3741,8 @@ subroutine Test_Card_Menu
 
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = @@stack_pointer@@; 0
@@ -3731,8 +3751,8 @@ subroutine Test_Card_Menu
 	[HL] = $00; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Input; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3745,8 +3765,8 @@ subroutine Select_Board_Card
 {
 	# Current tracer registers:
 		# A = Input; 0
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3754,8 +3774,8 @@ subroutine Select_Board_Card
 	SP += 255;		# byte Index;
 	# Current tracer registers:
 		# A = Input; 0
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = ???; 0
@@ -3768,8 +3788,8 @@ subroutine Select_Board_Card
 	A = [HL];		# Dereferences address
 	# Current tracer registers:
 		# A = Index; 1
-		# B = ???; 0
-		# C = ???; 0
+		# B = Game_Info; 0
+		# C = Game_Info; 0
 		# D = Destination; 0
 		# E = Destination; 0
 		# H = Selected_Card; 1
@@ -6243,64 +6263,64 @@ data Finny_Graphics_Data
 
 data Alphabet_Graphics_Data
 {
-	$00 $00 $1D $1D $22 $22 $45 $4D $51 $59 $22 
-	$22 $5C $5C $00 $00 $00 $00 $08 $08 $18 
-	$18 $38 $38 $08 $08 $08 $08 $7F $7F $00 
-	$00 $00 $00 $3E $3E $41 $41 $01 $01 $1E 
-	$1E $20 $20 $7F $7F $00 $00 $00 $00 $3E 
-	$3E $41 $41 $0E $0E $01 $01 $41 $41 $3E 
-	$3E $00 $00 $00 $00 $40 $40 $44 $44 $44 
-	$44 $7F $7F $04 $04 $04 $04 $00 $00 $00 
-	$00 $7F $7F $40 $40 $7E $7E $01 $01 $41 
-	$41 $3E $3E $00 $00 $00 $00 $3E $3E $40 
-	$40 $7E $7E $41 $41 $41 $41 $3E $3E $00 
-	$00 $00 $00 $7F $7F $41 $41 $02 $02 $1E 
-	$1E $04 $04 $0C $0C $00 $00 $00 $00 $3E 
-	$3E $41 $41 $3E $3E $41 $41 $41 $41 $3E 
-	$3E $00 $00 $00 $00 $3E $3E $41 $41 $3E 
-	$3E $02 $02 $04 $04 $04 $04 $00 $00 $00 
-	$00 $00 $00 $1C $1C $22 $22 $24 $24 $1A 
-	$1A $00 $00 $00 $00 $20 $20 $20 $20 $3C 
-	$3C $22 $22 $32 $32 $2C $2C $00 $00 $00 
-	$00 $00 $00 $00 $00 $1C $1C $20 $20 $20 
-	$20 $1C $1C $00 $00 $00 $00 $02 $02 $02 
-	$02 $1E $1E $22 $22 $24 $24 $1A $1A $00 
-	$00 $00 $00 $00 $00 $00 $00 $18 $18 $3C 
-	$3C $20 $20 $1C $1C $00 $00 $00 $00 $1C 
-	$1C $14 $14 $10 $10 $38 $38 $10 $10 $10 
-	$10 $10 $10 $10 $10 $00 $00 $00 $00 $1C 
-	$1C $22 $22 $26 $26 $1A $1A $42 $42 $3C 
-	$3C $20 $20 $20 $20 $38 $38 $24 $24 $24 
-	$24 $24 $24 $00 $00 $00 $00 $08 $08 $00 
-	$00 $18 $18 $08 $08 $08 $08 $1C $1C $00 
-	$00 $00 $00 $08 $08 $00 $00 $18 $18 $08 
-	$08 $08 $08 $08 $08 $48 $48 $38 $38 $20 
-	$20 $20 $20 $28 $28 $30 $30 $28 $28 $24 
-	$24 $00 $00 $00 $00 $18 $18 $08 $08 $08 
-	$08 $08 $08 $08 $08 $08 $08 $00 $00 $00 
-	$00 $00 $00 $00 $00 $14 $14 $2A $2A $2A 
-	$2A $22 $22 $00 $00 $00 $00 $00 $00 $00 
-	$00 $58 $58 $34 $34 $24 $24 $24 $24 $00 
-	$00 $00 $00 $00 $00 $00 $00 $18 $18 $24 
-	$24 $24 $24 $18 $18 $00 $00 $00 $00 $00 
-	$00 $00 $00 $18 $18 $24 $24 $24 $24 $38 
-	$38 $20 $20 $20 $20 $00 $00 $00 $00 $1C 
-	$1C $22 $22 $26 $26 $1E $1E $02 $02 $03 
-	$03 $00 $00 $00 $00 $2C $2C $34 $34 $20 
-	$20 $20 $20 $00 $00 $00 $00 $00 $00 $04 
-	$04 $18 $18 $3C $3C $04 $04 $38 $38 $00 
-	$00 $00 $00 $00 $00 $20 $20 $78 $78 $20 
-	$20 $24 $24 $18 $18 $00 $00 $00 $00 $00 
-	$00 $00 $00 $24 $24 $24 $24 $2C $2C $1A 
-	$1A $00 $00 $00 $00 $00 $00 $00 $00 $24 
-	$24 $24 $24 $14 $14 $08 $08 $00 $00 $00 
-	$00 $00 $00 $00 $00 $00 $00 $2A $2A $2A 
-	$2A $14 $14 $00 $00 $00 $00 $00 $00 $00 
-	$00 $66 $66 $1C $1C $38 $38 $66 $66 $00 
-	$00 $00 $00 $00 $00 $00 $00 $22 $22 $22 
-	$22 $22 $22 $1E $1E $42 $42 $3C $3C $00 
-	$00 $00 $00 $7C $7C $08 $08 $30 $30 $7C 
-	$7C $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $1A $1A $24 $24 $4A $4A $52 $52 $24 
+	$24 $58 $58 $00 $00 $00 $00 $08 $08 $18 
+	$18 $08 $08 $08 $08 $08 $08 $3E $3E $00 
+	$00 $00 $00 $3C $3C $42 $42 $04 $04 $18 
+	$18 $20 $20 $7E $7E $00 $00 $00 $00 $3C 
+	$3C $42 $42 $1C $1C $02 $02 $42 $42 $3C 
+	$3C $00 $00 $00 $00 $40 $40 $48 $48 $48 
+	$48 $7C $7C $08 $08 $08 $08 $00 $00 $00 
+	$00 $7E $7E $40 $40 $7C $7C $02 $02 $42 
+	$42 $3C $3C $00 $00 $00 $00 $3C $3C $40 
+	$40 $7C $7C $42 $42 $42 $42 $3C $3C $00 
+	$00 $00 $00 $7E $7E $02 $02 $04 $04 $1E 
+	$1E $08 $08 $08 $08 $00 $00 $00 $00 $3C 
+	$3C $42 $42 $3C $3C $42 $42 $42 $42 $3C 
+	$3C $00 $00 $00 $00 $1C $1C $26 $26 $1C 
+	$1C $04 $04 $08 $08 $08 $08 $00 $00 $00 
+	$00 $00 $00 $3C $3C $42 $42 $46 $46 $3D 
+	$3D $00 $00 $00 $00 $40 $40 $40 $40 $5E 
+	$5E $61 $61 $41 $41 $3E $3E $00 $00 $00 
+	$00 $00 $00 $00 $00 $3C $3C $40 $40 $42 
+	$42 $3C $3C $00 $00 $00 $00 $01 $01 $01 
+	$01 $3D $3D $43 $43 $47 $47 $3D $3D $00 
+	$00 $00 $00 $00 $00 $00 $00 $38 $38 $7C 
+	$7C $41 $41 $3E $3E $00 $00 $00 $00 $06 
+	$06 $09 $09 $08 $08 $1C $1C $08 $08 $08 
+	$08 $48 $48 $30 $30 $00 $00 $00 $00 $1E 
+	$1E $21 $21 $21 $21 $1F $1F $41 $41 $3E 
+	$3E $40 $40 $40 $40 $5E $5E $61 $61 $41 
+	$41 $41 $41 $00 $00 $00 $00 $00 $00 $08 
+	$08 $00 $00 $18 $18 $08 $08 $3E $3E $00 
+	$00 $00 $00 $00 $00 $10 $10 $00 $00 $30 
+	$30 $10 $10 $3C $3C $50 $50 $60 $60 $40 
+	$40 $4C $4C $50 $50 $70 $70 $4C $4C $43 
+	$43 $00 $00 $00 $00 $18 $18 $08 $08 $08 
+	$08 $08 $08 $08 $08 $1C $1C $00 $00 $00 
+	$00 $00 $00 $00 $00 $76 $76 $2D $2D $49 
+	$49 $49 $49 $00 $00 $00 $00 $00 $00 $00 
+	$00 $5C $5C $22 $22 $42 $42 $42 $42 $00 
+	$00 $00 $00 $00 $00 $00 $00 $3C $3C $42 
+	$42 $42 $42 $3C $3C $00 $00 $00 $00 $00 
+	$00 $00 $00 $3C $3C $42 $42 $42 $42 $7C 
+	$7C $40 $40 $40 $40 $00 $00 $00 $00 $3C 
+	$3C $42 $42 $42 $42 $3E $3E $02 $02 $07 
+	$07 $00 $00 $00 $00 $5C $5C $62 $62 $40 
+	$40 $40 $40 $00 $00 $00 $00 $00 $00 $00 
+	$00 $0E $0E $1C $1C $43 $43 $3E $3E $00 
+	$00 $00 $00 $20 $20 $7C $7C $20 $20 $20 
+	$20 $31 $31 $1E $1E $00 $00 $00 $00 $00 
+	$00 $00 $00 $42 $42 $42 $42 $46 $46 $3D 
+	$3D $00 $00 $00 $00 $00 $00 $00 $00 $41 
+	$41 $61 $61 $32 $32 $1C $1C $00 $00 $00 
+	$00 $00 $00 $00 $00 $49 $49 $49 $49 $6D 
+	$6D $36 $36 $00 $00 $00 $00 $00 $00 $00 
+	$00 $66 $66 $14 $14 $28 $28 $66 $66 $00 
+	$00 $00 $00 $00 $00 $00 $00 $21 $21 $21 
+	$21 $1F $1F $01 $01 $41 $41 $3E $3E $00 
+	$00 $00 $00 $7E $7E $0C $0C $30 $30 $7E 
+	$7E $00 $00 $00 $00 $00 $00 $00 $00 $00 
 	$00 $00 $00 $60 $60 $60 $60 $00 $00 $00 
 	$00 $00 $00 $00 $00 $00 $00 $00 $00 $60 
 	$60 $20 $20 $20 $20 $00 $00 $06 $06 $0C 
@@ -6313,10 +6333,10 @@ data Alphabet_Graphics_Data
 	$00 $00 $00 $62 $62 $64 $64 $08 $08 $10 
 	$10 $26 $26 $46 $46 $00 $00 $00 $00 $00 
 	$00 $00 $00 $0E $0E $00 $00 $00 $00 $00 
-	$00 $00 $00 $42 $42 $7E $7E $7E $42 $7E 
-	$42 $7E $42 $3C $24 $18 $18 $00 $00 $18 
-	$00 $18 $00 $18 $00 $18 $00 $7E $7E $00 
-	$18 $00 $18 $00 $00 $7F $7F $C0 $FF $9F 
+	$00 $00 $00 $00 $00 $42 $42 $7E $7E $7E 
+	$42 $7E $42 $7E $42 $3C $24 $18 $18 $00 
+	$00 $18 $00 $18 $00 $18 $00 $18 $00 $7E 
+	$7E $00 $18 $00 $18 $7F $7F $C0 $FF $9F 
 	$E0 $B0 $CF $A7 $DF $AC $DC $A8 $D8 $A8 
 	$D8 $FE $FE $03 $FF $F9 $07 $0D $F3 $E5 
 	$FB $35 $3B $15 $1B $15 $1B $A8 $D8 $A8 
@@ -6375,9 +6395,9 @@ data Card_Menu_Tilemap
 	$AE $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 
 	$B2 $B2 $B2 $aE $B2 $B2 $B2 $B2 $aF $B5 
 	$aB $aB $aB $aB $aB $aB $aB $aB $aB $aB 
-	$aB $aB $aB $B5 $aB $aB $aB $aB $B3 $aE 
-	$B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 
-	$B2 $B2 $B2 $B5 $B6 $B7 $B8 $B9 $B3 $B5 
+	$aB $aB $aB $B5 $aB $aB $aB $aB $B3 $B5 
+	$A4 $A4 $A4 $A4 $A4 $A4 $A4 $A4 $A4 $A4 
+	$A4 $A4 $A4 $B5 $B6 $B7 $B8 $B9 $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
 	$FF $FF $FF $B5 $Ba $BB $BC $BD $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
@@ -6753,7 +6773,7 @@ data Skeleton_Name
 
 data Skeleton_Description
 {
-	"PLACEHOLDER TEXT" 0
+	"AN UNDEAD PILE OF" $0A "BONES. REQUIRES ONLY 1 SKULL" 0
 }
 
 data Skeleton_Creature_Data
@@ -6776,7 +6796,7 @@ data Ancient_Scholar_Creature_Data
 
 data Ancient_Scholar_Name
 {
-	"ANCIENT SCHOLAR" 0
+	"ARCH SCHOLAR" 0
 }
 
 data Ancient_Scholar_Card_Data
@@ -6933,7 +6953,12 @@ data Tilemap_Destinations
 
 data Concatenated_String_Test
 {
-	"Test deck" $0A "Hello!" 0
+	"TEST DECK" $0A "HELLO!" 0
+}
+
+data Your_Hand
+{
+	"YOUR HAND" 0
 }
 
 data Sacrifice_Spritechain
@@ -6945,7 +6970,7 @@ data Sacrifice_Spritechain
 
 data __Init_Game_Info__Player_Starting_Deck
 {
-	$00 $00 $01 $01 $02 $02 $03 $03 $04 $FF
+	$00 $00 $01 $02 $03 $04 $05 $05 $07 $08 $FF
 }
 
 data __Draw_Board_Creature_Card__Tileset_Destinations

@@ -39,6 +39,8 @@ void Update_Player_Inputs(byte* Game_Info);
 #include "Cards/Card_Data.h"
 #include "Cards/Card_Catalogue.h"
 
+#include "Text_Handler.h"
+
 #include "Test_Card.h"
 
 #include "Table_Scrolling.h"

@@ -1,0 +1,118 @@
+
+subroutine Write_Text_Tiles
+{
+    # SP + $04/$05 destination pointers
+    # SP + $02/$03 string pointers
+    # SP + $00/$01 function pointers
+
+    HL = SP + $02;
+    A = [HL++];
+    E = A;
+    A = [HL++];
+    D = A;
+
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    # DE = string
+    # HL = destination
+
+    BC = $20;
+
+    label Loop;
+
+    A = [DE];
+    A |= A;
+    return zero;            # If NULL-terminator? end
+        DE++;
+
+        A < $0A;                # check if newline character
+        jump not_zero Normal_Character;
+            HL += BC;       # Loop back around! (Note that we don't write any new tiles on a newline character)
+            BC = $20;
+            jump Loop;
+        label Normal_Character;
+
+        [HL++] = A;
+        C--;
+    jump Loop;
+}
+
+subroutine Display_Card_List
+{
+    # SP + $06/07 game info
+    # SP + $04/05 list name
+    # SP + $02/03 card list pointer
+    # SP + $00/01 function return pointer
+
+    HL = SP + $04;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    # HL is now list name 
+
+    BC = $9825;
+    push BC;
+    push HL;
+    call Write_Text_Tiles;
+    SP += $04;
+
+    HL = SP + $02;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    # HL is now card list pointer
+
+    BC = $9865;
+
+    # This will do a while() loop, checking if list pointer to a $FF value or not
+
+    D = $0A;
+
+    label While_Loop;
+
+    A = [HL];
+    A < $FF;
+
+    return zero;        # If this is the terminator byte? End the function
+
+    # Otherwise? Draw the text to the screen!
+
+    push HL;        # Temporarily store card list pointer here
+    H = $00;
+    L = A;
+    HL += HL;       # Shift left one
+    push BC;        # Temporarily store destination here
+    push DE;        # temporarily store DE
+    push BC;        # push destination
+    BC = Card_Catalogue;
+    HL += BC;
+    A = [HL++];
+    H = [HL];
+    L = A;          # gets the card data back
+    BC = 5;
+    HL += BC;
+    A = [HL++];
+    H = [HL];
+    L = A;          # gets the name of the card data
+    push HL;
+    call Write_Text_Tiles;
+    SP += $04;
+
+    pop DE;
+
+    pop BC;
+    HL = 32;
+    HL += BC;
+    B = H;
+    C = L;
+    pop HL;
+    HL++;
+    D--;
+
+    return zero;        # If we've already written 10 elements? end the function
+    jump While_Loop;
+}

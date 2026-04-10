@@ -92,12 +92,17 @@ void Init_Game_Info(byte* Game_Info)
         ID_Skeleton,
         ID_Skeleton,
         ID_Pig,
-        ID_Pig,
+        //ID_Pig,
+        //ID_Bald_Man,
         ID_Bald_Man,
-        ID_Bald_Man,
-        ID_Mage,
+        //ID_Mage,
         ID_Mage,
         ID_Ancient_Scholar,
+        ID_Strawman,
+        ID_Strawman,
+        ID_Starchy,
+        //ID_Starchy,
+        ID_Sir_Slicer,
         0xFF
     };
 

@@ -19,7 +19,7 @@
 //      07  Description     : 16-bit pointer to string - 
 //              Explains what the card does (i.e. building function, spell function, or floop ability)
 //      09  Graphics        : 16-bit pointer to tileset (i.e. what tiles the card uses for its graphics)
-
+#define Card_Data_Name 05
 
 //
 
@@ -85,7 +85,7 @@ const byte Strawman_Card_Data[] =
 };
 
 const byte Skeleton_Name[] = "SKELETON";
-const byte Skeleton_Description[] = "PLACEHOLDER TEXT";
+const byte Skeleton_Description[] = "AN UNDEAD PILE OF" Newline "BONES. REQUIRES ONLY 1 SKULL";
 
 const byte Skeleton_Creature_Data[] =
 {
@@ -110,7 +110,7 @@ const byte Ancient_Scholar_Creature_Data[] =
     0x07,
     0x32
 };
-const byte Ancient_Scholar_Name[] = "ANCIENT SCHOLAR";
+const byte Ancient_Scholar_Name[] = "ARCH SCHOLAR";
 const byte Ancient_Scholar_Card_Data[] = 
 {
     0x06,       // Element type and cost

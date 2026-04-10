@@ -565,7 +565,7 @@ unsigned char Ascii_To_Code(unsigned char Character)
 	switch (Character)
 	{
 	case ' ':
-		return 0x7Du;
+		return 0x7Fu;
 
 	case '.':
 		return 0x24u;
