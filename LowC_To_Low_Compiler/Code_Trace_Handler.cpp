@@ -1599,8 +1599,9 @@ void Call_Function_Handle_Parameter(std::string& Output_Low_Code, Tracer_Data& T
 		Value_Register = Find_Value_In_Tracer_Register(Tracer, "@parameter@");
 
 		Output_Low_Code += "\tHL = SP + 255;\t\t# Makes room on stack for 1 byte\n";
-		Output_Low_Code += "\t[HL] = " + Value_Register->Name + ";\t\t# Writes " + Parameter_Node["id"][0].Value + " to stack\n";
 		Output_Low_Code += "\tSP = HL;\t\t# Update stack pointer\n";
+		Output_Low_Code += "\t[HL] = " + Value_Register->Name + ";\t\t# Writes " + Parameter_Node["id"][0].Value + " to stack\n";
+
 
 		Tracer.Stack.push_back(Trace("", "@parameter@", 0)); // Not a pointer of any kind
 

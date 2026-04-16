@@ -1,3 +1,45 @@
+# We'll store game info in a simple structure like so:
+#      00 - Player_Deck pointer (this is a list of the cards that the player has in their deck)
+#      02 - Board pointer
+#      04 - Controller DPAD read
+#      05 - Controller SSBA read
+#      06 - Controller fresh DPAD
+#      07 - Controller fresh SSBA
+macro Game_Info_Bytecount $04;
+
+macro Game_Info_Board_Pointer $02;
+
+macro Game_Info_DPAD_Read $04;
+macro Game_Info_DPAD_Fresh $06;
+macro Game_Info_SSBA_Read $05;
+macro Game_Info_SSBA_Fresh $07;
+
+macro CONTROLLER_BUTTON_START_BIT $03;
+macro CONTROLLER_BUTTON_DOWN_BIT $03;
+macro CONTROLLER_BUTTON_SELECT_BIT $02;
+macro CONTROLLER_BUTTON_UP_BIT $02;
+macro CONTROLLER_BUTTON_B_BIT $01;
+macro CONTROLLER_BUTTON_LEFT_BIT $01;
+macro CONTROLLER_BUTTON_A_BIT $00;
+macro CONTROLLER_BUTTON_RIGHT_BIT $00;
+
+# Board info:
+#      00 - Player_Deck_Pile pointer (list of cards that the player has in the deck pile in-game)
+#      02 - Player_Hand
+#      04 - Player_Discard_Pile
+#      06 - Board_Card_Data
+            # 16 cards each
+            # 3 bytes per board-card
+#    0x36 - Board_Card_Creature_Data_Buffer
+            # 16 cards
+            # 2 bytes each
+#    0x56
+        
+macro Board_Info_Bytecount $56;
+macro Board_Info_Board_Card_Data $06;
+macro Board_Info_Board_Creature_Data $36;
+
+#
 
 subroutine Write_Text_Tiles
 {
@@ -115,4 +157,283 @@ subroutine Display_Card_List
 
     return zero;        # If we've already written 10 elements? end the function
     jump While_Loop;
+}
+
+subroutine Get_Length
+{
+    # SP + $04      // terminator byte
+    # SP + $02/$03  // list
+    # SP + $00/$01  // function return pointer
+
+    HL = SP + $04;
+    A = [HL--];
+    B = A;
+    A = [HL--];
+    L = [HL];
+    H = A;
+
+    C = $00;
+
+    # B is terminator byte
+    # C is count
+    # HL is list
+
+    label Loop;
+
+    A = [HL++];
+    A < B;
+    A = C;          # return count
+    return zero;    # Equals the terminator byte...
+    C++;            # More to see? increment count
+    jump Loop;
+}
+
+#
+
+# void Update_Card_Menu_Display(byte* Game_Info, byte Selected_Card, byte Previous_Selected, byte* List_Name, byte* List);
+subroutine Update_Card_Menu_Display
+{
+    # SP + $09/0A   game info
+    # SP + $08      selected card
+    # SP + $07      previous select
+    # SP + $05/06 list name
+    # SP + $03/04 list
+    # SP + $01/02 function return
+    # SP + $00      page
+    SP += $FF;
+
+    HL = SP + $08;
+    H = [HL];
+    L = 10;
+    push HL;
+    call divide_8;
+    SP += $02;
+    # L is now the quotient
+    A = L;
+    HL = SP + $00;
+    [HL] = A;
+    HL = SP + $07;
+    H = [HL];
+    L = 10;
+    push HL;
+    call divide_8;
+    SP += $02;
+
+    A = L;
+    HL = SP + $00;
+    A < [HL];
+    jump not_zero Continue_Function;     # If same page, we don't need to end the function early...
+        SP += $01;
+        return;
+    label Continue_Function;
+
+    call Wait_For_VBlank;
+    HL = $FF40; # LCDC Register
+    [HL] = $00;
+
+    BC = $9804;
+    push BC;        # destination
+    BC = Card_Menu_Tilemap;
+    push BC;
+    BC = 360;
+    push BC;
+    HL = SP + $FF;
+    SP = HL;
+    [HL] = 20;
+    call Copy_Tilemap;
+    SP += 7;
+
+    # multiply page and call the function
+
+    HL = SP + $00;
+    B = [HL];
+    C = 10;
+    push BC;
+    call mul_8;
+    SP += 2;
+
+    #L = [HL];
+
+    B = 0;
+    C = A;
+
+    HL = SP + $03;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    HL += BC;       # Adds offset to list pointer
+    B = H;
+    A = L;
+
+    HL = SP + $03;
+    [HL++] = A;
+    [HL] = B;       # Stores back into list
+
+    HL = SP + $09;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    push HL;        # pushes game info
+
+    HL = SP + $07;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    push HL;        # pushes list name
+
+    HL = SP + $07;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    push HL;        # pushes list
+    call Display_Card_List;
+    SP += $06;
+
+    HL = $FF40;
+    [HL] = $83;
+
+
+    SP += $01;
+    return;
+}
+
+# void Handle_Card_Menu_Inputs(byte* Game_Info, byte* Selected_Card, byte* List_Name, byte* List)
+
+subroutine Handle_Card_Menu_Inputs_Dec
+{
+    HL = SP + $06;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    A = [HL];
+    A |= A;
+    return zero;            # Check that the selected card isn't already zero
+
+    E = A;
+    # if it isn't? continue!
+
+    # Update the display here
+    HL = SP + $09;
+    A = [HL--];
+    B = A;
+    A = [HL--];
+    C = A;
+    push BC;    # pushes game info
+    D = E;
+    D--;
+    push DE;    # pushes selected card and previous selected
+    HL = SP + $09;
+    A = [HL--];
+    B = A;
+    A = [HL--];
+    C = A;
+    push BC;    # list name
+    A = [HL--];
+    B = A;
+    A = [HL--];
+    C = A;
+    push BC;    # pushes list
+    call Update_Card_Menu_Display;
+    SP += 8;    # removes parameters from stack
+
+    HL = SP + 06;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    [HL]--;     # decrements the selected card parameter
+
+    return;
+}
+
+subroutine Handle_Card_Menu_Inputs_Inc
+{
+    HL = SP + $02;
+    A = [HL++];
+    B = [HL];
+    C = A;
+
+    HL = SP + 255;
+    SP = HL;
+    [HL] = $FF;     # list terminator
+
+    push BC;
+    call Get_Length;
+    SP += 3;
+
+    B = A;
+    HL = SP + 06;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    A = [HL];
+    A++;
+    A < B;               # compares (Selected_Card + 1) < Get_Length($FF, List) 
+    return not_carry;            # Check that selected card + 1 is LESS than get length
+
+    E = A;
+    # if it isn't? continue!
+
+    # Update the display here
+    HL = SP + $09;
+    A = [HL--];
+    B = A;
+    A = [HL--];
+    C = A;
+    push BC;    # pushes game info
+    D = E;
+    E--;
+    push DE;    # pushes selected card and previous selected
+    HL = SP + $09;
+    A = [HL--];
+    B = A;
+    A = [HL--];
+    C = A;
+    push BC;    # list name
+    A = [HL--];
+    B = A;
+    A = [HL--];
+    C = A;
+    push BC;    # pushes list
+    call Update_Card_Menu_Display;
+    SP += 8;    # removes parameters from stack
+
+    HL = SP + 06;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    [HL]++;     # increments the selected card parameter
+
+    return;
+}
+
+subroutine Handle_Card_Menu_Inputs
+{
+    # SP + $08/09
+    # SP + $06/07 selected card
+    # SP + $04/05 list name
+    # SP + $02/03 list
+    # SP + $00/01 function pointer
+    HL = SP + $08;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    # HL is Game_Info
+
+    BC = Game_Info_DPAD_Fresh;
+
+    HL += BC;   # HL is dpad fresh pointer
+
+    A = [HL];   # A is the dpad controller register
+
+    A.CONTROLLER_BUTTON_UP_BIT;
+    jump zero Handle_Card_Menu_Inputs_Dec;
+
+    A.CONTROLLER_BUTTON_DOWN_BIT;
+    jump zero Handle_Card_Menu_Inputs_Inc;
+
+    return;
 }

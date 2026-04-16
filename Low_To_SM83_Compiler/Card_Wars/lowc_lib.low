@@ -388,9 +388,43 @@ subroutine place_spritechain_in_oam_buffer
     return;
 }
 
+subroutine divide_8
+{
+    # SP + $03      numer
+    # SP + $02      denom
+    # SP + $00/01
+    HL = SP + $03;
+    A = [HL--];
+    B = [HL];
+    C = $FF;
+    label Loop;
+    C++;
+    A -= B;
+    jump not_carry Loop;
 
+    A += B;
+    H = A;          # Remainder
+    L = C;          # Quotient
+    return;
+}
 
-
+subroutine mul_8
+{  
+    # SP + $03      x
+    # SP + $02      y
+    # SP + $00/01
+    HL = SP + $03;
+    A = [HL--];
+    B = A;
+    C = [HL];
+    C++;
+    A ^= A;
+    label Loop;
+        C--;
+        return zero;
+        A += B;
+    jump Loop;
+}
 
 
 

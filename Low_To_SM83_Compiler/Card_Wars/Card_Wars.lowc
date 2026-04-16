@@ -115,7 +115,7 @@ void Scroll_Table()
     return;
 }
 
-void Test_Scroll_Loop()
+void Test_Scroll_Loop(byte* Game_Info)
 {
     byte Player_Input;
 
@@ -124,13 +124,15 @@ void Test_Scroll_Loop()
 
     do
     {
+        Update_Player_Inputs(Game_Info);
+
         Scroll_Table();
         Clean_OAM_Buffer();
 
         Wait_For_VBlank();
         dma_transfer();
 
-        Player_Input = Get_Controller_Input(CONTROLLER_SSBA_FLAG);
+        Player_Input = *(Game_Info + Game_Info_SSBA_Fresh);
     }while(bit(Player_Input, CONTROLLER_BUTTON_START_BIT));
 
     *LCDC_REGISTER = 0;

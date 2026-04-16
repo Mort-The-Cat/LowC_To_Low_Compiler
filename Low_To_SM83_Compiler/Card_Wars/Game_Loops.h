@@ -41,7 +41,7 @@ void Start_Table_Scene(byte* Game_Info)
 
     *(INTERRUPT_ENABLE_REGISTER) = 0x02;
 
-    Test_Scroll_Loop();
+    Test_Scroll_Loop(Game_Info);
 
     return;
 }
@@ -52,34 +52,88 @@ const byte Concatenated_String_Test[] = "TEST DECK" Newline "HELLO!";
 const byte Your_Hand[] = "YOUR HAND";
 
 void Display_Card_List(byte* Game_Info, byte* List_Name, byte* Card_List);
-// {
-// 
-//     // 0x9825 is destination for list name
-//     // 0x9865 is destination for first item of card_list
-// 
-//     Write_Text_Tiles(addressof(0x9825), List_Name);
-//     // Write_Text_Tiles(addressof(0x9865), Concatenated_String_Test);
-// 
-//     byte* Card;
-// 
-//     byte* Destination;
-// 
-//     //byte Count;
-// 
-//     //Count = 10;
-// 
-//     Destination = addressof(0x9865);
-// 
-//     while( 0xFF - *Card_List )          // until we've reached an 'end' ID
-//     {
-//         Card = load_16(Card_Catalogue + shift_left((word)*Card_List));
-//         Write_Text_Tiles(Destination, load_16(Card + Card_Data_Name));
-//         Card_List++;
-//         Destination = Destination + 32;
-//     }
-// 
-//     return;
-// }
+
+void Update_Card_Menu_Display(byte* Game_Info, byte Selected_Card, byte Previous_Selected, byte* List_Name, byte* List);
+//{
+//    byte Page;
+//    byte Condition;
+//
+//    Page = (byte)divide_8(Selected_Card, 10);               // Check which page we're currently on
+//    Condition = Page;
+//    Condition = Condition - (byte)divide_8(Previous_Selected, 10);
+//    if(Condition)        // If we need to update the page?
+//    {
+//        // we need to update the whole list/page!
+//
+//        Wait_For_VBlank();
+//        *LCDC_REGISTER = 0x00;
+//
+//        Copy_Tilemap(addressof(0x9804), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
+//
+//        Page = mul_8(Page, 10);
+//
+//        List = List + (word)Page;
+//
+//        Display_Card_List(Game_Info, List_Name, List);
+//
+//        *(LCDC_REGISTER) = 0x83;
+//    }
+//
+//    return;
+//}
+
+void Handle_Card_Menu_Inputs(byte* Game_Info, byte* Selected_Card, byte* List_Name, byte* List);
+//{
+//    byte Input;
+//    //byte* Pointer;
+//    Input = *(Game_Info + Game_Info_DPAD_Fresh);
+//    if(!bit(Input, CONTROLLER_BUTTON_UP_BIT))
+//    {
+//        if(*Selected_Card)
+//        {
+//            Update_Card_Menu_Display(Game_Info, 255 + *Selected_Card, *Selected_Card, List_Name, List);
+//
+//            *(Selected_Card)--;
+//
+//            return;
+//        }
+//    }
+//
+//    if(!bit(Input, CONTROLLER_BUTTON_DOWN_BIT))
+//    {
+//        Input = Get_Length(255, List);
+//        if((*Selected_Card) + 1 < Input)
+//        {
+//            Update_Card_Menu_Display(Game_Info, 1 + *Selected_Card, *Selected_Card, List_Name, List);
+//
+//            *(Selected_Card)++;
+//
+//            return;
+//        }
+//    }
+//
+//    return;
+//}
+
+void Place_Card_Menu_Cursor_Sprite(byte Selected_Card)
+{
+    const byte Cursor_Sprite_Graphics[] = { 40, 9, 0xAB, 0x00 };
+
+    while(Selected_Card > 9)               // Value can only be 0-9
+    {
+        Selected_Card = Selected_Card - 10;
+    }
+
+    Selected_Card = shift_left(Selected_Card);
+    Selected_Card = shift_left(Selected_Card);
+    Selected_Card = shift_left(Selected_Card);
+
+    //Selected_Card = shift_left(shift_left(shift_left(Selected_Card)));
+
+    place_spritechain_in_oam_buffer(Cursor_Sprite_Graphics, 1, Selected_Card, 0);
+
+    return;
+}
 
 void Test_Card_Menu(byte* Game_Info)
 {
@@ -95,39 +149,25 @@ void Test_Card_Menu(byte* Game_Info)
 
     Display_Card_List(Game_Info, Your_Hand, load_16(Game_Info));
 
-    *(LCDC_REGISTER) = 0x87;
+    *(LCDC_REGISTER) = 0x83;
 
     byte Input;
+    byte Selected_Card;
 
-    Input = 0;
+    Selected_Card = 0;
 
     do
     {
         Clean_OAM_Buffer();
 
-        Input = Get_Controller_Input(CONTROLLER_DPAD_FLAG);
+        Update_Player_Inputs(Game_Info);
 
-        if(!bit(Input, CONTROLLER_BUTTON_DOWN_BIT))
-        {
-            *(BACKGROUND_SCROLL_Y_REGISTER)++;
-        }
+        Place_Card_Menu_Cursor_Sprite(Selected_Card);
 
-        if(!bit(Input, CONTROLLER_BUTTON_UP_BIT))
-        {
-            *(BACKGROUND_SCROLL_Y_REGISTER)--;
-        }
+        Handle_Card_Menu_Inputs(Game_Info, &Selected_Card, Your_Hand, load_16(Game_Info));
 
-        if(!bit(Input, CONTROLLER_BUTTON_RIGHT_BIT))
-        {
-            *(BACKGROUND_SCROLL_X_REGISTER)++;
-        }
+        Input = *(Game_Info + Game_Info_SSBA_Fresh);
 
-        if(!bit(Input, CONTROLLER_BUTTON_LEFT_BIT))
-        {
-            *(BACKGROUND_SCROLL_X_REGISTER)--;
-        }
-
-        Input = Get_Controller_Input(CONTROLLER_SSBA_FLAG);
         Wait_For_VBlank();
         dma_transfer();
     }while(bit(Input, CONTROLLER_BUTTON_START_BIT));
@@ -285,31 +325,6 @@ void Start_Board_Scene(byte* Game_Info)
     memset(VRAM_TILEM_0, 0xFF, 0x400);
 
     // write 0x98E0 if you want the bottom of the screen, just below the table
-    
-    //Draw_Board_Creature_Card(0, Skeleton_Card_Data); // This will draw the creature to the screen
-    //Draw_Board_Creature_Card(2, Ancient_Scholar_Card_Data); // This will draw the creature to the screen
-    //Draw_Board_Creature_Card(13, Pig_Card_Data); // This will draw the creature to the screen
-    //Draw_Board_Creature_Card(7, Skeleton_Card_Data); // This will draw the creature to the screen
-    //Draw_Board_Creature_Card(5, Skeleton_Card_Data); // This will draw the creature to the screen
-//
-    //Draw_Board_Creature_Card(8, Mage_Card_Data); // This will draw the creature to the screen
-
-    //Draw_Board_Creature_Card(0, Ancient_Scholar_Card_Data);
-    //Draw_Board_Creature_Card(1, Strawman_Card_Data);
-    //Draw_Board_Creature_Card(2, Starchy_Card_Data);
-    //Draw_Board_Creature_Card(3, Mage_Card_Data);
-    //Draw_Board_Creature_Card(4, Sir_Slicer_Card_Data);
-    //Draw_Board_Creature_Card(5, Skeleton_Card_Data);
-    //Draw_Board_Creature_Card(6, Skeleton_Card_Data);
-    //Draw_Board_Creature_Card(7, Pig_Card_Data);
-    //Draw_Board_Creature_Card(8, Skeleton_Card_Data);
-    //Draw_Board_Creature_Card(9, Skeleton_Card_Data);
-    //Draw_Board_Creature_Card(10, Bald_Man_Card_Data);
-    //Draw_Board_Creature_Card(11, Skeleton_Card_Data);
-    //Draw_Board_Creature_Card(12, Coffin_Card_Data);
-    //Draw_Board_Creature_Card(13, Coffin_Card_Data);
-    //Draw_Board_Creature_Card(14, Skeleton_Card_Data);
-    //Draw_Board_Creature_Card(15, Coffin_Card_Data);
 
     Place_Card_On_Board(Game_Info, 0, ID_Ancient_Scholar);
     Place_Card_On_Board(Game_Info, 1, ID_Strawman);
@@ -347,7 +362,7 @@ void Start_Board_Scene(byte* Game_Info)
         Select_Board_Card(*(Game_Info + Game_Info_DPAD_Fresh), &Selected_Card);
         Board_Scene_Selected_Card_Icon(Game_Info, &Selected_Card);
 
-        Input = *(Game_Info + Game_Info_SSBA_Read);
+        Input = *(Game_Info + Game_Info_SSBA_Fresh);
 
         //Input = Get_Controller_Input(CONTROLLER_SSBA_FLAG);
         Wait_For_VBlank();
@@ -380,15 +395,15 @@ void Alternate_Game_Loops(byte* Game_Info)
     {
         Start_Table_Scene(Game_Info);
 
-        Wait_For_Button_Release();
+        //Wait_For_Button_Release();
 
         Start_Board_Scene(Game_Info);
 
-        Wait_For_Button_Release();
+        //Wait_For_Button_Release();
 
         Test_Card_Menu(Game_Info);
 
-        Wait_For_Button_Release();
+        //Wait_For_Button_Release();
 
     }while(true);
 

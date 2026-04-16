@@ -52,8 +52,8 @@
 #define DMA_REGISTER addressof(0xFF46)
 
 #define OAM addressof(0xFE00)
-    // byte 0 is x-position + 8
-	// byte 1 is y-position + 16
+    // byte 0 is y-position + 16
+	// byte 1 is x-position + 8
 	// byte 2 is tile index
 	// byte 3 are the flags
 		// bit 7 is the priority bit (set this to decrease object priority)

@@ -50,6 +50,9 @@ word sub16(word Left, word Right);
 
 byte abs_8(byte value);
 
+word divide_8(byte numerator, byte denomenator);	// low byte is quotient, high byte is remainder
+byte mul_8(byte x, byte y);
+
 word abs_16(word value);
 
 word load_16(byte* address);
