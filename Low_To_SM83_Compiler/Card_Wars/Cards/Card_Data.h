@@ -23,7 +23,16 @@
 
 //
 
+#define Blood_Char "\x78"
+#define Skull_Char "\x79"
+#define Left_Char "\x7A"
+#define Right_Char "\x7B"
+#define Stone_Char "\x7C"
+
+
 const byte Sir_Slicer_Name[] = "SIR-SLICER";
+const byte Sir_Slicer_Description[] = "THIS KNIGHT WILL" Newline "MOVE " Left_Char " OR " Right_Char " AT THE" Newline "END OF YOUR TURN";
+//"MOVES " Left_Char " OR " Right_Char " AT" Newline "THE END OF YOUR" Newline "TURN.";
 const byte Sir_Slicer_Creature_Data[] =
 {
     0x47,
@@ -35,12 +44,13 @@ const byte Sir_Slicer_Card_Data[] =
     Sir_Slicer_Creature_Data, high(Sir_Slicer_Creature_Data),
     0x00, 0x00,
     Sir_Slicer_Name, high(Sir_Slicer_Name),
-    Skeleton_Description, high(Skeleton_Description),
+    Sir_Slicer_Description, high(Sir_Slicer_Description),
     Sir_Slicer_Graphics_Data, high(Sir_Slicer_Graphics_Data)
 };
 
 
 const byte Starchy_Name[] = "STARCHY!";
+const byte Starchy_Description[] = "COLLECTS 1 " Skull_Char " AT" Newline "THE END OF YOUR" Newline "TURN.";
 const byte Starchy_Creature_Data[] =
 {
     0x02,
@@ -52,23 +62,25 @@ const byte Starchy_Card_Data[] =
     Starchy_Creature_Data, high(Starchy_Creature_Data),
     0x00, 0x00,
     Starchy_Name, high(Starchy_Name),
-    Skeleton_Description, high(Skeleton_Description),
+    Starchy_Description, high(Starchy_Description),
     Starchy_Graphics_Data, high(Starchy_Graphics_Data)
 };
 
 
 const byte Coffin_Name[] = "COFFIN";    // This DOESN'T have creature data because it's a card
+const byte Coffin_Description[] = "THIS BUILDING WILL" Newline "COLLECT 1 " Skull_Char " AT THE" Newline "END OF YOUR TURN.";
 const byte Coffin_Card_Data[] =
 {
     0x03,                               // high nibble LSB is 0 because it's a building (see class Card definition)
     0x00, 0x00,                          // no creature data (it's a building)
     0x00, 0x00,
     Coffin_Name, high(Coffin_Name),
-    Skeleton_Description, high(Skeleton_Description),
+    Coffin_Description, high(Coffin_Description),
     Coffin_Graphics_Data, high(Coffin_Graphics_Data)
 };
 
 const byte Strawman_Name[] = "STRAWMAN";
+const byte Strawman_Description[] = "CAN BE PLACED FOR" Newline "FREE.";
 const byte Strawman_Creature_Data[] =
 {
     0x01,
@@ -80,12 +92,12 @@ const byte Strawman_Card_Data[] =
     Strawman_Creature_Data, high(Strawman_Creature_Data),
     0x00, 0x00,
     Strawman_Name, high(Strawman_Name),
-    Skeleton_Description, high(Skeleton_Description),
+    Strawman_Description, high(Strawman_Description),
     Strawman_Graphics_Data, high(Strawman_Graphics_Data)
 };
 
 const byte Skeleton_Name[] = "SKELETON";
-const byte Skeleton_Description[] = "AN UNDEAD PILE OF" Newline "BONES. REQUIRES ONLY 1 SKULL";
+const byte Skeleton_Description[] = "AN UNDEAD PILE OF" Newline "BONES.REQUIRES" Newline "ONLY 1 SKULL.";
 
 const byte Skeleton_Creature_Data[] =
 {
@@ -111,13 +123,14 @@ const byte Ancient_Scholar_Creature_Data[] =
     0x32
 };
 const byte Ancient_Scholar_Name[] = "ARCH SCHOLAR";
+const byte Ancient_Scholar_Description[] = "WHEN PLACED,SEARCH" Newline "DISCARD PILE FOR A" Newline "CARD,AND DRAW IT.";
 const byte Ancient_Scholar_Card_Data[] = 
 {
     0x06,       // Element type and cost
     Ancient_Scholar_Creature_Data, high(Ancient_Scholar_Creature_Data), // no object pointer
     0x00, 0x00, // no function pointer yet
     Ancient_Scholar_Name, high(Ancient_Scholar_Name),
-    Skeleton_Description, high(Skeleton_Description),
+    Ancient_Scholar_Description, high(Ancient_Scholar_Description),
     Ancient_Scholar_Graphics_Data, high(Ancient_Scholar_Graphics_Data)
 };
 
@@ -125,17 +138,18 @@ const byte Ancient_Scholar_Card_Data[] =
 
 const byte Mage_Creature_Data[] =
 {
-    0x05,
+    0x03,
     0x52
 };
 const byte Mage_Name[] = "MAGE";
+const byte Mage_Description[] = "AN APPRENTICE FROM" Newline "WIZARD CITY.HE IS" Newline "STILL LEARNING.";
 const byte Mage_Card_Data[] = 
 {
     0x04,       // Element type and cost
     Mage_Creature_Data, high(Mage_Creature_Data), // no object pointer
     0x00, 0x00, // no function pointer yet
     Mage_Name, high(Mage_Name),
-    Skeleton_Description, high(Skeleton_Description),
+    Mage_Description, high(Mage_Description),
     Mage_Graphics_Data, high(Mage_Graphics_Data)
 };
 
@@ -147,13 +161,14 @@ const byte Pig_Creature_Data[] =
     0x11
 };
 const byte Pig_Name[] = "PIG";
+const byte Pig_Description[] = "OINK OINK.";
 const byte Pig_Card_Data[] = 
 {
     0x02,       // Element type and cost
     Pig_Creature_Data, high(Pig_Creature_Data), // no object pointer
     0x00, 0x00, // no function pointer yet
     Pig_Name, high(Pig_Name),
-    Skeleton_Description, high(Skeleton_Description),
+    Pig_Description, high(Pig_Description),
     The_Pig_Graphics_Data, high(The_Pig_Graphics_Data)
 };
 
@@ -165,12 +180,13 @@ const byte Bald_Man_Creature_Data[] =
     0x20
 };
 const byte Bald_Man_Name[] = "BALD MAN";
+const byte Bald_Man_Description[] = "THIS GUY WANDERS " Left_Char " " Newline "OR " Right_Char "AT THE END" Newline "OF YOUR TURN."; 
 const byte Bald_Man_Card_Data[] =
 {
     0x02,
     Bald_Man_Creature_Data, high(Bald_Man_Creature_Data),
     0x00, 0x00,
     Bald_Man_Name, high(Bald_Man_Name),
-    Skeleton_Description, high(Skeleton_Description),
+    Bald_Man_Description, high(Bald_Man_Description),
     Bald_Man_Graphics_Data, high(Bald_Man_Graphics_Data)
 };

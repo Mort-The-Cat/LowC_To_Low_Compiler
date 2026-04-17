@@ -190,6 +190,47 @@ subroutine Get_Length
 
 #
 
+subroutine Draw_Menu_Card
+{
+    # SP + $04      card id
+    # SP + $02/03   function pointer
+    # SP + $00/01   card pointer
+    SP += $FE;      # card pointer memory
+    HL = SP + $04;
+    C = [HL];
+    B = $00;
+    C <<= 1;
+    HL = Card_Catalogue;
+    HL += BC;
+    A = [HL++];
+    B = [HL];
+    HL = SP + $00;
+    [HL++] = A;
+    [HL] = B;       # Writes card pointer back into memory
+
+    # We want to start pushing data to the stack to call Draw_Board_Creature_Card
+    HL = SP + $FF;
+    SP = HL;
+    [HL] = $03;
+    C = A;
+    push BC;        # pushes card data
+    BC++;
+    A = [BC];
+    L = A;
+    BC++;
+    A = [BC];
+    H = A;
+    push HL;        # pushes creature data (not a copy- the original)
+    call Draw_Board_Creature_Card;
+    SP += $05;
+
+    # doesn't draw description yet aw well
+
+    SP += $02;
+
+    return;
+}
+
 # void Update_Card_Menu_Display(byte* Game_Info, byte Selected_Card, byte Previous_Selected, byte* List_Name, byte* List);
 subroutine Update_Card_Menu_Display
 {
@@ -223,6 +264,26 @@ subroutine Update_Card_Menu_Display
     HL = SP + $00;
     A < [HL];
     jump not_zero Continue_Function;     # If same page, we don't need to end the function early...
+        call Wait_For_VBlank;
+        A ^= A;
+        [$FF00 + $FF40] = A;
+        HL = SP + $03;
+        A = [HL++];
+        B = [HL];
+        C = A;
+        HL = SP + $08;
+        L = [HL];
+        H = $00;
+        HL += BC;           # Gets card ID
+        A = [HL];
+        HL = SP + $FF;
+        SP = HL;
+        [HL] = A;
+        call Draw_Menu_Card;
+        SP += $01;
+        A = $83;
+        [$FF00 + $FF40] = A;
+
         SP += $01;
         return;
     label Continue_Function;
@@ -242,6 +303,21 @@ subroutine Update_Card_Menu_Display
     [HL] = 20;
     call Copy_Tilemap;
     SP += 7;
+
+        HL = SP + $03;
+        A = [HL++];
+        B = [HL];
+        C = A;
+        HL = SP + $08;
+        L = [HL];
+        H = $00;
+        HL += BC;           # Gets card ID
+        A = [HL];
+        HL = SP + $FF;
+        SP = HL;
+        [HL] = A;
+        call Draw_Menu_Card;
+        SP += $01;
 
     # multiply page and call the function
 
@@ -290,9 +366,8 @@ subroutine Update_Card_Menu_Display
     call Display_Card_List;
     SP += $06;
 
-    HL = $FF40;
-    [HL] = $83;
-
+    A = $83;
+    [$FF00 + $FF40] = A;
 
     SP += $01;
     return;

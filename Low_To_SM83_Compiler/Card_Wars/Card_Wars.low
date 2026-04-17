@@ -3662,20 +3662,10 @@ subroutine Test_Card_Menu
 		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
-	BC = $9804;
-	push BC;		# Pushes Destination to the stack
-	BC = Card_Menu_Tilemap;
-	push BC;		# Pushes Source to the stack
-	BC = 360;
-	push BC;		# Pushes Count to the stack
-	A = 20;
-	HL = SP + 255;		# Makes room on stack for 1 byte
-	SP = HL;		# Update stack pointer
-	[HL] = A;		# Writes Width to stack
-	call Copy_Tilemap;		# Calls function
-	SP += 7;		# Removes pushed parameters from stack
+	HL = $FF40;
+	[HL] = $83; 		# Stores value into memory location
 	# Current tracer registers:
-		# A = ???; 0
+		# A = Selected_Card; 0
 		# B = ???; 0
 		# C = ???; 0
 		# D = Destination; 0
@@ -3688,15 +3678,23 @@ subroutine Test_Card_Menu
 	H = [HL];		# Store upper byte
 	L = A;		# Move lower byte from temp register
 	push HL;		# Pushes Game_Info to the stack
-	BC = Your_Hand;
-	push BC;		# Pushes List_Name to the stack
+	A = 0;
 	B = H;		# Moves Game_Info into upper register
 	C = L;		# Moves into lower register
-	HL = SP + 6;		# Memory location of Game_Info
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	SP = HL;		# Update stack pointer
+	[HL] = A;		# Writes Selected_Card to stack
+	A = $FF;
+	HL = SP + 255;		# Makes room on stack for 1 byte
+	SP = HL;		# Update stack pointer
+	[HL] = A;		# Writes Previous_Selected to stack
+	DE = Your_Hand;
+	push DE;		# Pushes List_Name to the stack
+	HL = SP + 8;		# Memory location of Game_Info
 	[HL] = C;		# Stores Game_Info back into memory
 	HL++;
 	[HL] = B;		# Stores upper byte of Game_Info back into memory
-	HL = SP + 6;		# Fetches Game_Info off the stack
+	HL = SP + 8;		# Fetches Game_Info off the stack
 	A = [HL];		# Store lower byte temporarily
 	HL++;
 	H = [HL];		# Store upper byte
@@ -3704,25 +3702,15 @@ subroutine Test_Card_Menu
 	push HL;		# Pushes address to the stack
 	call load_16;		# Calls function
 	SP += 2;		# Removes pushed parameters from stack
-	push HL;		# Pushes Card_List to the stack
-	call Display_Card_List;		# Calls function
-	SP += 6;		# Removes pushed parameters from stack
+	push HL;		# Pushes List to the stack
+	call Update_Card_Menu_Display;		# Calls function
+	SP += 8;		# Removes pushed parameters from stack
 	# Current tracer registers:
 		# A = ???; 0
 		# B = Game_Info; 0
 		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
-		# H = ???; 0
-		# L = ???; 0
-	HL = $FF40;
-	[HL] = $83; 		# Stores value into memory location
-	# Current tracer registers:
-		# A = ???; 0
-		# B = Game_Info; 0
-		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
 	SP += 255;		# byte Input;
@@ -3730,8 +3718,8 @@ subroutine Test_Card_Menu
 		# A = ???; 0
 		# B = Game_Info; 0
 		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
 	SP += 255;		# byte Selected_Card;
@@ -3739,8 +3727,8 @@ subroutine Test_Card_Menu
 		# A = ???; 0
 		# B = Game_Info; 0
 		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
 	A = 0;
@@ -3748,8 +3736,8 @@ subroutine Test_Card_Menu
 		# A = Selected_Card; 1
 		# B = Game_Info; 0
 		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
 
@@ -3758,8 +3746,8 @@ subroutine Test_Card_Menu
 		# A = Selected_Card; 1
 		# B = Game_Info; 0
 		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = SP + 0;		# Memory location of Selected_Card
@@ -3769,8 +3757,8 @@ subroutine Test_Card_Menu
 		# A = Selected_Card; 0
 		# B = Game_Info; 0
 		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = ???; 0
 		# L = ???; 0
 	HL = SP + 4;		# Fetches Game_Info off the stack
@@ -3785,8 +3773,8 @@ subroutine Test_Card_Menu
 		# A = ???; 0
 		# B = Game_Info; 0
 		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = Game_Info; 0
 		# L = Game_Info; 0
 	HL = SP + 0;		# Fetches Selected_Card off the stack
@@ -3800,8 +3788,8 @@ subroutine Test_Card_Menu
 		# A = Selected_Card; 0
 		# B = Game_Info; 0
 		# C = Game_Info; 0
-		# D = Destination; 0
-		# E = Destination; 0
+		# D = ???; 0
+		# E = ???; 0
 		# H = @@stack_pointer@@; 0
 		# L = @@stack_pointer@@; 0
 	HL = SP + 4;		# Fetches Game_Info off the stack
@@ -6842,6 +6830,11 @@ data Sir_Slicer_Name
 	"SIR-SLICER" 0
 }
 
+data Sir_Slicer_Description
+{
+	"THIS KNIGHT WILL" $0A "MOVE " $7A " OR " $7B " AT THE" $0A "END OF YOUR TURN" 0
+}
+
 data Sir_Slicer_Creature_Data
 {
 	$47 $30
@@ -6851,13 +6844,18 @@ data Sir_Slicer_Card_Data
 {
 	$06 Sir_Slicer_Creature_Data high(Sir_Slicer_Creature_Data) 
 	$00 $00 Sir_Slicer_Name high(Sir_Slicer_Name) 
-	Skeleton_Description high(Skeleton_Description) 
+	Sir_Slicer_Description high(Sir_Slicer_Description) 
 	Sir_Slicer_Graphics_Data high(Sir_Slicer_Graphics_Data)
 }
 
 data Starchy_Name
 {
 	"STARCHY!" 0
+}
+
+data Starchy_Description
+{
+	"COLLECTS 1 " $79 " AT" $0A "THE END OF YOUR" $0A "TURN." 0
 }
 
 data Starchy_Creature_Data
@@ -6869,7 +6867,7 @@ data Starchy_Card_Data
 {
 	$02 Starchy_Creature_Data high(Starchy_Creature_Data) 
 	$00 $00 Starchy_Name high(Starchy_Name) 
-	Skeleton_Description high(Skeleton_Description) 
+	Starchy_Description high(Starchy_Description) 
 	Starchy_Graphics_Data high(Starchy_Graphics_Data)
 }
 
@@ -6878,16 +6876,26 @@ data Coffin_Name
 	"COFFIN" 0
 }
 
+data Coffin_Description
+{
+	"THIS BUILDING WILL" $0A "COLLECT 1 " $79 " AT THE" $0A "END OF YOUR TURN." 0
+}
+
 data Coffin_Card_Data
 {
 	$03 $00 $00 $00 $00 Coffin_Name high(Coffin_Name) 
-	Skeleton_Description high(Skeleton_Description) 
+	Coffin_Description high(Coffin_Description) 
 	Coffin_Graphics_Data high(Coffin_Graphics_Data)
 }
 
 data Strawman_Name
 {
 	"STRAWMAN" 0
+}
+
+data Strawman_Description
+{
+	"CAN BE PLACED FOR" $0A "FREE." 0
 }
 
 data Strawman_Creature_Data
@@ -6899,7 +6907,7 @@ data Strawman_Card_Data
 {
 	$00 Strawman_Creature_Data high(Strawman_Creature_Data) 
 	$00 $00 Strawman_Name high(Strawman_Name) 
-	Skeleton_Description high(Skeleton_Description) 
+	Strawman_Description high(Strawman_Description) 
 	Strawman_Graphics_Data high(Strawman_Graphics_Data)
 }
 
@@ -6910,7 +6918,7 @@ data Skeleton_Name
 
 data Skeleton_Description
 {
-	"AN UNDEAD PILE OF" $0A "BONES. REQUIRES ONLY 1 SKULL" 0
+	"AN UNDEAD PILE OF" $0A "BONES.REQUIRES" $0A "ONLY 1 SKULL." 0
 }
 
 data Skeleton_Creature_Data
@@ -6936,17 +6944,22 @@ data Ancient_Scholar_Name
 	"ARCH SCHOLAR" 0
 }
 
+data Ancient_Scholar_Description
+{
+	"WHEN PLACED,SEARCH" $0A "DISCARD PILE FOR A" $0A "CARD,AND DRAW IT." 0
+}
+
 data Ancient_Scholar_Card_Data
 {
 	$06 Ancient_Scholar_Creature_Data high(Ancient_Scholar_Creature_Data) 
 	$00 $00 Ancient_Scholar_Name high(Ancient_Scholar_Name) 
-	Skeleton_Description high(Skeleton_Description) 
+	Ancient_Scholar_Description high(Ancient_Scholar_Description) 
 	Ancient_Scholar_Graphics_Data high(Ancient_Scholar_Graphics_Data)
 }
 
 data Mage_Creature_Data
 {
-	$05 $52
+	$03 $52
 }
 
 data Mage_Name
@@ -6954,11 +6967,16 @@ data Mage_Name
 	"MAGE" 0
 }
 
+data Mage_Description
+{
+	"AN APPRENTICE FROM" $0A "WIZARD CITY.HE IS" $0A "STILL LEARNING." 0
+}
+
 data Mage_Card_Data
 {
 	$04 Mage_Creature_Data high(Mage_Creature_Data) 
-	$00 $00 Mage_Name high(Mage_Name) Skeleton_Description 
-	high(Skeleton_Description) Mage_Graphics_Data 
+	$00 $00 Mage_Name high(Mage_Name) Mage_Description 
+	high(Mage_Description) Mage_Graphics_Data 
 	high(Mage_Graphics_Data)
 }
 
@@ -6972,11 +6990,16 @@ data Pig_Name
 	"PIG" 0
 }
 
+data Pig_Description
+{
+	"OINK OINK." 0
+}
+
 data Pig_Card_Data
 {
 	$02 Pig_Creature_Data high(Pig_Creature_Data) 
-	$00 $00 Pig_Name high(Pig_Name) Skeleton_Description 
-	high(Skeleton_Description) The_Pig_Graphics_Data 
+	$00 $00 Pig_Name high(Pig_Name) Pig_Description 
+	high(Pig_Description) The_Pig_Graphics_Data 
 	high(The_Pig_Graphics_Data)
 }
 
@@ -6990,11 +7013,16 @@ data Bald_Man_Name
 	"BALD MAN" 0
 }
 
+data Bald_Man_Description
+{
+	"THIS GUY WANDERS " $7A " " $0A "OR " $7B "AT THE END" $0A "OF YOUR TURN." 0
+}
+
 data Bald_Man_Card_Data
 {
 	$02 Bald_Man_Creature_Data high(Bald_Man_Creature_Data) 
 	$00 $00 Bald_Man_Name high(Bald_Man_Name) 
-	Skeleton_Description high(Skeleton_Description) 
+	Bald_Man_Description high(Bald_Man_Description) 
 	Bald_Man_Graphics_Data high(Bald_Man_Graphics_Data)
 }
 

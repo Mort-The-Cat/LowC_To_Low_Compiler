@@ -145,11 +145,15 @@ void Test_Card_Menu(byte* Game_Info)
 
     *BACKGROUND_SCROLL_Y_REGISTER = 0;
 
-    Copy_Tilemap(addressof(0x9804), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
-
-    Display_Card_List(Game_Info, Your_Hand, load_16(Game_Info));
-
     *(LCDC_REGISTER) = 0x83;
+
+    Update_Card_Menu_Display(Game_Info, 0, 0xFF, Your_Hand, load_16(Game_Info));
+
+    //Copy_Tilemap(addressof(0x9804), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
+
+    //Display_Card_List(Game_Info, Your_Hand, load_16(Game_Info));
+
+    //*(LCDC_REGISTER) = 0x83;
 
     byte Input;
     byte Selected_Card;

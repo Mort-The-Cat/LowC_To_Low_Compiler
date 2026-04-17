@@ -136,7 +136,7 @@ void Draw_Board_Cards(byte* Game_Info)
 
     byte* Pointer;
 
-    Pointer = load_16(Game_Info + (word)Game_Info_Board_Pointer);//
+    Pointer = load_16(Game_Info + (word)Game_Info_Board_Pointer);
     Pointer = Pointer + Board_Info_Board_Card_Data;
 
     byte Card_ID;
