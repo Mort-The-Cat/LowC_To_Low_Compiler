@@ -143,7 +143,7 @@ void Test_Card_Menu(byte* Game_Info)
 
     *BACKGROUND_SCROLL_X_REGISTER = 32;
 
-    *BACKGROUND_SCROLL_Y_REGISTER = 0;
+    *BACKGROUND_SCROLL_Y_REGISTER = 2;
 
     *(LCDC_REGISTER) = 0x83;
 

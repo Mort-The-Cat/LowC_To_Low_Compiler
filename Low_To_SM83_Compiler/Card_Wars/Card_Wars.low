@@ -3653,7 +3653,7 @@ subroutine Test_Card_Menu
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF42;
-	[HL] = 0; 		# Stores value into memory location
+	[HL] = 2; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = Selected_Card; 0
 		# B = ???; 0
@@ -6518,41 +6518,43 @@ data Card_Tilemap_Data
 data Card_Menu_Tilemap
 {
 	$AE $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 
-	$B2 $B2 $B2 $aE $B2 $B2 $B2 $B2 $aF $B5 
-	$aB $aB $aB $aB $aB $aB $aB $aB $aB $aB 
-	$aB $aB $aB $B5 $aB $aB $aB $aB $B3 $B5 
-	$A4 $A4 $A4 $A4 $A4 $A4 $A4 $A4 $A4 $A4 
-	$A4 $A4 $A4 $B5 $B6 $B7 $B8 $B9 $B3 $B5 
+	$B2 $B2 $B2 $AE $B2 $B2 $B2 $B2 $AF $B5 
+	$AB $AB $AB $AB $AB $AB $AB $AB $AB $AB 
+	$AB $AB $AB $B5 $AB $AB $AB $AB $B3 $AE 
+	$B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 
+	$B2 $B2 $B2 $B5 $B6 $B7 $B8 $B9 $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $B5 $Ba $BB $BC $BD $B3 $B5 
+	$FF $FF $FF $B5 $BA $BB $BC $BD $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
 	$FF $FF $FF $B5 $BF $C0 $C1 $C2 $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $B5 $aD $FF $FF $FF $B3 $B5 
+	$FF $FF $FF $B5 $AD $FF $FF $FF $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $B5 $aC $FF $FF $FF $B3 $B5 
+	$FF $FF $FF $B5 $AC $FF $FF $FF $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
 	$FF $FF $FF $B0 $B4 $B4 $B4 $B4 $B1 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $B3 $FF $FF $FF $FF $FF $B5 
+	$FF $FF $FF $B5 $FF $FF $FF $FF $FF $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $B3 $FF $FF $FF $FF $FF $B5 
+	$FF $FF $FF $B5 $FF $FF $FF $FF $FF $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $B3 $FF $FF $FF $FF $FF $B5 
+	$FF $FF $FF $B5 $FF $FF $FF $FF $FF $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $B3 $FF $FF $FF $FF $FF $B5 
+	$FF $FF $FF $B5 $FF $FF $FF $FF $FF $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $B3 $FF $FF $FF $FF $FF $aE 
+	$FF $FF $FF $B5 $FF $FF $FF $FF $FF $AE 
 	$B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 $B2 
-	$B2 $B2 $B2 $aF $FF $FF $FF $FF $FF $B5 
-	$aB $aB $aB $aB $aB $aB $aB $aB $aB $aB 
-	$aB $aB $aB $B2 $B2 $B2 $B2 $B2 $aF $B5 
+	$B2 $B2 $B2 $AF $FF $FF $FF $FF $FF $B5 
+	$AB $AB $AB $AB $AB $AB $AB $AB $AB $AB 
+	$AB $AB $AB $B2 $B2 $B2 $B2 $B2 $AF $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
 	$FF $FF $FF $FF $FF $FF $FF $FF $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
 	$FF $FF $FF $FF $FF $FF $FF $FF $B3 $B5 
 	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
-	$FF $FF $FF $FF $FF $FF $FF $FF $B3
+	$FF $FF $FF $FF $FF $FF $FF $FF $B3 $B0 
+	$B4 $B4 $B4 $B4 $B4 $B4 $B4 $B4 $B4 $B4 
+	$B4 $B4 $B4 $B4 $B4 $B4 $B4 $B4 $B1
 }
 
 data No_Card_Tilemap_Data
@@ -6918,7 +6920,7 @@ data Skeleton_Name
 
 data Skeleton_Description
 {
-	"AN UNDEAD PILE OF" $0A "BONES.REQUIRES" $0A "ONLY 1 SKULL." 0
+	"AN UNDEAD PILE OF" $0A "BONES.REQUIRES" $0A "ONLY 1 " $79 " TO PLAY." 0
 }
 
 data Skeleton_Creature_Data
@@ -7015,7 +7017,7 @@ data Bald_Man_Name
 
 data Bald_Man_Description
 {
-	"THIS GUY WANDERS " $7A " " $0A "OR " $7B "AT THE END" $0A "OF YOUR TURN." 0
+	"THIS GUY WANDERS " $0A $7A " OR " $7B " AT THE END" $0A "OF YOUR TURN." 0
 }
 
 data Bald_Man_Card_Data

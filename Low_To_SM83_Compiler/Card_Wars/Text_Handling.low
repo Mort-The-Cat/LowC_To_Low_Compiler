@@ -188,6 +188,26 @@ subroutine Get_Length
     jump Loop;
 }
 
+subroutine Draw_Menu_Card_Clear_Description_Textbox
+{
+    # SP + $00/01 function return pointer
+    B = 3;
+    HL = $99E5;
+    A = $FF;
+    label Clear_Line;
+    C = 18;
+    label Clear_Loop;
+        [HL++] = A;
+        C--;
+    jump not_zero Clear_Loop;
+        DE = 14;
+        HL += DE;
+        B--;
+    jump not_zero Clear_Line;
+
+    return;
+}
+
 #
 
 subroutine Draw_Menu_Card
@@ -225,6 +245,53 @@ subroutine Draw_Menu_Card
     SP += $05;
 
     # doesn't draw description yet aw well
+
+    # This will write the description and name at the bottom too
+
+    # 99C5 is name
+    # 99E5 is description
+
+    HL = $99C5;
+    push HL;
+    HL = SP + $FF;
+    SP = HL;
+    [HL] = $AB;
+    HL = 13;
+    push HL;
+    call memset;
+    SP += $05;
+
+    HL = SP + $00;
+    A = [HL++];
+    H = [HL];
+    L = A;          # HL is card pointer
+    BC = $05;
+    HL += BC;
+    A = [HL++];
+    H = [HL];
+    L = A;          # HL is the name pointer
+    BC = $99C5;
+    push BC;
+    push HL;
+    call Write_Text_Tiles;
+    SP += $04;
+
+    call Draw_Menu_Card_Clear_Description_Textbox;
+
+    HL = SP + $00;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    BC = $07;
+    HL += BC;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    BC = $99E5;
+    push BC;
+    push HL;
+    call Write_Text_Tiles;
+    SP += $04;
 
     SP += $02;
 
@@ -296,7 +363,7 @@ subroutine Update_Card_Menu_Display
     push BC;        # destination
     BC = Card_Menu_Tilemap;
     push BC;
-    BC = 360;
+    BC = 380;
     push BC;
     HL = SP + $FF;
     SP = HL;

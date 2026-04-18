@@ -97,7 +97,7 @@ const byte Strawman_Card_Data[] =
 };
 
 const byte Skeleton_Name[] = "SKELETON";
-const byte Skeleton_Description[] = "AN UNDEAD PILE OF" Newline "BONES.REQUIRES" Newline "ONLY 1 SKULL.";
+const byte Skeleton_Description[] = "AN UNDEAD PILE OF" Newline "BONES.REQUIRES" Newline "ONLY 1 " Skull_Char " TO PLAY.";
 
 const byte Skeleton_Creature_Data[] =
 {
@@ -180,7 +180,7 @@ const byte Bald_Man_Creature_Data[] =
     0x20
 };
 const byte Bald_Man_Name[] = "BALD MAN";
-const byte Bald_Man_Description[] = "THIS GUY WANDERS " Left_Char " " Newline "OR " Right_Char "AT THE END" Newline "OF YOUR TURN."; 
+const byte Bald_Man_Description[] = "THIS GUY WANDERS " Newline Left_Char " OR " Right_Char " AT THE END" Newline "OF YOUR TURN."; 
 const byte Bald_Man_Card_Data[] =
 {
     0x02,
