@@ -28,6 +28,10 @@ byte* Position_To_Tileset_Value(byte* Destinations, byte Position)
 
 void Place_Card_On_Board(byte* Game_Info, byte Position, byte Card_ID)
 {
+    byte Card_Position;
+
+    Card_Position = Position;
+
     Position = Position + Position + Position;
 
     byte* Pointer;
@@ -51,6 +55,8 @@ void Place_Card_On_Board(byte* Game_Info, byte Position, byte Card_ID)
     Card_Pointer = load_16( Card_Pointer );                             // The creature pointer
 
     byte* Copy_Pointer;
+
+    Position = Card_Position;
 
     if((byte)Card_Pointer | high(Card_Pointer))
     {

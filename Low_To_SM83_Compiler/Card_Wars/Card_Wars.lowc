@@ -33,6 +33,7 @@ void Update_Player_Inputs(byte* Game_Info);
 #include "Cards/Sir_Slicer_Graphics.h"
 #include "Cards/Starchy_Graphics.h"
 #include "Cards/Death_Graphics.h"
+#include "Cards/Enchiridion_Graphics.h"
 
 #include "Cards/Card_Icon_Graphics.h"
 
@@ -162,8 +163,6 @@ void main()
     Init_Game_Info(Game_Info);
 
     Init_Game_Board(Game_Info);
-
-    *(LCDC_REGISTER) = 0x80;
 
     Alternate_Game_Loops(Game_Info);
 

@@ -29,6 +29,18 @@
 #define Right_Char "\x7B"
 #define Stone_Char "\x7C"
 
+const byte Enchiridion_Name[] = "ENCHIRIDION";
+const byte Enchiridion_Description[] = "DISCARD YOUR HAND" Newline "AND DRAW 7 CARDS";
+const byte Enchidirion_Card_Data[] =
+{
+    0x10,           // is a spell and costs nothing
+    0x00, 0x00,
+    0x00, 0x00,     // will add function later
+    Enchiridion_Name, high(Enchiridion_Name),
+    Enchiridion_Description, high(Enchiridion_Description),
+    Enchiridion_Graphics_Data, high(Enchiridion_Graphics_Data)
+};
+
 
 const byte Sir_Slicer_Name[] = "SIR-SLICER";
 const byte Sir_Slicer_Description[] = "THIS KNIGHT WILL" Newline "MOVE " Left_Char " OR " Right_Char " AT THE" Newline "END OF YOUR TURN";
@@ -123,7 +135,7 @@ const byte Ancient_Scholar_Creature_Data[] =
     0x32
 };
 const byte Ancient_Scholar_Name[] = "ARCH SCHOLAR";
-const byte Ancient_Scholar_Description[] = "WHEN PLACED,SEARCH" Newline "DISCARD PILE FOR A" Newline "CARD,AND DRAW IT.";
+const byte Ancient_Scholar_Description[] = "EVERY TURN,SEARCH" Newline "DISCARD PILE FOR A" Newline "CARD,AND DRAW IT.";
 const byte Ancient_Scholar_Card_Data[] = 
 {
     0x06,       // Element type and cost

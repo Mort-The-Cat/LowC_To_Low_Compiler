@@ -86,6 +86,7 @@ void Delete_Game_Info(byte* Game_Info)
 #define ID_Coffin 0x06
 #define ID_Starchy 0x07
 #define ID_Sir_Slicer 0x08
+#define ID_Enchiridion 0x09
 
 void Init_Game_Info(byte* Game_Info)
 {
@@ -105,6 +106,7 @@ void Init_Game_Info(byte* Game_Info)
         ID_Starchy,
         ID_Starchy,
         ID_Sir_Slicer,
+        ID_Enchiridion,
         0xFF
     };
 
@@ -130,6 +132,7 @@ const byte Card_Catalogue[] =
     Coffin_Card_Data, high(Coffin_Card_Data),
     Starchy_Card_Data, high(Starchy_Card_Data),
     Sir_Slicer_Card_Data, high(Sir_Slicer_Card_Data),
+    Enchidirion_Card_Data, high(Enchidirion_Card_Data),
 
     0x00, 0x00
 };

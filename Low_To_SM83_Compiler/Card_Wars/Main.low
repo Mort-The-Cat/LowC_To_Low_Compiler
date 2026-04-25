@@ -14,6 +14,7 @@ file Card_Wars/Song_Handle.low;
 file Card_Wars/Table_Scrolling.low;
 
 file Card_Wars/Text_Handling.low;
+file Card_Wars/List_Handling.low;
 
 file Card_Wars/Card_Wars.low;
 

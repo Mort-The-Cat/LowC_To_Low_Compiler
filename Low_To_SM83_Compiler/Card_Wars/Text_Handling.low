@@ -553,7 +553,7 @@ subroutine Handle_Card_Menu_Inputs_Inc
 
 subroutine Handle_Card_Menu_Inputs
 {
-    # SP + $08/09
+    # SP + $08/09 game info
     # SP + $06/07 selected card
     # SP + $04/05 list name
     # SP + $02/03 list
@@ -576,6 +576,30 @@ subroutine Handle_Card_Menu_Inputs
 
     A.CONTROLLER_BUTTON_DOWN_BIT;
     jump zero Handle_Card_Menu_Inputs_Inc;
+
+    HL = SP + $08;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    BC = Game_Info_SSBA_Fresh;
+    HL += BC;
+    A = [HL];
+
+    A.CONTROLLER_BUTTON_A_BIT;
+    return not_zero;            # End early... Otherwise? 
+
+    HL = SP + $08;
+    A = [HL++];
+    B = [HL];
+    C = A;
+
+    HL = SP + $FF;
+    SP = HL;
+    [HL] = $00;
+
+    push BC;
+    call Add_To_List;
+    SP += $03;
 
     return;
 }

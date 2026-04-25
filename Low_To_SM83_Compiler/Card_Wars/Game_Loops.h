@@ -54,70 +54,12 @@ const byte Your_Hand[] = "YOUR HAND";
 void Display_Card_List(byte* Game_Info, byte* List_Name, byte* Card_List);
 
 void Update_Card_Menu_Display(byte* Game_Info, byte Selected_Card, byte Previous_Selected, byte* List_Name, byte* List);
-//{
-//    byte Page;
-//    byte Condition;
-//
-//    Page = (byte)divide_8(Selected_Card, 10);               // Check which page we're currently on
-//    Condition = Page;
-//    Condition = Condition - (byte)divide_8(Previous_Selected, 10);
-//    if(Condition)        // If we need to update the page?
-//    {
-//        // we need to update the whole list/page!
-//
-//        Wait_For_VBlank();
-//        *LCDC_REGISTER = 0x00;
-//
-//        Copy_Tilemap(addressof(0x9804), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
-//
-//        Page = mul_8(Page, 10);
-//
-//        List = List + (word)Page;
-//
-//        Display_Card_List(Game_Info, List_Name, List);
-//
-//        *(LCDC_REGISTER) = 0x83;
-//    }
-//
-//    return;
-//}
 
 void Handle_Card_Menu_Inputs(byte* Game_Info, byte* Selected_Card, byte* List_Name, byte* List);
-//{
-//    byte Input;
-//    //byte* Pointer;
-//    Input = *(Game_Info + Game_Info_DPAD_Fresh);
-//    if(!bit(Input, CONTROLLER_BUTTON_UP_BIT))
-//    {
-//        if(*Selected_Card)
-//        {
-//            Update_Card_Menu_Display(Game_Info, 255 + *Selected_Card, *Selected_Card, List_Name, List);
-//
-//            *(Selected_Card)--;
-//
-//            return;
-//        }
-//    }
-//
-//    if(!bit(Input, CONTROLLER_BUTTON_DOWN_BIT))
-//    {
-//        Input = Get_Length(255, List);
-//        if((*Selected_Card) + 1 < Input)
-//        {
-//            Update_Card_Menu_Display(Game_Info, 1 + *Selected_Card, *Selected_Card, List_Name, List);
-//
-//            *(Selected_Card)++;
-//
-//            return;
-//        }
-//    }
-//
-//    return;
-//}
 
 void Place_Card_Menu_Cursor_Sprite(byte Selected_Card)
 {
-    const byte Cursor_Sprite_Graphics[] = { 40, 9, 0xAB, 0x00 };
+    const byte Cursor_Sprite_Graphics[] = { 38, 9, 0xAB, 0x00 };
 
     while(Selected_Card > 9)               // Value can only be 0-9
     {

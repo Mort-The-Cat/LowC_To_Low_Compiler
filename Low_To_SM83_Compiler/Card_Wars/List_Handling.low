@@ -1,0 +1,90 @@
+subroutine Add_To_List
+{
+    # SP + $04      value
+    # SP + $02/$03  pointer to list
+    # SP + $00/$01
+
+    HL = SP + $02;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    A = [HL++];
+    C = A;
+    A = [HL++];
+    B = A;
+
+    HL = SP + $FF;
+    SP = HL;
+    [HL] = $FF;
+    push BC;
+    call Get_Length;
+    SP += $03;
+    L = A;
+    H = $00;
+    push HL;            # Saves old length
+    L++;                # account for null-terminator byte
+    L++;                # and the extra byte we wanna add
+    push HL;
+    call malloc;        # Allocates new list
+    SP += $02;
+    push HL;            # Saves new list
+
+    # SP + $08/09
+    # SP + $06/07      pointer to old list
+    # SP + $04/05      function return
+    # SP + $02/03      old length
+    # SP + $00/01      new list
+
+    HL = SP + $06;      # old list
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    A = [HL++];
+    H = [HL];
+    L = A;
+    push HL;
+    HL = SP + $04;      # length of old list
+    A = [HL++];
+    H = [HL];
+    L = A;
+    push HL;
+    call memcpy;        # copies data over to new list
+    SP += $04;          # removes everything except 'old length' and 'new list' from the stack
+    pop BC;             # Gets new list
+    pop HL;             # Gets old length (i.e. the index of the 'back' of the new list)
+    HL += BC;
+    D = H;
+    E = L;
+    HL = SP + $04;
+    A = [HL];
+    [DE] = A;           # Stores new byte into list!
+    DE++;
+    A = $FF;
+    [DE] = A;           # Writes terminator byte to end of list
+
+    HL = SP + $02;      
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    E = [HL];           # gets old list
+    A = C;
+    [HL++] = A;         # writes lower of new list
+    D = [HL];           # gets old list
+    A = B;
+    [HL++] = A;         # writes higher of new list
+
+    #A = [DE];
+    #L = A;
+    #DE++;
+    #A = [DE];
+    #H = A;
+
+    push DE;            # old list
+    call free;          # frees old memory
+    SP += $02;
+
+    return;
+}
