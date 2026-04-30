@@ -12,26 +12,30 @@ void Start_Table_Scene(byte* Game_Info)
 
     memcpy(VRAM_BLOCK_1 + sizeof(Alphabet_Graphics_Data), Finny_Graphics_Data, sizeof(Finny_Graphics_Data));
 
-    memcpy(VRAM_BLOCK_0, Open_Window_Graphics_Data, sizeof(Open_Window_Graphics_Data));
+    memcpy(addressof(0x8CA0), Open_Window_Graphics_Data, sizeof(Open_Window_Graphics_Data));
 
     // memcpy(VRAM_BLOCK_1 + sizeof(Alphabet_Graphics_Data), Title_Screen_UI_Blocks, sizeof(Title_Screen_UI_Blocks));
 
     memset(VRAM_TILEM_0, 0xFF, 0x400);
 
     memset(addressof(0x9820), 0x5B, 32);
-    memset(addressof(0x98C0), 0xB2, 18);
+    memset(addressof(0x98C1), 0xB2, 18);
 
-    Copy_Tilemap(VRAM_TILEM_0, Table_Tilemap_Data, sizeof(Table_Tilemap_Data), Table_Tilemap_Width);
+    Copy_Tilemap(addressof(0x9B20), Background_Treehouse_Tilemap_Data, sizeof(Background_Treehouse_Tilemap_Data), Background_Treehouse_Tilemap_Width);
+
+    Copy_Tilemap(addressof(0x9801), Table_Tilemap_Data, sizeof(Table_Tilemap_Data), Table_Tilemap_Width);
 
     // const byte Placeholder_Text[] = "INSERT FINN HERE!";
 
-    Copy_Tilemap(addressof(0x9B41), Finny_Tilemap_Data, sizeof(Finny_Tilemap_Data), Finny_Tilemap_Width);
+    //Copy_Tilemap(addressof(0x9B41), Finny_Tilemap_Data, sizeof(Finny_Tilemap_Data), Finny_Tilemap_Width);
 
     //memcpy(addressof(0x9B60), Placeholder_Text, sizeof(Placeholder_Text));
 
     *(BACKGROUND_PALETTE_REGISTER) = b11100100;
 
-    *(OBJECT_PALETTE_0_REGISTER) = b10011100;
+    *(OBJECT_PALETTE_0_REGISTER) = b11100100;
+
+    // *(OBJECT_PALETTE_0_REGISTER) = b10011100;
 
     *(OBJECT_PALETTE_1_REGISTER) = b01000000;
 
@@ -40,6 +44,8 @@ void Start_Table_Scene(byte* Game_Info)
     *(LCD_STATUS_REGISTER) = 0x08;
 
     *(INTERRUPT_ENABLE_REGISTER) = 0x02;
+
+    *(BACKGROUND_SCROLL_Y_REGISTER) = 206;
 
     Test_Scroll_Loop(Game_Info);
 

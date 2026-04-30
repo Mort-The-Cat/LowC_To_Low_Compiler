@@ -789,16 +789,6 @@ subroutine Scroll_Table
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
-	HL = $FF42;
-	[HL] = 206; 		# Stores value into memory location
-	# Current tracer registers:
-		# A = Player_Input; 1
-		# B = Controller_Reg; 0
-		# C = Controller_Reg; 0
-		# D = Value_Back; 0
-		# E = Flag; 0
-		# H = ???; 0
-		# L = ???; 0
 	HL = $FF92;
 	[HL] = 48; 		# Stores value into memory location
 	# Current tracer registers:
@@ -832,25 +822,7 @@ subroutine Scroll_Table
 		# L = ???; 0
 	HL = $FF90;
 	A = [HL];		# Dereferences address
-	# Current tracer registers:
-		# A = @value@; 3
-		# B = ???; 0
-		# C = ???; 0
-		# D = Value_Back; 0
-		# E = Flag; 0
-		# H = ; 2
-		# L = ; 2
-	B = A;		# Moves @value@ into other register
-	A = 248;
-	A += B;		# S_PLUS8
-	# Current tracer registers:
-		# A = ; 2
-		# B = ???; 2
-		# C = ???; 0
-		# D = Value_Back; 0
-		# E = Flag; 0
-		# H = ; 2
-		# L = ; 2
+	A >>= 1;
 	HL = $FF43;
 	[HL] = A; 		# Stores value into memory location
 	# Current tracer registers:
@@ -861,19 +833,14 @@ subroutine Scroll_Table
 		# E = Flag; 0
 		# H = ???; 0
 		# L = ???; 0
-	BC = Window_Spritechain_Data;
+	BC = Finn_Spritechain_Data;
 	push BC;		# Pushes Spritechain to the stack
-	A = 12;
-	HL = SP + 255;		# Makes room on stack for 1 byte
-	SP = HL;		# Update stack pointer
-	[HL] = A;		# Writes Count to stack
 	A = 20;
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	SP = HL;		# Update stack pointer
-	[HL] = A;		# Writes Y to stack
-	HL = $FF90;
+	[HL] = A;		# Writes Count to stack
+	HL = $FF42;
 	A = [HL];		# Dereferences address
-	A >>= 1;
 	# Current tracer registers:
 		# A = @value@; 3
 		# B = ???; 0
@@ -883,7 +850,7 @@ subroutine Scroll_Table
 		# H = ; 2
 		# L = ; 2
 	B = A;		# Moves @value@ into other register
-	A = 10;
+	A = 208;
 	A -= B;		# S_MINUS8
 	# Current tracer registers:
 		# A = ; 2
@@ -895,30 +862,9 @@ subroutine Scroll_Table
 		# L = ; 2
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	SP = HL;		# Update stack pointer
-	[HL] = A;		# Writes X to stack
-	call place_spritechain_in_oam_buffer;		# Calls function
-	SP += 5;		# Removes pushed parameters from stack
-	# Current tracer registers:
-		# A = ???; 0
-		# B = ???; 0
-		# C = ???; 0
-		# D = Value_Back; 0
-		# E = Flag; 0
-		# H = ???; 0
-		# L = ???; 0
-	BC = Window_Spritechain_Data;
-	push BC;		# Pushes Spritechain to the stack
-	A = 12;
-	HL = SP + 255;		# Makes room on stack for 1 byte
-	SP = HL;		# Update stack pointer
-	[HL] = A;		# Writes Count to stack
-	A = 20;
-	HL = SP + 255;		# Makes room on stack for 1 byte
-	SP = HL;		# Update stack pointer
 	[HL] = A;		# Writes Y to stack
 	HL = $FF90;
 	A = [HL];		# Dereferences address
-	A >>= 1;
 	# Current tracer registers:
 		# A = @value@; 3
 		# B = ???; 0
@@ -928,7 +874,7 @@ subroutine Scroll_Table
 		# H = ; 2
 		# L = ; 2
 	B = A;		# Moves @value@ into other register
-	A = 116;
+	A = 48;
 	A -= B;		# S_MINUS8
 	# Current tracer registers:
 		# A = ; 2
@@ -3268,7 +3214,7 @@ subroutine Start_Table_Scene
 	push HL;		# Pushes Destination to the stack
 	BC = Finny_Graphics_Data;
 	push BC;		# Pushes Source to the stack
-	BC = 608;
+	BC = 320;
 	push BC;		# Pushes Count to the stack
 	call memcpy;		# Calls function
 	SP += 6;		# Removes pushed parameters from stack
@@ -3280,7 +3226,7 @@ subroutine Start_Table_Scene
 		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
-	BC = $8000;
+	BC = $8CA0;
 	push BC;		# Pushes Destination to the stack
 	BC = Open_Window_Graphics_Data;
 	push BC;		# Pushes Source to the stack
@@ -3332,7 +3278,7 @@ subroutine Start_Table_Scene
 		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
-	BC = $98C0;
+	BC = $98C1;
 	push BC;		# Pushes Destination to the stack
 	A = $B2;
 	HL = SP + 255;		# Makes room on stack for 1 byte
@@ -3350,13 +3296,13 @@ subroutine Start_Table_Scene
 		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
-	BC = $9800;
+	BC = $9B20;
 	push BC;		# Pushes Destination to the stack
-	BC = Table_Tilemap_Data;
+	BC = Background_Treehouse_Tilemap_Data;
 	push BC;		# Pushes Source to the stack
-	BC = 108;
+	BC = 224;
 	push BC;		# Pushes Count to the stack
-	A = 18;
+	A = 32;
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	SP = HL;		# Update stack pointer
 	[HL] = A;		# Writes Width to stack
@@ -3370,13 +3316,13 @@ subroutine Start_Table_Scene
 		# E = Destination; 0
 		# H = ???; 0
 		# L = ???; 0
-	BC = $9B41;
+	BC = $9801;
 	push BC;		# Pushes Destination to the stack
-	BC = Finny_Tilemap_Data;
+	BC = Table_Tilemap_Data;
 	push BC;		# Pushes Source to the stack
-	BC = 96;
+	BC = 108;
 	push BC;		# Pushes Count to the stack
-	A = 16;
+	A = 18;
 	HL = SP + 255;		# Makes room on stack for 1 byte
 	SP = HL;		# Update stack pointer
 	[HL] = A;		# Writes Width to stack
@@ -3401,7 +3347,7 @@ subroutine Start_Table_Scene
 		# H = ???; 0
 		# L = ???; 0
 	HL = $FF48;
-	[HL] = $9C; 		# Stores value into memory location
+	[HL] = $E4; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -3442,6 +3388,16 @@ subroutine Start_Table_Scene
 		# L = ???; 0
 	HL = $FFFF;
 	[HL] = $02; 		# Stores value into memory location
+	# Current tracer registers:
+		# A = ???; 0
+		# B = ???; 0
+		# C = ???; 0
+		# D = Destination; 0
+		# E = Destination; 0
+		# H = ???; 0
+		# L = ???; 0
+	HL = $FF42;
+	[HL] = 206; 		# Stores value into memory location
 	# Current tracer registers:
 		# A = ???; 0
 		# B = ???; 0
@@ -6198,6 +6154,18 @@ subroutine main
 	return;
 }
 
+data Finn_Spritechain_Data
+{
+	$10 $18 $B6 $00 $10 $20 $B8 $00 $10 $28 $B8 
+	$20 $10 $30 $B6 $20 $20 $08 $BA $00 $20 
+	$10 $BC $00 $20 $18 $BE $00 $20 $20 $C0 
+	$00 $20 $28 $C0 $20 $20 $30 $BE $20 $20 
+	$38 $BC $20 $20 $40 $BA $20 $30 $08 $C2 
+	$00 $30 $10 $C4 $00 $30 $18 $C6 $00 $30 
+	$20 $C8 $00 $30 $28 $C8 $20 $30 $30 $C6 
+	$20 $30 $38 $C4 $20 $30 $40 $C2 $20
+}
+
 data Table_Graphics_Data
 {
 	$00 $00 $00 $00 $01 $01 $03 $03 $07 $07 $07 
@@ -6353,66 +6321,37 @@ data Table_Graphics_Data
 data Finny_Graphics_Data
 {
 	$78 $78 $84 $84 $86 $86 $83 $83 $84 $84 $80 
-	$80 $80 $80 $80 $80 $00 $00 $00 $00 $3F 
-	$3F $C0 $C0 $00 $00 $00 $00 $1F $1F $7F 
-	$70 $00 $00 $00 $00 $FC $FC $03 $03 $00 
-	$00 $00 $00 $F8 $F8 $FE $0E $1E $1E $21 
-	$21 $61 $61 $C1 $C1 $21 $21 $01 $01 $01 
-	$01 $01 $01 $81 $81 $83 $83 $83 $82 $83 
-	$82 $87 $84 $87 $84 $87 $84 $87 $84 $FF 
-	$C0 $FF $00 $FF $00 $FF $00 $FF $30 $FF 
-	$30 $FF $00 $FF $00 $FF $03 $FF $00 $FF 
-	$00 $FF $00 $FF $0C $FF $0C $FF $00 $FF 
-	$00 $81 $81 $C1 $C1 $C1 $41 $C1 $41 $E1 
-	$21 $E1 $21 $E1 $21 $E1 $21 $00 $00 $00 
-	$00 $00 $00 $00 $00 $00 $00 $03 $03 $07 
-	$04 $07 $04 $87 $84 $83 $82 $83 $82 $83 
-	$83 $81 $81 $80 $80 $80 $80 $80 $80 $FF 
+	$80 $80 $80 $80 $80 $81 $81 $83 $83 $83 
+	$82 $83 $82 $87 $84 $87 $84 $87 $84 $87 
+	$84 $00 $00 $00 $00 $3F $3F $C0 $C0 $00 
+	$00 $00 $00 $1F $1F $7F $70 $FF $C0 $FF 
+	$00 $FF $00 $FF $00 $FF $30 $FF $30 $FF 
+	$00 $FF $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $01 
+	$00 $01 $00 $03 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $03 $03 $07 $04 $07 
+	$04 $07 $04 $0F $08 $3F $08 $78 $0F $F8 
+	$0F $F8 $0F $E8 $0F $C8 $0F $87 $84 $83 
+	$82 $83 $82 $83 $83 $81 $81 $80 $80 $80 
+	$80 $80 $80 $F0 $F0 $9F $FF $80 $FF $80 
+	$FF $80 $FF $80 $FF $80 $FF $80 $FF $FF 
 	$08 $FF $07 $FF $00 $FF $00 $FF $C0 $7F 
-	$70 $1F $1F $00 $00 $FF $10 $FF $E0 $FF 
-	$00 $FF $00 $FF $03 $FE $0E $F8 $F8 $00 
-	$00 $E1 $21 $C1 $41 $C1 $41 $C1 $C1 $81 
-	$81 $01 $01 $01 $01 $01 $01 $00 $00 $00 
-	$00 $00 $00 $00 $00 $00 $00 $C0 $C0 $E0 
-	$20 $E0 $20 $00 $00 $00 $00 $00 $00 $00 
-	$00 $00 $00 $01 $00 $01 $00 $03 $00 $07 
-	$04 $0F $08 $3F $08 $78 $0F $F8 $0F $F8 
-	$0F $E8 $0F $C8 $0F $F0 $F0 $9F $FF $80 
-	$FF $80 $FF $80 $FF $80 $FF $80 $FF $80 
-	$FF $00 $00 $C0 $C0 $7F $FF $00 $FF $00 
-	$FF $00 $FF $00 $FF $00 $FF $00 $00 $03 
-	$03 $FE $FF $00 $FF $00 $FF $00 $FF $00 
-	$FF $00 $FF $0F $0F $F9 $FF $01 $FF $01 
-	$FF $01 $FF $01 $FF $01 $FF $01 $FF $E0 
-	$20 $F0 $10 $FC $10 $1E $F0 $1F $F0 $1F 
-	$F0 $17 $F0 $13 $F0 $00 $00 $00 $00 $00 
-	$00 $00 $00 $00 $00 $80 $00 $80 $00 $C0 
-	$00 $03 $00 $03 $00 $03 $00 $03 $00 $03 
-	$00 $01 $00 $01 $00 $00 $00 $88 $0F $88 
-	$0F $87 $07 $80 $00 $C0 $00 $E0 $00 $FF 
-	$00 $7F $00 $80 $FF $80 $FF $80 $FF $80 
-	$FF $80 $FF $80 $FF $F0 $0F $FF $00 $00 
-	$FF $00 $FF $7E $FF $47 $C7 $44 $C4 $5C 
-	$C4 $7C $C4 $FE $00 $00 $FF $00 $FF $7E 
-	$FF $E2 $E3 $22 $23 $3A $23 $3E $23 $7F 
-	$00 $01 $FF $01 $FF $01 $FF $01 $FF $01 
-	$FF $01 $FF $0F $F0 $FF $00 $11 $F0 $11 
-	$F0 $E1 $E0 $01 $00 $03 $00 $07 $00 $FF 
-	$00 $FE $00 $C0 $00 $C0 $00 $C0 $00 $C0 
-	$00 $C0 $00 $80 $00 $80 $00 $00 $00 $0F 
+	$70 $1F $1F $00 $00 $00 $00 $C0 $C0 $7F 
+	$FF $00 $FF $00 $FF $00 $FF $00 $FF $00 
+	$FF $03 $00 $03 $00 $03 $00 $03 $00 $03 
+	$00 $01 $00 $01 $00 $00 $00 $00 $00 $00 
 	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
-	$00 $00 $00 $00 $00 $FF $00 $87 $F8 $80 
-	$FF $80 $FF $80 $FF $80 $FF $80 $FF $80 
-	$FF $FE $00 $FC $00 $7C $C4 $07 $FF $00 
-	$FF $00 $FF $00 $FF $00 $FF $7F $00 $3F 
-	$00 $3E $23 $E0 $FF $00 $FF $00 $FF $00 
-	$FF $00 $FF $FF $00 $E1 $1F $01 $FF $01 
-	$FF $01 $FF $01 $FF $01 $FF $01 $FF $F0 
+	$00 $00 $00 $88 $0F $88 $0F $87 $07 $80 
+	$00 $C0 $00 $E0 $00 $FF $00 $7F $00 $0F 
 	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
-	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
-	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
-	$00 $F0 $00 $00 $00 $00 $00 $00 $00 $00 
-	$00 $00 $00 $00 $00 $00 $00
+	$00 $00 $00 $00 $00 $80 $FF $80 $FF $80 
+	$FF $80 $FF $80 $FF $80 $FF $F0 $0F $FF 
+	$00 $FF $00 $87 $F8 $80 $FF $80 $FF $80 
+	$FF $80 $FF $80 $FF $80 $FF $00 $FF $00 
+	$FF $7E $FF $47 $C7 $44 $C4 $5C $C4 $7C 
+	$C4 $FE $00 $FE $00 $FC $00 $7C $C4 $07 
+	$FF $00 $FF $00 $FF $00 $FF $00 $FF
 }
 
 data Alphabet_Graphics_Data
@@ -6542,6 +6481,33 @@ data Card_Tilemap_Data
 	$BC $BD $B3 $B5 $BF $C0 $C1 $C2 $B3 $B5 
 	$AD $FF $FF $FF $B3 $B5 $AC $FF $FF $FF 
 	$B3 $B0 $B4 $B4 $B4 $B4 $B1
+}
+
+data Background_Treehouse_Tilemap_Data
+{
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $CA $CC $CE $CE $D0 $D2 $FF $FF 
+	$FF $FF $FF $FF $CA $CC $CE $CE $D0 $D2 
+	$FF $FF $FF $FF $CA $CC $CE $CE $D0 $D2 
+	$FF $FF $FF $FF $CB $CD $CF $CF $D1 $D3 
+	$FF $FF $FF $FF $FF $FF $CB $CD $CF $CF 
+	$D1 $D3 $FF $FF $FF $FF $CB $CD $CF $CF 
+	$D1 $D3 $FF $FF $FF $FF $D4 $D6 $D8 $D8 
+	$DA $DC $FF $FF $FF $FF $FF $FF $D4 $D6 
+	$D8 $D8 $DA $DC $FF $FF $FF $FF $D4 $D6 
+	$D8 $D8 $DA $DC $FF $FF $FF $FF $D5 $D7 
+	$D9 $D9 $DB $DD $FF $FF $FF $FF $FF $FF 
+	$D5 $D7 $D9 $D9 $DB $DD $FF $FF $FF $FF 
+	$D5 $D7 $D9 $D9 $DB $DD $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF $FF $FF $FF $FF $FF $FF $FF 
+	$FF $FF $FF
 }
 
 data Card_Menu_Tilemap
@@ -7138,38 +7104,38 @@ data Test_Card_Graphics_Data
 
 data Open_Window_Graphics_Data
 {
-	$60 $78 $7F $07 $7F $80 $73 $92 $73 $93 $73 
-	$93 $73 $93 $7B $9E $7F $80 $73 $B2 $73 
-	$B3 $F3 $93 $F3 $93 $F3 $93 $F3 $93 $F3 
-	$93 $00 $07 $FF $FF $FF $00 $FE $03 $8E 
-	$92 $8E $82 $8E $92 $8E $92 $FE $72 $FE 
-	$62 $8E $92 $8E $92 $8E $92 $8E $92 $8E 
-	$92 $8E $92 $00 $FF $FF $FF $FF $00 $00 
-	$FF $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$18 $60 $78 $7F $FF $7F $E1 $73 $E0 $73 $E0 
+	$73 $E0 $73 $E5 $7B $FF $7F $C1 $73 $C0 
+	$73 $60 $F3 $60 $F3 $60 $F3 $60 $F3 $60 
+	$F3 $07 $00 $00 $FF $FF $FF $FD $FE $1C 
+	$8E $0C $8E $1C $8E $1C $8E $8C $FE $9C 
+	$FE $1C $8E $1C $8E $1C $8E $1C $8E $1C 
+	$8E $1C $8E $FF $00 $00 $FF $FF $FF $FF 
 	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
-	$00 $00 $00 $00 $00 $00 $F0 $FF $FF $FF 
-	$00 $3F $C0 $38 $09 $38 $09 $38 $09 $39 
-	$29 $3F $26 $3F $22 $38 $29 $38 $29 $38 
-	$29 $38 $29 $38 $29 $38 $29 $02 $1E $FF 
-	$E1 $FF $01 $E7 $21 $C7 $C1 $C7 $C1 $C7 
-	$C1 $EF $39 $FF $01 $E7 $2D $C7 $C5 $C7 
-	$C0 $C7 $C0 $C7 $C0 $C7 $C0 $C7 $C0 $73 
-	$93 $73 $93 $73 $93 $7F $9E $7F $80 $7B 
-	$9B $73 $93 $73 $93 $73 $93 $7B $9E $7F 
-	$80 $7F $3F $00 $00 $00 $00 $00 $00 $00 
-	$00 $8E $92 $8E $92 $8E $82 $DE $F2 $FE 
-	$02 $8E $92 $8E $92 $8E $92 $8E $92 $FE 
-	$F2 $FF $00 $FF $E0 $7F $4F $7F $40 $00 
-	$1F $00 $00 $00 $00 $00 $00 $00 $00 $00 
 	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
-	$00 $00 $00 $FF $00 $FF $00 $FF $FF $FF 
-	$00 $00 $FF $00 $00 $38 $29 $38 $29 $38 
-	$29 $3F $2F $3F $20 $38 $29 $38 $29 $38 
-	$29 $38 $29 $3F $3F $FF $02 $FF $03 $FE 
-	$FB $FF $01 $00 $FC $00 $00 $C7 $C0 $C7 
-	$C1 $C7 $C1 $FF $39 $FF $01 $CF $F9 $C7 
-	$C1 $C7 $C1 $C7 $C9 $EF $39 $FF $01 $FF 
-	$FD $00 $00 $00 $00 $00 $00 $00 $00
+	$00 $00 $00 $00 $00 $F0 $00 $00 $FF $FF 
+	$FF $FF $3F $31 $38 $31 $38 $31 $38 $10 
+	$39 $19 $3F $1D $3F $11 $38 $11 $38 $11 
+	$38 $11 $38 $11 $38 $11 $38 $1C $02 $1E 
+	$FF $FE $FF $C6 $E7 $06 $C7 $06 $C7 $06 
+	$C7 $D6 $EF $FE $FF $CA $E7 $02 $C7 $07 
+	$C7 $07 $C7 $07 $C7 $07 $C7 $07 $C7 $E0 
+	$73 $E0 $73 $E0 $73 $E1 $7F $FF $7F $E0 
+	$7B $E0 $73 $E0 $73 $E0 $73 $E5 $7B $FF 
+	$7F $40 $7F $00 $00 $00 $00 $00 $00 $00 
+	$00 $1C $8E $1C $8E $0C $8E $2C $DE $FC 
+	$FE $1C $8E $1C $8E $1C $8E $1C $8E $0C 
+	$FE $FF $FF $1F $FF $30 $7F $3F $7F $1F 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
+	$00 $00 $00 $FF $FF $FF $FF $00 $FF $FF 
+	$FF $FF $00 $00 $00 $11 $38 $11 $38 $11 
+	$38 $10 $3F $1F $3F $11 $38 $11 $38 $11 
+	$38 $11 $38 $00 $3F $FD $FF $FC $FF $05 
+	$FE $FE $FF $FC $00 $00 $00 $07 $C7 $06 
+	$C7 $06 $C7 $C6 $FF $FE $FF $36 $CF $06 
+	$C7 $06 $C7 $0E $C7 $D6 $EF $FE $FF $02 
+	$FF $00 $00 $00 $00 $00 $00 $00 $00
 }
 
 data Window_Spritechain_Data

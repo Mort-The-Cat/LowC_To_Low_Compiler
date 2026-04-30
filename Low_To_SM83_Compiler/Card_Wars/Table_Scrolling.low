@@ -17,13 +17,18 @@ subroutine Table_Scroll_HBlank_Function
 
     A = [$FF00 + LCDY_REGISTER];
 
-    A--;
+    A++;
 
     HL = BACKGROUND_SCROLL_Y_REGISTER;
 
     A += [HL];          # This will wrap only when LCDY_Register > Table_Y_Position
 
     jump not_carry Table_Not_Reached; 
+
+    jump not_zero Not_First_Scanline;
+        A = [$FF00 + Table_Near_Scroll];
+        [$FF00 + BACKGROUND_SCROLL_X_REGISTER] = A; # This sets the background scroll accordingly for the table
+    label Not_First_Scanline;
 
     A = [$FF00 + Table_Denom_Scroll];
     HL = Table_Delta_Scroll;
