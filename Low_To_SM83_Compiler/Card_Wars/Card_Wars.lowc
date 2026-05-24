@@ -95,6 +95,7 @@ void Update_Player_Inputs(byte* Game_Info);
 #include "Graphics/Card_Tilemap.c"
 #include "Graphics/Background_Treehouse.c"
 #include "Menu/Card_Menu_Tilemap.c"
+#include "Menu/Title_Screen_Tilemap.c"
 #include "Graphics/Cards/No_Card.c"
 #include "Graphics/Sacrifice_Graphics.h"
 
@@ -109,6 +110,10 @@ void Update_Player_Inputs(byte* Game_Info);
 #include "Cards/Starchy_Graphics.h"
 #include "Cards/Death_Graphics.h"
 #include "Cards/Enchiridion_Graphics.h"
+#include "Cards/Husk_Knight_Graphics.h"
+#include "Cards/Flame_Guy_Graphics.h"
+#include "Cards/Guardian_Graphics.h"
+#include "Cards/Maize_God_Graphics.h"
 
 #include "Cards/Card_Icon_Graphics.h"
 
@@ -198,8 +203,7 @@ void Test_Scroll_Loop(byte* Game_Info)
 {
     byte Player_Input;
 
-    *(Table_Far_Scroll) = 0;
-    *(Table_Denom_Scroll) = Table_Denom_Default; // always initialised to 64
+    *(LCDC_REGISTER) = 0x87;
 
     do
     {
@@ -222,6 +226,28 @@ void Test_Scroll_Loop(byte* Game_Info)
 #include "Board_Card_Info.h"
 #include "Game_Loops.h"
 
+#include "Menu/Game_Logic.h"
+#include "Menu/Title_Screen_Logic.h"
+
+// void Load_Grey_Tile()
+// {
+//     byte* Pointer;
+//     byte Counter;
+//     Counter = 8;
+//     Pointer = addressof(0x8FE0);
+// 
+//     do
+//     {
+//         *Pointer = 0xFF;
+//         Pointer++;
+//         *Pointer = 0x00;
+//         Pointer++;
+//         Counter--;
+//     }while(Counter);
+// 
+//     return;
+// }
+
 void main()
 {
     // Here, we just want to initialise the VRAM graphics into memory
@@ -232,6 +258,7 @@ void main()
 
     init_dma();
     init_screen_interrupts();
+    init_random(1);                             // random seed of '1'
     memset(MALLOC_MAP_ADDRESS, 0x00, 0x100);
 
     byte* Game_Info;
@@ -240,7 +267,21 @@ void main()
 
     Init_Game_Info(Game_Info);
 
+    Title_Screen_Loop(Game_Info);
+
+    //Start_Card_Wars_Match(Game_Info);
+
+    // Remove_From_List(8, Game_Info);         // just a test
+    // Remove_From_List(0, Game_Info);         // just a test
+    // Remove_From_List(3, Game_Info);         // just a test
+
     Init_Game_Board(Game_Info);
+
+    byte* Board_Info;
+
+    Board_Info = load_16(Game_Info + (word)Game_Info_Board_Pointer);
+
+    Start_Card_Wars_Match_Draw_Player_Cards( Board_Info );
 
     Alternate_Game_Loops(Game_Info);
 

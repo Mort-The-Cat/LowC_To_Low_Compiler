@@ -475,7 +475,15 @@ subroutine Handle_Card_Menu_Inputs_Dec
     B = A;
     A = [HL--];
     C = A;
-    push BC;    # pushes list
+
+    A = [BC];
+    E = A;
+    BC++;
+    A = [BC];
+    D = A;
+
+    #push BC;    # pushes list
+    push DE;
     call Update_Card_Menu_Display;
     SP += 8;    # removes parameters from stack
 
@@ -496,11 +504,17 @@ subroutine Handle_Card_Menu_Inputs_Inc
     B = [HL];
     C = A;
 
+    A = [BC];
+    E = A;
+    BC++;
+    A = [BC];
+    D = A;
+
     HL = SP + 255;
     SP = HL;
     [HL] = $FF;     # list terminator
 
-    push BC;
+    push DE;
     call Get_Length;
     SP += 3;
 
@@ -537,7 +551,14 @@ subroutine Handle_Card_Menu_Inputs_Inc
     B = A;
     A = [HL--];
     C = A;
-    push BC;    # pushes list
+
+    A = [BC];
+    E = A;
+    BC++;
+    A = [BC];
+    D = A;
+    push DE;
+    #push BC;    # pushes list
     call Update_Card_Menu_Display;
     SP += 8;    # removes parameters from stack
 
@@ -588,7 +609,7 @@ subroutine Handle_Card_Menu_Inputs
     A.CONTROLLER_BUTTON_A_BIT;
     return not_zero;            # End early... Otherwise? 
 
-    HL = SP + $08;
+    HL = SP + $02;
     A = [HL++];
     B = [HL];
     C = A;
@@ -600,6 +621,93 @@ subroutine Handle_Card_Menu_Inputs
     push BC;
     call Add_To_List;
     SP += $03;
+
+    return;
+}
+
+
+#
+
+#       data Draw_Tilemap_Menu_Tiles
+#       {
+#           $AE $B2 $AF                 # top row
+#           $B5 $FF $B3                 # centre
+#           $B0 $B4 $B1                 # bottom row
+#       }
+
+subroutine Draw_Tilemap_Menu_Row
+{
+    word Address : HL;
+    word Width_Height : BC;
+    byte Tile : A;
+    word Next_Tiles : DE;
+
+    [HL++] = A;                 # Write start tile
+    A = D;
+    label Loop_Row;
+        [HL++] = A;             # Write middle tile
+        B--;
+    jump not_zero Loop_Row;
+    [HL] = E;                   # Write end tile
+
+    return;
+}
+
+subroutine Draw_Tilemap_Menu
+{
+    # SP + $04/$05  address
+    # SP + $03      width
+    # SP + $02      height
+    # SP + $00/$01  function return pointer
+
+    HL = SP + $02;
+    A = [HL++];
+    C = A;
+    A = [HL++];
+    B = A;
+
+    # BC now continues width & height
+
+    E = B;                  # copy of 'width' should be kept
+
+    A = [HL++];
+    H = [HL];
+    L = A;
+    # HL is now the address
+
+    push DE;                # our copy of 'width' is pushed to the stack
+    A = $AE;
+    DE = $B2AF;
+    call Draw_Tilemap_Menu_Row;
+
+    label Height_Loop;
+        pop DE;
+        B = E;
+        push DE;
+        A = L;
+        A -= E;
+        L = A;
+        DE = 31;
+        HL += DE;
+        A = $B5;
+        DE = $FFB3;
+        call Draw_Tilemap_Menu_Row;
+        C--;
+    jump not_zero Height_Loop;
+
+    # Otherwise? Do the final row
+
+    pop DE;
+    B = E;
+
+    A = L;
+    A -= E;
+    L = A;
+    DE = 31;
+    HL += DE;
+    A = $B0;
+    DE = $B4B1;
+    call Draw_Tilemap_Menu_Row;
 
     return;
 }

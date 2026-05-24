@@ -3,6 +3,42 @@
 
 macro DMA_HRAM_Function $FF80;
 
+macro RANDOM_SEED $FF8B;
+
+subroutine init_random
+{
+    # SP + $02          seed
+    # SP + $00/01
+
+    HL = SP + $02;
+    A = [HL];
+    [$FF00 + RANDOM_SEED] = A;
+
+    return;
+}
+
+subroutine random
+{
+    # This will do an LFSR on the random seed, store it back into the address, and return that value in the 'A' register
+
+    C = RANDOM_SEED;
+    A = [$FF00 + C];    # Gets random seed
+    B = A;              # another copy
+    D = A;
+    B >>= 1;            # right-shift bit1 into bit0 position
+    A ^= B;             # xor bit1 and bit0
+    A >>= 1;            # shifts off that bit
+    D |>><= 1;          # shifts right and copies xor to bit 7
+
+    A = D;
+
+    [$FF00 + C] = A;    # writes back new value
+
+    A--;
+
+    return;             # returns
+}
+
 # -$D000 equals $3000 in 2's compliment
 
 subroutine abs_8

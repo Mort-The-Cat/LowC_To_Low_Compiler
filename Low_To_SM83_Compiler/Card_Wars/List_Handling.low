@@ -1,3 +1,114 @@
+subroutine Remove_From_List
+{
+    # SP + $04      index
+    # SP + $02/$03  pointer to list
+    # SP + $00/$01
+
+    HL = SP + $02;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    A = [HL++];
+    C = A;
+    A = [HL++];
+    B = A;
+
+    HL = SP + $FF;
+    SP = HL;
+    [HL] = $FF;
+    push BC;
+    call Get_Length;
+    SP += $03;
+    L = A;
+    H = $00;
+    push HL;            # Saves old length
+    push HL;
+    call malloc;
+    SP += $02;
+    push HL;
+
+    # SP + $08          index
+    # SP + $06/$07      pointer to list
+    # SP + $04/$05      function return pointer
+    # SP + $02/$03      sizeof list
+    # SP + $00/$01      new list pointer
+
+    HL = SP + $06;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    push HL;
+
+    HL = SP + $04;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    push HL;
+    call memcpy;
+    SP += $04;          # this writes to the new list    
+
+    BC--;
+
+    HL = SP + $08;
+    E = [HL];           # index
+    D = $00;
+
+    HL = SP + $00;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    
+    A = [BC];           # array[length - 1]
+
+    HL += DE;           # &array[index]
+
+    [HL] = A;           # array[index] = array[length - 1]      
+    #                   (because we're replacing the removed element with the current 'final' element)
+    #                   (and then we'll write the null-terminator where the final element previously was)
+
+    A = $FF;
+
+    [BC] = A;
+
+    HL = SP + $06;
+    A = [HL++];
+    C = A;
+    A = [HL++];
+    B = A;
+
+    HL = SP + $00;
+    A = [HL++];
+    H = [HL];
+    L = A;
+
+    # We want to write the new pointer to the old one (and free the old one)
+
+    push BC;
+    push HL;
+    A = [HL++];
+    H = [HL];
+    L = A;
+    push HL;
+    call free;          # frees old list
+    SP += $02;
+    pop BC;
+    pop HL;
+
+    A = C;
+    [HL++] = A;
+    [HL] = B;           # writes new pointer over old one
+
+    SP += $04;
+
+    return;
+}
+
 subroutine Add_To_List
 {
     # SP + $04      value
@@ -49,6 +160,7 @@ subroutine Add_To_List
     A = [HL++];
     H = [HL];
     L = A;
+    L++;
     push HL;
     call memcpy;        # copies data over to new list
     SP += $04;          # removes everything except 'old length' and 'new list' from the stack

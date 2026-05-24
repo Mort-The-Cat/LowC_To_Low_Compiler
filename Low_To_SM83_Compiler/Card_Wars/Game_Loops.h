@@ -1,4 +1,4 @@
-void Start_Table_Scene(byte* Game_Info)
+void Init_Table_Scene(byte* Game_Info)
 {
     *(LCDC_REGISTER) = 0;
 
@@ -39,13 +39,23 @@ void Start_Table_Scene(byte* Game_Info)
 
     *(OBJECT_PALETTE_1_REGISTER) = b01000000;
 
-    *(LCDC_REGISTER) = 0x87;
-
     *(LCD_STATUS_REGISTER) = 0x08;
 
     *(INTERRUPT_ENABLE_REGISTER) = 0x02;
 
     *(BACKGROUND_SCROLL_Y_REGISTER) = 206;
+
+    //
+
+    *(Table_Far_Scroll) = 0;
+    *(Table_Denom_Scroll) = Table_Denom_Default; // always initialised to 64
+
+    return;
+}
+
+void Start_Table_Scene(byte* Game_Info)
+{
+    Init_Table_Scene(Game_Info);
 
     Test_Scroll_Loop(Game_Info);
 
@@ -95,7 +105,12 @@ void Test_Card_Menu(byte* Game_Info)
 
     *(LCDC_REGISTER) = 0x83;
 
-    Update_Card_Menu_Display(Game_Info, 0, 0xFF, Your_Hand, load_16(Game_Info));
+    byte* Pointer;
+
+    Pointer = load_16(Game_Info + Game_Info_Board_Pointer);
+    Pointer = Pointer + Board_Info_Player_Hand;
+
+    Update_Card_Menu_Display(Game_Info, 0, 0xFF, Your_Hand, load_16(Pointer));
 
     //Copy_Tilemap(addressof(0x9804), Card_Menu_Tilemap, sizeof(Card_Menu_Tilemap), Card_Menu_Tilemap_Width);
 
@@ -116,7 +131,7 @@ void Test_Card_Menu(byte* Game_Info)
 
         Place_Card_Menu_Cursor_Sprite(Selected_Card);
 
-        Handle_Card_Menu_Inputs(Game_Info, &Selected_Card, Your_Hand, load_16(Game_Info));
+        Handle_Card_Menu_Inputs(Game_Info, &Selected_Card, Your_Hand, Pointer);
 
         Input = *(Game_Info + Game_Info_SSBA_Fresh);
 

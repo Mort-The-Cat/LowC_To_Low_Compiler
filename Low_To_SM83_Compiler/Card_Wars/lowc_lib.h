@@ -10,7 +10,12 @@
 #define HBLANK_HRAM_FUNCTION_JUMP addressof(0xFF88)
 #define HBLANK_HRAM_FUNCTION_JUMP_ADDRESS addressof(0xFF89)
 
+#define RANDOM_SEED addressof(0xFF8B)
+
 #define MALLOC_MAP_ADDRESS addressof(0xD000)
+
+void init_random(byte seed);
+byte random();
 
 byte* malloc(word size); 
 	// Defined here is a __malloc_map address for this to work

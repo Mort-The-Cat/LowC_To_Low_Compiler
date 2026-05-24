@@ -1329,9 +1329,10 @@ std::string Tracer_Make_Value_Hot(std::string& Output_Low_Code, Tracer_Data& Tra
 
 		// Sets HL to the address and then fits register
 
-		if (Stack_Index)
+		if (Stack_Index == -1)
 		{
-			printf("FATAL ERROR!\n\n\t\tCan't find local variable on tracer stack!\n");
+			printf("FATAL ERROR!\n\n\t\tCan't find local variable %s on tracer stack!\n", Node["id"][0].Value.c_str());
+			Debug_Output_Current_Tracer_State(Output_Low_Code, Tracer);
 		}
 
 		Get_Free_Register(Output_Low_Code, Tracer, REQUIRE_HL_REG); // Frees up HL register pair for use

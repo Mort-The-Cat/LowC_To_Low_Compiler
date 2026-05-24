@@ -29,8 +29,84 @@
 #define Right_Char "\x7B"
 #define Stone_Char "\x7C"
 
+const byte Flame_Guy_Creature_Data[] =
+{
+    0x04,
+    0x60
+};
+const byte Flame_Guy_Name[] = "FLAME-GUARD";
+const byte Flame_Guy_Description[] = "A GUARD OF THE" Newline "FLAME KINGDOM. HE" Newline "FIGHTS FOR FP.";
+const byte Flame_Guy_Card_Data[] =
+{
+    0x04,       // costs 2 blood
+    Flame_Guy_Creature_Data, high(Flame_Guy_Creature_Data),
+    0x00, 0x00,
+    Flame_Guy_Name, high(Flame_Guy_Name),
+    Flame_Guy_Description, high(Flame_Guy_Description),
+    Flame_Guy_Graphics_Data, high(Flame_Guy_Graphics_Data)
+};
+
+//
+
+const byte Husker_Knight_Creature_Data[] =
+{
+    0x46,
+    0x30
+};
+const byte Husker_Knight_Name[] = "HUSK-KNIGHT";
+const byte Husker_Knight_Description[] = "MADE OF CORN!MOVES" Newline "EITHER " Left_Char " OR " Right_Char " AT" Newline "END OF YOUR TURN.";
+const byte Husker_Knight_Card_Data[] =
+{
+    0x04,       // costs 2 blood
+    Husker_Knight_Creature_Data, high(Husker_Knight_Creature_Data),
+    0x00, 0x00,
+    Husker_Knight_Name, high(Husker_Knight_Name),
+    Husker_Knight_Description, high(Husker_Knight_Description),
+    Husker_Knight_Graphics_Data, high(Husker_Knight_Graphics_Data)
+};
+
+//
+
+const byte Guardian_Creature_Data[] =
+{
+    0x4A,
+    0x70
+};
+const byte Guardian_Name[] = "GUM GUARDIAN";
+const byte Guardian_Description[] = "GUMBALL GUARDIAN." Newline "IT RAMPAGES" Newline "ACROSS THE BOARD";
+const byte Guardian_Card_Data[] =
+{
+    0x08,       // costs 4 blood
+    Guardian_Creature_Data, high(Guardian_Creature_Data),
+    0x00, 0x00,
+    Guardian_Name, high(Guardian_Name),
+    Guardian_Description, high(Guardian_Description),
+    Guardian_Graphics_Data, high(Guardian_Graphics_Data)
+};
+
+//
+
+const byte Maize_God_Creature_Data[] =
+{
+    0x06,
+    0x40
+};
+const byte Maize_God_Name[] = "MAIZE-WALKER";
+const byte Maize_God_Description[] = "IMMORTAL" Newline "MAIZE" Newline "WALKER";
+const byte Maize_God_Card_Data[] =
+{
+    0x06,       // costs 3 blood
+    Maize_God_Creature_Data, high(Maize_God_Creature_Data),
+    0x00, 0x00,
+    Maize_God_Name, high(Maize_God_Name),
+    Maize_God_Description, high(Maize_God_Description),
+    Maize_God_Graphics_Data, high(Maize_God_Graphics_Data)
+};
+
+//
+
 const byte Enchiridion_Name[] = "ENCHIRIDION";
-const byte Enchiridion_Description[] = "DISCARD YOUR HAND" Newline "AND DRAW 7 CARDS";
+const byte Enchiridion_Description[] = "DISCARD YOUR HAND" Newline "AND DRAW 5 CARDS";
 const byte Enchidirion_Card_Data[] =
 {
     0x10,           // is a spell and costs nothing
@@ -48,7 +124,7 @@ const byte Sir_Slicer_Description[] = "THIS KNIGHT WILL" Newline "MOVE " Left_Ch
 const byte Sir_Slicer_Creature_Data[] =
 {
     0x47,
-    0x30
+    0x50
 };
 const byte Sir_Slicer_Card_Data[] =
 {
